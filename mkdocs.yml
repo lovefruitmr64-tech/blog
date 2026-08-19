@@ -1,0 +1,19 @@
+site_name: 我的博客
+
+theme:
+  name: material
+  language: zh
+
+  palette:
+
+    - scheme: default
+      toggle:
+        icon: material/weather-sunny
+
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+
+plugins:
+  - search:
+      lang: zh
