@@ -24,3 +24,8 @@ nav:
 
   - 博客:
       - 第一篇文章: posts/hello.md
+
+copyright: Copyright &copy; 2020 - 2026 blog   #底部版权说明
+
+extra:                                         #移除页脚“ Made with Material for MkDocs”的提示
+  generator: false
