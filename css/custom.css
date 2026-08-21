@@ -312,3 +312,19 @@ height:400px;
 .md-typeset {
     padding-top: 0 !important;
 }                                   /* 顶部导航与轮播海报间距空隙控制结束（放在最底部生效） */
+
+
+.md-typeset article {
+    margin-bottom: 40px;
+}
+
+
+.md-typeset h2 {
+    margin-top: 35px;
+}
+
+
+.blog-post {
+    padding: 20px;
+    margin-bottom: 30px;
+}
