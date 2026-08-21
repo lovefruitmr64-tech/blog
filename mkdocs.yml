@@ -1,4 +1,4 @@
-site_name: 我的资源站
+site_name: 爱果核资源库
 
 site_url: https://lovefruitmr64-tech.github.io/blog/
 
@@ -14,12 +14,32 @@ theme:
     - navigation.instant
     - navigation.tracking
 
+  palette:                                 # 👈 顶部添加改变明暗开关
+    
+    # Palette toggle for light mode
+    - scheme: default
+      primary: white
+      accent: white
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: black
+      accent: black
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode    
+
 
 plugins:
 
   - search:
       lang:
         - zh
+  
+  - tags
 
   - blog:
       blog_dir: posts
@@ -34,7 +54,7 @@ markdown_extensions:
   - pymdownx.highlight
 
 
-nav:
+nav:                             # 👈 首页顶部导航
 
   - 首页:
       - 首页: index.md

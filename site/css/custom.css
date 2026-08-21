@@ -4,6 +4,7 @@
 height:400px;
 
 
+
 display:flex;
 
 
@@ -299,3 +300,15 @@ height:400px;
 
 
 }
+
+.md-main__inner {                   /* 顶部导航与轮播海报间距空隙控制开始（放在最底部生效） */
+    margin-top: 0 !important;
+}
+
+.md-content {
+    padding-top: 0 !important;
+}
+
+.md-typeset {
+    padding-top: 0 !important;
+}                                   /* 顶部导航与轮播海报间距空隙控制结束 */
