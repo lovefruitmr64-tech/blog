@@ -1,31 +1,81 @@
-site_name: 我的博客
+site_name: 我的资源站
+
 site_url: https://lovefruitmr64-tech.github.io/blog/
 
 theme:
   name: material
   language: zh
 
-  palette:
+  custom_dir: docs/overrides
 
-    - scheme: default
-      toggle:
-        icon: material/weather-sunny
+  features:
+    - navigation.tabs
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
 
-    - scheme: slate
-      toggle:
-        icon: material/weather-night
 
 plugins:
+
   - search:
-      lang: zh
+      lang:
+        - zh
+
+  - blog:
+      blog_dir: posts
+      post_date_format: yyyy-MM-dd
+
+
+markdown_extensions:
+
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences
+  - pymdownx.highlight
+
 
 nav:
-  - 首页: index.md
 
-  - 博客:
-      - 第一篇文章: posts/hello.md
+  - 首页:
+      - 首页: index.md
 
-copyright: Copyright &copy; 2020 - 2026 blog   #底部版权说明
 
-extra:                                         #移除页脚“ Made with Material for MkDocs”的提示
+  - 软件:
+      - 软件资源: software/index.md
+
+
+  - 游戏:
+      - 游戏资源: game/index.md
+
+
+  - 教程:
+      - 教程资源: tutorial/index.md
+
+
+  - 资源:
+      - 综合资源: resource/index.md
+
+
+
+extra_css:
+
+  - css/custom.css
+
+  - stylesheets/extra.css
+
+
+extra_javascript:
+
+  - js/home.js
+
+
+
+copyright:
+
+  Copyright © 2026 我的资源站
+
+
+
+extra:
+
   generator: false
