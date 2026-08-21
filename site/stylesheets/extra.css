@@ -1,0 +1,96 @@
+
+/* 明暗色模式适配 */
+
+:root{
+  --card-bg:#ffffff;
+  --text-color:#222;
+  --desc-color:#666;
+  --page-bg:#f7f8fa;
+  --border-color:#eee;
+}
+
+[data-md-color-scheme="slate"]{
+  --card-bg:#1e1e1e;
+  --text-color:#f2f2f2;
+  --desc-color:#aaa;
+  --page-bg:#121212;
+  --border-color:#333;
+}
+
+.home-banner {
+
+    padding-top:150px;
+
+    padding-bottom:20px;
+
+}
+
+
+
+.md-content__inner {
+    padding-top: 0;
+}
+
+
+body{
+  background:var(--page-bg);
+}
+
+
+.article-card{
+  background:var(--card-bg);
+  color:var(--text-color);
+  transition:.3s;
+}
+
+
+.article-card h3 a{
+  color:var(--text-color);
+}
+
+
+.article-card p{
+  color:var(--desc-color);
+}
+
+
+.article-card:hover{
+  transform:translateY(-5px);
+}
+
+
+.download-btn{
+  background:#1677ff;
+  color:white!important;
+}
+
+
+[data-md-color-scheme="slate"] .md-header{
+  background:#181818;
+}
+
+
+[data-md-color-scheme="slate"] .md-sidebar{
+  background:#121212;
+}
+
+
+[data-md-color-scheme="slate"] .home-banner{
+  filter:brightness(.85);
+}
+
+
+/* 图片夜间柔化 */
+[data-md-color-scheme="slate"] .article-cover{
+  opacity:.85;
+}
+
+
+/* 分页按钮 */
+.pagination a{
+  background:#1677ff;
+}
+
+[data-md-color-scheme="slate"] .pagination a{
+  background:#005dcc;
+}
