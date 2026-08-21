@@ -43,6 +43,7 @@ plugins:
 
   - blog:
       blog_dir: blog
+      
     
 
 
