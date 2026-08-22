@@ -2,7 +2,7 @@
 
   {% if post.meta.image %}
   <div class="post-card-image">
-    <img src="{{ post.meta.image }}" alt="{{ post.title }}">
+    <img src="{{ post.meta.image | url }}" alt="{{ post.title }}">
   </div>
   {% endif %}
 
@@ -37,14 +37,14 @@
 
 
     <h2 class="post-card-title">
-      <a href="../{{ post.url }}">
+      <a href="{{ post.url | url }}">
         {{ post.title }}
       </a>
     </h2>
 
 
     <div class="post-card-footer">
-      <a class="post-button" href="../{{ post.url }}">
+      <a class="post-button" href="{{ post.url | url }}">
         查看文章
       </a>
     </div>
