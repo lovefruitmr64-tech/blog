@@ -92,9 +92,9 @@ body{
   flex-direction: row;
 
   width: 100%;
-  min-height: 290px;
+  min-height: 190px;
 
-  margin-bottom: 28px;
+  margin-bottom: 5px;
   padding: 24px;
 
   box-sizing: border-box;
@@ -128,10 +128,10 @@ body{
    ========================= */
 
 .post-card-image {
-  flex: 0 0 320px;
+  flex: 0 0 180px;
 
-  width: 320px;
-  height: 220px;
+  width: 180px;
+  height: 130px;
 
   overflow: hidden;
 
@@ -362,4 +362,30 @@ body{
 
     }
 
+}
+
+
+
+
+/* Blog 页面隐藏左侧导航 */
+body:has(.blog-post-grid) .md-sidebar--primary {
+    display:none;
+}
+
+
+/* Blog 页面隐藏右侧目录 */
+body:has(.blog-post-grid) .md-sidebar--secondary {
+    display:none;
+}
+
+
+/* Blog 页面内容全宽 */
+body:has(.blog-post-grid) .md-content {
+    max-width:100%;
+}
+
+
+/* 重新调整主区域 */
+body:has(.blog-post-grid) .md-main__inner {
+    display:block;
 }
