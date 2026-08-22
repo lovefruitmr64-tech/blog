@@ -8,16 +8,24 @@
 
 <div class="blog-post-grid">
 
-  {% for post in posts %}
-    {% include "partials/post.html" %}
-  {% endfor %}
+{% for post in posts %}
+
+{% include "partials/post.html" %}
+
+{% endfor %}
 
 </div>
 
+
 {% if pagination %}
-  {% block pagination %}
-    {% include "partials/pagination.html" %}
-  {% endblock %}
+
+{% block pagination %}
+
+{% include "partials/pagination.html" %}
+
+{% endblock %}
+
 {% endif %}
+
 
 {% endblock %}
