@@ -1,45 +1,23 @@
-<!-- Blog index override -->
+{#- Blog layout override -#}
 
 {% extends "main.html" %}
 
 {% block container %}
 
-<div class="md-content" data-md-component="content">
+{{ page.content }}
 
-  <div class="md-content__inner">
+<div class="blog-post-grid">
 
-    <!-- 标题区域 -->
-    <header class="md-typeset">
-      {{ page.content }}
-    </header>
-
-
-    <!-- 文章列表 -->
-    <div class="blog-post-grid">
-
-      {% for post in posts %}
-
-        {% include "partials/post.html" %}
-
-      {% endfor %}
-
-    </div>
-
-
-    <!-- 分页 -->
-    {% if pagination %}
-
-      {% block pagination %}
-
-        {% include "partials/pagination.html" %}
-
-      {% endblock %}
-
-    {% endif %}
-
-
-  </div>
+  {% for post in posts %}
+    {% include "partials/post.html" %}
+  {% endfor %}
 
 </div>
+
+{% if pagination %}
+  {% block pagination %}
+    {% include "partials/pagination.html" %}
+  {% endblock %}
+{% endif %}
 
 {% endblock %}

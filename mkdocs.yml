@@ -62,7 +62,7 @@ nav:                             # 👈 首页顶部导航
       - 首页: index.md
 
   - 博客:
-      - 最新文章: blog/index.md
+      - 最新发布: blog/index.md
 
   - 软件:
       - 软件资源: software/index.md

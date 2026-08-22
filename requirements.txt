@@ -1,0 +1,4 @@
+mkdocs==1.6.1
+mkdocs-material
+mkdocs-material[imaging]
+#更换电脑直接执行如下命令   pip install -r requirements.txt
