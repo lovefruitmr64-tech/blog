@@ -389,3 +389,25 @@ body:has(.blog-post-grid) .md-content {
 body:has(.blog-post-grid) .md-main__inner {
     display:block;
 }
+
+
+
+
+
+body:has(.blog-post-grid) .md-typeset h1 {
+
+    background: var(--md-code-bg-color);
+
+    padding:18px 24px;
+
+    border-radius:12px;
+
+    margin-top:0;
+
+    margin-bottom:24px;
+
+    font-size:28px;
+
+    font-weight:700;
+
+}

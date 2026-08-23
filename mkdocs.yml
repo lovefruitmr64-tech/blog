@@ -39,7 +39,8 @@ plugins:
       lang:
         - zh
   
-  - tags
+  - tags:
+      tags_file: tags.md
 
   - blog:
       blog_dir: blog
