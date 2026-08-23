@@ -1,8 +1,9 @@
 ---
 hide:
   - navigation
+  - toc
 ---
 
 # 标签
 
-{% include "tags.html" %}
+<!-- md-tags -->
