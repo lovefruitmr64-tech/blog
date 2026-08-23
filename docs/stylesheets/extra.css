@@ -559,28 +559,25 @@ body:has(a[href*="/tags/"]) .md-typeset li a {
 
 
 
-/* hover */
+/* =====================================
+   Tags 页面文章卡片 hover
+   蓝色边框改浅灰
+===================================== */
 
 
 body:has(a[href*="/tags/"]) .md-typeset li:hover {
 
 
     transform:
-
-
     translateY(-6px);
 
 
     box-shadow:
-
-
     0 14px 30px rgba(0,0,0,.16);
 
 
     border-color:
-
-
-    var(--md-typeset-a-color);
+    rgba(128,128,128,.45);
 
 
 }
@@ -593,8 +590,6 @@ body:has(a[href*="/tags/"]) .md-typeset li:hover a {
 
 
     color:
-
-
     var(--md-typeset-a-color);
 
 
