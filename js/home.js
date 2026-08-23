@@ -1,64 +1,85 @@
-const bannerImages = [
+document.addEventListener("DOMContentLoaded",()=>{
 
 
-"/blog/assets/images/10001.jpg",
-
-"/blog/assets/images/10002.jpg"
+const banner=document.querySelector(".home-banner");
 
 
-];
+if(!banner)return;
 
 
-let bannerIndex = 0;
+const slides=banner.querySelectorAll(".banner-item");
+
+const dots=banner.querySelectorAll(".dot");
 
 
-
-function changeBanner(){
-
-
-const banner = document.querySelector(
-".home-banner"
-);
+let index=0;
 
 
 
-if(!banner){
-
-return;
-
-}
+function showSlide(i){
 
 
+slides.forEach(item=>{
 
-banner.style.backgroundImage =
+item.classList.remove("active");
 
-`url(${bannerImages[bannerIndex]})`;
-
-
-
-bannerIndex++;
+});
 
 
+dots.forEach(item=>{
 
-if(bannerIndex >= bannerImages.length){
+item.classList.remove("active");
+
+});
 
 
-bannerIndex = 0;
+
+slides[i].classList.add("active");
+
+dots[i].classList.add("active");
+
+
+index=i;
 
 
 }
 
 
 
+dots.forEach(dot=>{
+
+
+dot.addEventListener("click",()=>{
+
+
+showSlide(Number(dot.dataset.index));
+
+
+});
+
+
+});
+
+
+
+setInterval(()=>{
+
+
+index++;
+
+
+if(index>=slides.length){
+
+index=0;
+
 }
 
 
-
-changeBanner();
-
+showSlide(index);
 
 
-setInterval(
-changeBanner,
-5000
-);
+},5000);
+
+
+
+});
