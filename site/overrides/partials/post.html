@@ -1,0 +1,55 @@
+<article class="post-card">
+
+  {% if post.meta.image %}
+  <div class="post-card-image">
+    <img src="{{ post.meta.image | url }}" alt="{{ post.title }}">
+  </div>
+  {% endif %}
+
+  <div class="post-card-content">
+
+    <div class="post-card-meta">
+
+      {% if post.meta.categories %}
+        {% for category in post.meta.categories %}
+          <span class="post-category">{{ category }}</span>
+        {% endfor %}
+      {% elif post.categories %}
+        {% for category in post.categories %}
+          <span class="post-category">{{ category.title }}</span>
+        {% endfor %}
+      {% endif %}
+
+
+      {% if post.meta.date %}
+        <span class="post-date">
+          {{ post.meta.date }}
+        </span>
+
+      {% elif post.config.date.created %}
+        <span class="post-date">
+          {{ post.config.date.created | date }}
+        </span>
+
+      {% endif %}
+
+    </div>
+
+
+    <h2 class="post-card-title">
+      <a href="{{ post.url | url }}">
+        {{ post.title }}
+      </a>
+    </h2>
+
+
+    <div class="post-card-footer">
+      <a class="post-button" href="{{ post.url | url }}">
+        查看文章
+      </a>
+    </div>
+
+
+  </div>
+
+</article>

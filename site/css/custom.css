@@ -1,0 +1,597 @@
+/* =================================================
+   首页 Banner 轮播
+   图片比例：1420 x 400
+================================================= */
+
+
+.home-banner {
+
+    width:100%;
+
+    margin-bottom:40px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:16px;
+
+}
+
+
+
+/* 图片容器 */
+
+.banner-slider {
+
+    width:100%;
+
+    aspect-ratio:1420 / 400;
+
+    position:relative;
+
+}
+
+
+
+
+
+/* 每张轮播 */
+
+.banner-item {
+
+    position:absolute;
+
+    inset:0;
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .5s ease;
+
+}
+
+
+
+
+
+/* 当前显示 */
+
+.banner-item.active {
+
+    opacity:1;
+
+    pointer-events:auto;
+
+}
+
+
+
+
+
+/* 图片 */
+
+.banner-item img {
+
+
+    width:100%;
+
+
+    height:100%;
+
+
+    object-fit:contain;
+
+
+    display:block;
+
+
+    border-radius:16px;
+
+
+    background:
+    var(--md-default-bg-color);
+
+}
+
+
+
+
+
+
+/* =================================================
+   轮播圆点
+================================================= */
+
+
+.banner-dots {
+
+
+    position:absolute;
+
+
+    bottom:15px;
+
+
+    left:50%;
+
+
+    transform:translateX(-50%);
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    gap:12px;
+
+
+    z-index:20;
+
+
+}
+
+
+
+
+.dot {
+
+
+    width:10px;
+
+
+    height:10px;
+
+
+    border-radius:50%;
+
+
+    background:black;
+
+
+    opacity:.65;
+
+
+    cursor:pointer;
+
+
+    transition:.3s ease;
+
+
+}
+
+
+
+
+
+.dot.active {
+
+
+    width:28px;
+
+
+    border-radius:10px;
+
+
+    opacity:1;
+
+
+}
+
+
+
+
+
+.dot:hover {
+
+
+    transform:scale(1.15);
+
+
+}
+
+
+
+
+
+
+/* =================================================
+   手机 Banner
+================================================= */
+
+
+@media(max-width:768px){
+
+
+.home-banner{
+
+
+    margin-bottom:25px;
+
+
+    border-radius:12px;
+
+
+}
+
+
+
+.banner-slider{
+
+
+    aspect-ratio:1420 / 400;
+
+
+}
+
+
+
+.banner-item img{
+
+
+    border-radius:12px;
+
+
+}
+
+
+
+.banner-dots{
+
+
+    bottom:10px;
+
+
+}
+
+
+
+.dot{
+
+
+    width:8px;
+
+
+    height:8px;
+
+
+}
+
+
+
+.dot.active{
+
+
+    width:22px;
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+/* =================================================
+   分类文章卡片
+================================================= */
+
+
+
+.post-grid{
+
+
+    display:grid;
+
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+
+    gap:25px;
+
+
+}
+
+
+
+
+
+.post-card{
+
+
+    padding:25px;
+
+
+    background:
+    var(--md-default-bg-color);
+
+
+    border-radius:15px;
+
+
+    border:1px solid
+    rgba(128,128,128,.18);
+
+
+    box-shadow:
+    0 5px 20px rgba(0,0,0,.08);
+
+
+    transition:
+    transform .25s ease,
+    box-shadow .25s ease;
+
+
+}
+
+
+
+
+
+.post-card:hover{
+
+
+    transform:
+    translateY(-8px);
+
+
+    box-shadow:
+    0 12px 30px rgba(0,0,0,.18);
+
+
+}
+
+
+
+
+
+
+/* 文章标题 */
+
+
+.post-card a{
+
+
+    color:
+    var(--md-typeset-a-color);
+
+
+    font-size:20px;
+
+
+    font-weight:700;
+
+
+    text-decoration:none;
+
+
+}
+
+
+
+
+
+.post-card a:hover{
+
+
+    color:
+    var(--md-accent-fg-color);
+
+
+}
+
+
+
+
+
+/* 时间 */
+
+
+.post-time{
+
+
+    margin-top:15px;
+
+
+    color:
+    var(--md-default-fg-color--light);
+
+
+    font-size:14px;
+
+
+}
+
+
+
+
+
+
+
+
+/* =================================================
+   下载按钮
+================================================= */
+
+
+.download-area{
+
+
+    margin-top:40px;
+
+
+    display:flex;
+
+
+    gap:20px;
+
+
+    flex-wrap:wrap;
+
+
+}
+
+
+
+
+
+.download-btn{
+
+
+    background:
+    var(--md-primary-fg-color);
+
+
+    color:
+    var(--md-primary-bg-color)!important;
+
+
+    padding:
+    12px 35px;
+
+
+    border-radius:8px;
+
+
+    display:inline-block;
+
+
+    transition:.3s;
+
+
+}
+
+
+
+
+
+.download-btn:hover{
+
+
+    transform:
+    translateY(-3px);
+
+
+    opacity:.9;
+
+
+}
+
+
+
+
+
+
+
+
+/* =================================================
+   分类页响应式
+================================================= */
+
+
+@media(max-width:1100px){
+
+
+.post-grid{
+
+
+grid-template-columns:
+repeat(3,1fr);
+
+
+}
+
+
+}
+
+
+
+
+@media(max-width:900px){
+
+
+.post-grid{
+
+
+grid-template-columns:
+repeat(2,1fr);
+
+
+}
+
+
+}
+
+
+
+
+@media(max-width:600px){
+
+
+.post-grid{
+
+
+grid-template-columns:
+1fr;
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+/* =================================================
+   首页顶部间距
+================================================= */
+
+
+.md-main__inner{
+
+
+    margin-top:0!important;
+
+
+}
+
+
+
+
+
+.md-content{
+
+
+    padding-top:0!important;
+
+
+}
+
+
+
+
+
+.md-typeset{
+
+
+    padding-top:0!important;
+
+
+}
+
+
+
