@@ -46,10 +46,6 @@ body{
 }
 
 
-.download-btn{
-  background:#1677ff;
-  color:white!important;
-}
 
 
 [data-md-color-scheme="slate"] .md-header{
@@ -1225,18 +1221,6 @@ margin:0 8px;
 
 
 
-.footer-links a:hover{
-
-
-color:var(--md-primary-fg-color);
-
-
-}
-
-
-
-
-
 
 /* 黑色版权 */
 
@@ -1338,6 +1322,84 @@ margin:0 16px;
 
 
 
+
+/* =================================
+   Footer链接优化
+================================= */
+
+
+/* 默认颜色 */
+
+.footer-links a{
+
+    color:#666 !important;
+
+    transition:.25s;
+
+}
+
+
+/* 鼠标悬停 */
+
+.footer-links a:hover{
+
+    color:#2563eb !important;
+
+}
+
+
+/* 暗色模式 */
+
+[data-md-color-scheme="slate"] .footer-links a{
+
+    color:#bbb !important;
+
+}
+
+
+/* 暗色模式hover */
+
+[data-md-color-scheme="slate"] .footer-links a:hover{
+
+    color:#60a5fa !important;
+
+}
+/* =================================
+   Footer链接优化结束
+================================= */
+
+
+/* =================================
+   Footer只显示首页
+================================= */
+
+
+/* 默认隐藏 */
+
+.home-only-footer{
+
+    display:none;
+
+}
+
+
+
+/* 首页显示 */
+
+body:has(.home-banner) .home-only-footer{
+
+    display:block;
+
+}
+/* =================================
+   Footer只显示首页结束
+================================= */
+
+
+
+
+
+
 /* =================================
    手机端文章页面布局修复
 ================================= */
@@ -1392,4 +1454,186 @@ margin:0 16px;
 }
 /* =================================
    手机端文章页面布局修复结束
+================================= */
+
+
+
+
+
+
+/* =================================
+   下载地址按钮优化
+================================= */
+
+
+.download-area{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:18px;
+
+    margin:30px 0;
+
+}
+
+
+
+.download-btn{
+
+    height:58px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 22px;
+
+    box-sizing:border-box;
+
+
+    border-radius:12px;
+
+
+    background:#1677ff;
+
+
+    color:white!important;
+
+
+    text-decoration:none!important;
+
+
+    font-size:18px;
+
+    font-weight:600;
+
+
+    transition:.25s;
+
+
+}
+
+
+/* 左侧名称 */
+
+.download-btn span{
+
+    display:flex;
+
+    align-items:center;
+
+}
+
+
+
+/* 右侧密码 */
+
+.download-btn small{
+
+    font-size:12px;
+
+    background:rgba(255,255,255,.25);
+
+    padding:4px 8px;
+
+    border-radius:8px;
+
+    white-space:nowrap;
+
+    margin-left:10px;
+
+}
+
+
+
+
+.download-btn:hover{
+
+
+    transform:translateY(-4px);
+
+
+    background:#005dcc;
+
+
+    box-shadow:
+
+    0 10px 25px rgba(0,0,0,.18);
+
+
+}
+
+
+
+[data-md-color-scheme="slate"] .download-btn{
+
+
+    background:#2563eb;
+
+
+}
+
+
+
+[data-md-color-scheme="slate"] .download-btn:hover{
+
+
+    background:#3b82f6;
+
+
+}
+
+
+
+/* 手机端保持2列 */
+
+
+@media(max-width:768px){
+
+
+.download-area{
+
+
+    grid-template-columns:repeat(2,1fr);
+
+
+    gap:12px;
+
+
+}
+
+
+
+.download-btn{
+
+
+    height:50px;
+
+
+    padding:0 10px;
+
+
+    font-size:14px;
+
+
+}
+
+
+
+.download-btn small{
+
+    font-size:11px;
+
+    padding:3px 6px;
+
+}
+
+
+}
+/* =================================
+   下载地址按钮优化结束
 ================================= */
