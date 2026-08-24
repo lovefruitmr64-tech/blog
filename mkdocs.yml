@@ -86,6 +86,18 @@ nav:                             # 👈 首页顶部导航
       - 其他软件: resource/index.md
 
 
+  - 视频教程:
+      - 视频教程: game/index.md
+
+
+  - 技术教程:
+      - 技术教程: tutorial/index.md
+
+
+  - 打赏捐赠:
+      - 打赏捐赠: resource/index.md      
+
+
 
 extra_css:
 
