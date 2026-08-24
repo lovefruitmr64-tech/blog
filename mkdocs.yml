@@ -67,23 +67,23 @@ nav:                             # 👈 首页顶部导航
   - 首页:
       - 首页: index.md
 
-  - 博客:
+  - 最新发布:
       - 最新发布: blog/index.md
 
-  - 软件:
-      - 软件资源: software/index.md
+  - 电脑软件:
+      - 电脑软件: software/index.md
 
 
-  - 游戏:
-      - 游戏资源: game/index.md
+  - 安卓软件:
+      - 安卓软件: game/index.md
 
 
-  - 教程:
-      - 教程资源: tutorial/index.md
+  - 操作系统:
+      - 操作系统: tutorial/index.md
 
 
-  - 资源:
-      - 综合资源: resource/index.md
+  - 其他软件:
+      - 其他软件: resource/index.md
 
 
 
