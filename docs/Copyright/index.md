@@ -1,4 +1,5 @@
 ---
+special_page: true
 hide:
   - navigation
   - toc
