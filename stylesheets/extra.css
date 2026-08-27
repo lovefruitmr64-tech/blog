@@ -361,11 +361,14 @@ body{
 }
 
 
+/* Blog 页面：电脑端隐藏左侧导航，手机端保留 */
 
+@media (min-width:769px){
 
-/* Blog 页面隐藏左侧导航 */
-body:has(.blog-post-grid) .md-sidebar--primary {
-    display:none;
+    body:has(.blog-post-grid) .md-sidebar--primary {
+        display:none;
+    }
+
 }
 
 
