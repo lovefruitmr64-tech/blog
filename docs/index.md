@@ -5,27 +5,24 @@ hide:
 ---
 <!-- 首页轮播 -->
 <div class="home-banner">
+  <div class="banner-slider">
+    <a href="blog/VS/" class="banner-item active">
+      <img src="assets/images/10001.jpg" alt="VS" draggable="false">
+    </a>
+    <a href="blog/PS/" class="banner-item">
+      <img src="assets/images/10002.jpg" alt="PS" draggable="false">
+    </a>
+  </div>
+  
+  <!-- 左右切换控制按钮 -->
+  <button class="banner-btn banner-prev" aria-label="Previous slide">&#10094;</button>
+  <button class="banner-btn banner-next" aria-label="Next slide">&#10095;</button>
 
-<div class="banner-slider">
-
-<a href="blog/VS/" class="banner-item active">
-<img src="assets/images/10001.jpg">
-</a>
-
-<a href="blog/PS/" class="banner-item">
-<img src="assets/images/10002.jpg">
-</a>
-
-</div>
-
-<div class="banner-dots">
-
-<span class="dot active" data-index="0"></span>
-
-<span class="dot" data-index="1"></span>
-
-</div>
-
+  <!-- 指示点 -->
+  <div class="banner-dots">
+    <span class="dot active" data-index="0"></span>
+    <span class="dot" data-index="1"></span>
+  </div>
 </div>
 
 
@@ -121,7 +118,7 @@ hide:
 
 
 
-<a href="blog/" class="home-link-item">
+<a href="donate/" class="home-link-item">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">favorite</span>

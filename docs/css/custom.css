@@ -213,6 +213,91 @@
 ================================================= */
 
 
+/* =================================================
+   首页 Banner 轮播
+   图片比例：1420 x 568补充
+================================================= */
+
+/* 轮播容器 */
+.home-banner {
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 轮播项与图片样式 */
+.banner-item {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+  display: block;
+}
+
+.banner-item.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.banner-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* 左右切换按钮样式 */
+.banner-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: background 0.3s ease, opacity 0.3s ease;
+  opacity: 0.8;
+}
+
+.banner-btn:hover {
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 1;
+}
+
+.banner-prev {
+  left: 12px;
+}
+
+.banner-next {
+  right: 12px;
+}
+
+/* 手机端可按需隐藏左右按钮或调小 */
+@media (max-width: 768px) {
+  .banner-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+/* =================================================
+   首页 Banner 轮播
+   图片比例：1420 x 568补充结束
+================================================= */
+
+
 
 
 
@@ -613,3 +698,50 @@ grid-template-columns:
 }
 
 /* 打赏页面粉丝4列排列 手机端2列结束*/
+
+
+
+
+/* =================================================
+   首页底部统一黑色背景
+   保持现有桌面端、手机端排版
+================================================= */
+
+.home-only-footer,
+.home-only-footer .footer-top,
+.home-only-footer .footer-bottom {
+    background: #000 !important;
+}
+
+/* 第一排链接保持白色 */
+.home-only-footer .footer-links a {
+    color: #fff !important;
+}
+
+/* 第二排 */
+.home-only-footer .footer-bottom-inner {
+    color: #fff !important;
+}
+
+/* 分割线：跟随底部内容容器宽度 */
+.home-only-footer .footer-bottom {
+    border-top: none !important;
+}
+
+.home-only-footer .footer-bottom-inner {
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 链接 */
+.home-only-footer a {
+    color: #fff !important;
+}
+
+.home-only-footer a:hover {
+    color: #fff !important;
+    opacity: 0.8;
+}
+/* =================================================
+   首页底部统一黑色背景
+   保持现有桌面端、手机端排版结束
+================================================= */
