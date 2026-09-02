@@ -4,8 +4,7 @@ site_url: https://kzyc.de5.net/
 
 theme:
   name: material
-  icon:
-    logo: material/home
+  logo: assets/images/logo.png
   font:
     text: Roboto
     code: Roboto Mono
