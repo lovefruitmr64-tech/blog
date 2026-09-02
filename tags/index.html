@@ -1687,6 +1687,44 @@ color:white;
 
 
 </footer>
+
+    </script>
+
+
+    <!-- 网站访问统计 -->
+    <script>
+
+        (function () {
+
+            fetch("https://kzyc-stats.lovefruitmr65.workers.dev/stats")
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+
+                    document.getElementById("busuanzi_today_pv").textContent =
+                        data.today_pv ?? 0;
+
+                    document.getElementById("busuanzi_today_uv").textContent =
+                        data.today_uv ?? 0;
+
+                    document.getElementById("busuanzi_site_pv").textContent =
+                        data.total_pv ?? 0;
+
+                })
+                .catch(function () {
+
+                    console.log("统计数据暂时无法获取");
+
+                });
+
+        })();
+
+    </script>
+
+
+</footer>
+  <!-- 网站访问统计结束 -->
       
     </div>
     <div class="md-dialog" data-md-component="dialog">
