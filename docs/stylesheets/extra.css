@@ -1657,3 +1657,12 @@ body:has(.home-banner) .home-only-footer{
 /* =================================
    下载地址按钮优化结束
 ================================= */
+
+/* 文章正文白底+阴影 */
+.md-content--post .md-content__inner {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  padding: 28px 32px;
+}
+/* 文章正文白底+阴影结束 */

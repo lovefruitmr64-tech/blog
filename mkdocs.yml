@@ -79,24 +79,24 @@ nav:                             # 👈 首页顶部导航
       - 安卓软件: game/index.md
 
 
+  - 免费字体:
+      - 免费字体: tutorial/index.md
+
+
   - 操作系统:
-      - 操作系统: tutorial/index.md
-
-
-  - 其他软件:
-      - 其他软件: resource/index.md
+      - 操作系统: resource/index.md
 
 
   - 视频教程:
       - 视频教程: game/index.md
 
 
-  - 技术教程:
-      - 技术教程: tutorial/index.md
+  - 其他:
+      - 其他: tutorial/index.md
 
 
-  - 打赏捐赠:
-      - 打赏捐赠: donate/index.md      
+  - 打赏:
+      - 打赏: donate/index.md      
 
 
 
