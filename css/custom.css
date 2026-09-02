@@ -745,3 +745,101 @@ grid-template-columns:
    首页底部统一黑色背景
    保持现有桌面端、手机端排版结束
 ================================================= */
+
+
+/* =================================================
+   首页底部：运行时间 + 链接 + 访问统计
+================================================= */
+
+.home-only-footer .footer-top-inner {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* 第一排 */
+.home-only-footer .footer-first-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* 运行时间 */
+.home-only-footer .footer-runtime {
+    flex: 1 1 auto;
+}
+
+/* 右侧链接 */
+.home-only-footer .footer-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 第二排：访问统计 */
+.home-only-footer .footer-statistics {
+    width: 100%;
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+    padding: 0;
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #fff !important;
+}
+
+.home-only-footer .footer-statistics span {
+    display: inline;
+}
+
+.home-only-footer .footer-statistics strong {
+    font-weight: 600;
+    color: #fff !important;
+}
+
+.home-only-footer .footer-statistics .stat-divider {
+    margin: 0 8px;
+    opacity: 0.6;
+}
+
+
+/* =================================================
+   手机端
+================================================= */
+
+@media (max-width: 600px) {
+
+    .home-only-footer .footer-first-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .home-only-footer .footer-runtime {
+        width: 100%;
+    }
+
+    .home-only-footer .footer-links {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        margin-top: 8px;
+    }
+
+    .home-only-footer .footer-statistics {
+        width: 100%;
+        flex: none;
+        margin-top: 10px;
+        font-size: 12px;
+        line-height: 2;
+        text-align: left;
+    }
+
+}
+
+/* =================================================
+   首页底部：运行时间 + 链接 + 访问统计结束
+================================================= */

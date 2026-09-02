@@ -1527,159 +1527,133 @@ color:white;
       
         <footer class="custom-footer home-only-footer">
 
-
-<!-- 顶部运行时间区域 -->
-
+    <!-- 第一排 + 第二排 -->
 <div class="footer-top">
 
+    <div class="footer-top-inner">
 
-<div class="footer-top-inner">
+        <!-- 第一排 -->
+        <div class="footer-first-row">
 
+            <div class="footer-runtime" id="site-runtime">
+                本站已稳定运行：计算中...
+            </div>
 
-<div class="footer-runtime" id="site-runtime">
+            <div class="footer-links">
 
-本站已稳定运行：计算中...
+                <a href="https://lovefruitmr64-tech.github.io/blog/Submission-Instructions">
+                    投稿说明
+                </a>
 
-</div>
+                <a href="https://lovefruitmr64-tech.github.io/blog/Copyright/">
+                    版权声明
+                </a>
 
+                <a href="https://lovefruitmr64-tech.github.io/blog/Download-Instructions/">
+                    下载说明
+                </a>
 
+                <a href="https://lovefruitmr64-tech.github.io/blog/blog/">
+                    sitemap
+                </a>
 
-<div class="footer-links">
+            </div>
 
-
-<a href="https://lovefruitmr64-tech.github.io/blog/Submission-Instructions">
-投稿说明
-</a>
-
-
-<a href="https://lovefruitmr64-tech.github.io/blog/Copyright/">
-版权声明
-</a>
-
-
-<a href="https://lovefruitmr64-tech.github.io/blog/Download-Instructions/">
-下载说明
-</a>
-
-
-<a href="https://lovefruitmr64-tech.github.io/blog/blog/">
-sitemap
-</a>
+        </div>
 
 
-</div>
+        <!-- 第二排 -->
+        <div class="footer-statistics">
 
+            <span>
+                📊 今日访问 <strong id="busuanzi_today_pv">--</strong>
+            </span>
 
-</div>
+            <span class="stat-divider">·</span>
 
+            <span>
+                👤 今日访客 <strong id="busuanzi_today_uv">--</strong>
+            </span>
 
-</div>
+            <span class="stat-divider">·</span>
 
+            <span>
+                🌐 总访问 <strong id="busuanzi_site_pv">--</strong>
+            </span>
 
+        </div>
 
-
-
-<!-- 黑色版权区域 -->
-
-
-<div class="footer-bottom">
-
-
-<div class="footer-bottom-inner">
-
-
-Copyright © 2026 爱果核资源库&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本站所有资源收集整理于国内外站点，如不慎侵犯了您的权利，请联系邮箱ifruitmr@126.com删除
-
+    </div>
 
 </div>
 
 
-</div>
+    <!-- 黑色版权区域 -->
+    <div class="footer-bottom">
+
+        <div class="footer-bottom-inner">
+
+            Copyright © 2026 爱果核资源库&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            本站所有资源收集整理于国内外站点，如不慎侵犯了您的权利，请联系邮箱ifruitmr@126.com删除
+
+        </div>
+
+    </div>
 
 
+    <!-- 网站运行时间 -->
+    <script>
 
+        (function(){
 
+            const startTime =
+                new Date('2026-01-01T00:00:00+08:00').getTime();
 
+            function updateRuntime(){
 
-<script>
+                const now =
+                    new Date().getTime();
 
+                const diff =
+                    now - startTime;
 
-(function(){
+                if(diff < 0) return;
 
+                const days =
+                    Math.floor(
+                        diff / (1000 * 60 * 60 * 24)
+                    );
 
-const startTime =
-new Date('2026-01-01T00:00:00+08:00').getTime();
+                const hours =
+                    Math.floor(
+                        (diff % (1000 * 60 * 60 * 24))
+                        / (1000 * 60 * 60)
+                    );
 
+                const minutes =
+                    Math.floor(
+                        (diff % (1000 * 60 * 60))
+                        / (1000 * 60)
+                    );
 
+                const seconds =
+                    Math.floor(
+                        (diff % (1000 * 60))
+                        / 1000
+                    );
 
-function updateRuntime(){
+                document.getElementById("site-runtime").innerHTML =
+                    `本站已稳定运行：${days} 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒`;
 
+            }
 
-const now =
-new Date().getTime();
+            updateRuntime();
 
+            setInterval(updateRuntime, 1000);
 
+        })();
 
-const diff =
-now-startTime;
-
-
-
-if(diff<0)return;
-
-
-
-const days =
-Math.floor(diff/(1000*60*60*24));
-
-
-
-const hours =
-Math.floor(
-(diff%(1000*60*60*24))
-/(1000*60*60)
-);
-
-
-
-const minutes =
-Math.floor(
-(diff%(1000*60*60))
-/(1000*60)
-);
-
-
-
-const seconds =
-Math.floor(
-(diff%(1000*60))
-/1000
-);
-
-
-
-document.getElementById("site-runtime").innerHTML =
-
-`本站已稳定运行：${days} 天 ${hours} 小时 ${minutes} 分 ${seconds} 秒`;
-
-
-
-}
-
-
-
-updateRuntime();
-
-
-setInterval(updateRuntime,1000);
-
-
-
-})();
-
-
-</script>
-
+    </script>
 
 
 </footer>
