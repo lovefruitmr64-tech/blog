@@ -846,22 +846,31 @@ grid-template-columns:
 
 
 /* ========================================================
-   页面布局优化：文章白底与顶部导航栏增加舒适呼吸间距
+   电脑端 + 手机端：全屏自适应文章顶部间距
    ======================================================== */
-.md-main {
-  padding-top: 18px !important;
-}
 
-.md-content {
-  margin-top: 10px;
-}
-
-/* 适配大屏与移动端 */
+/* 1. 电脑桌面端（大屏） */
 @media screen and (min-width: 60em) {
   .md-main__inner {
-    margin-top: 14px;
+    margin-top: 18px !important;
+  }
+  .md-content {
+    margin-top: 12px !important;
+  }
+}
+
+/* 2. 核心解决：手机移动端（强制覆盖 MkDocs 移动端默认的 0 边距） */
+@media screen and (max-width: 59.95em) {
+  .md-main {
+    padding-top: 14px !important;
+  }
+  .md-main__inner {
+    margin-top: 14px !important;
+  }
+  .md-content {
+    margin-top: 12px !important;
   }
 }
 /* ========================================================
-   页面布局优化：文章白底与顶部导航栏增加舒适呼吸间距结束
+   电脑端 + 手机端：全屏自适应文章顶部间距结束
    ======================================================== */
