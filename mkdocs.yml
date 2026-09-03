@@ -104,12 +104,16 @@ extra_css:
 
   - css/custom.css
 
+  - css/auth.css
+
   - stylesheets/extra.css
 
 
 extra_javascript:
 
   - js/home.js
+
+  - js/auth.js
 
 
 
