@@ -7,6 +7,8 @@
 
   let currentUser = null;
   let pendingDownloadBtn = null;
+  let myDownloadsCache = [];
+  let isDownloadsExpanded = false;
 
   function escapeHTML(str) {
     return String(str || "")
@@ -66,7 +68,7 @@
             list.push({
               name: parts[0],
               url: parts,
-              code: parts[2] || "",
+              code: parts || "",
             });
           }
         }
@@ -129,6 +131,8 @@
         <div id="kzyc-auth-modal" class="kzyc-modal-backdrop">
           <div class="kzyc-modal">
             <button class="kzyc-modal-close" id="kzyc-modal-close">✕</button>
+
+            <!-- 登录与注册视图 -->
             <div id="kzyc-auth-view">
               <div class="kzyc-tabs">
                 <button class="kzyc-tab active" data-tab="login">登录</button>
@@ -165,6 +169,8 @@
                 <button type="submit" class="kzyc-submit-btn" id="kzyc-reg-submit">注 册</button>
               </form>
             </div>
+
+            <!-- 找回密码视图 -->
             <div id="kzyc-forgot-view" style="display: none;">
               <h3 style="margin-top: 0; font-size: 1.15rem;">🔑 找回密码</h3>
               <form id="kzyc-forgot-form">
@@ -188,17 +194,59 @@
               </form>
               <div class="kzyc-msg" id="kzyc-forgot-msg"></div>
             </div>
+
+            <!-- 严格对齐参考图：个人中心视图 -->
             <div id="kzyc-profile-view" style="display: none;">
-              <h3 style="margin-top: 0; font-size: 1.15rem;">👤 个人中心</h3>
-              <div class="kzyc-profile-item"><span>用户名：</span><strong id="kzyc-prof-username"></strong></div>
-              <div class="kzyc-profile-item"><span>邮箱：</span><strong id="kzyc-prof-email"></strong></div>
-              <div class="kzyc-profile-item"><span>用户 ID：</span><span id="kzyc-prof-id"></span></div>
-              <div class="kzyc-dl-history-box">
-                <h4>📥 最近获取的资源：</h4>
-                <div id="kzyc-dl-history-list" style="font-size: 0.8rem; opacity: 0.75;">加载中...</div>
+              <!-- 顶部标题 + 角色标签 -->
+              <div class="kzyc-prof-topbar">
+                <div class="kzyc-prof-title-wrap">
+                  <span class="kzyc-prof-icon">👤</span>
+                  <span class="kzyc-prof-title">个人中心</span>
+                  <span class="kzyc-prof-badge" id="kzyc-prof-role">普通用户</span>
+                </div>
               </div>
-              <button class="kzyc-secondary-btn" id="kzyc-toggle-pwd-btn">🔐 修改密码</button>
-              <form id="kzyc-change-pwd-form" style="display: none; margin-top: 10px;">
+
+              <!-- 1. 用户信息卡片：圆点列表 -->
+              <div class="kzyc-user-info-card">
+                <div class="kzyc-user-info-row">
+                  <span class="kzyc-info-dot">●</span>
+                  <span class="kzyc-info-label">用户名:</span>
+                  <span class="kzyc-info-val" id="kzyc-prof-username">--</span>
+                </div>
+                <div class="kzyc-user-info-row">
+                  <span class="kzyc-info-dot">●</span>
+                  <span class="kzyc-info-label">邮&nbsp;&nbsp;&nbsp;箱:</span>
+                  <span class="kzyc-info-val" id="kzyc-prof-email">--</span>
+                </div>
+                <div class="kzyc-user-info-row">
+                  <span class="kzyc-info-dot">●</span>
+                  <span class="kzyc-info-label">U I D:</span>
+                  <span class="kzyc-info-val" id="kzyc-prof-id">#--</span>
+                </div>
+              </div>
+
+              <!-- 2. 我的下载记录专属卡片框 -->
+              <div class="kzyc-history-card">
+                <div class="kzyc-history-card-header">
+                  <span class="kzyc-history-card-title">📥 我的下载记录</span>
+                  <span class="kzyc-history-badge" id="kzyc-dl-history-count">0 条</span>
+                </div>
+                <div class="kzyc-history-items" id="kzyc-dl-history-list">
+                  <div style="opacity: 0.5; padding: 12px 0; text-align: center; font-size: 0.8rem;">加载中...</div>
+                </div>
+                <div id="kzyc-dl-expand-wrap"></div>
+              </div>
+
+              <!-- 3. 底部操作按钮组（左右并列对称） -->
+              <div class="kzyc-prof-actions">
+                <button type="button" class="kzyc-prof-btn-secondary" id="kzyc-toggle-pwd-btn">🔐 修改密码</button>
+                <button type="button" class="kzyc-prof-btn-logout" id="kzyc-logout-btn">退出登录</button>
+              </div>
+              <div class="kzyc-prof-del-wrap">
+                <button type="button" class="kzyc-prof-del-link" id="kzyc-toggle-del-btn">注销当前账号</button>
+              </div>
+
+              <form id="kzyc-change-pwd-form" style="display: none; margin-top: 14px;">
                 <div class="kzyc-form-group">
                   <label>原密码</label>
                   <input class="kzyc-input" type="password" id="kzyc-old-pwd" required placeholder="原密码" />
@@ -209,9 +257,8 @@
                 </div>
                 <button type="submit" class="kzyc-submit-btn" id="kzyc-pwd-submit">保存新密码</button>
               </form>
-              <button class="kzyc-logout-btn" id="kzyc-logout-btn">退出登录</button>
-              <button class="kzyc-danger-btn" id="kzyc-toggle-del-btn">⚠️ 注销账号</button>
-              <form id="kzyc-del-form" style="display: none; margin-top: 10px;">
+
+              <form id="kzyc-del-form" style="display: none; margin-top: 14px;">
                 <p style="font-size: 0.78rem; color: #ef4444; margin: 4px 0 8px; line-height: 1.4;">
                   警告：注销后一年内该用户名与邮箱禁止重新注册！
                 </p>
@@ -220,6 +267,7 @@
                 </div>
                 <button type="submit" class="kzyc-danger-confirm-btn" id="kzyc-del-submit">确认彻底注销</button>
               </form>
+
               <div class="kzyc-msg" id="kzyc-profile-msg"></div>
             </div>
           </div>
@@ -324,7 +372,6 @@
     }
   }
 
-  // 3. 独立评论区初始化
   function initComments() {
     const root = document.getElementById("kzyc-comments-root");
     if (!root || root.getAttribute("data-rendered")) return;
@@ -677,9 +724,51 @@
     }
   }
 
+  // 渲染下载记录列表（带独立胶囊框、左右对齐、最多4条）
+  function renderDownloadsList() {
+    const listEl = document.getElementById("kzyc-dl-history-list");
+    const expandWrap = document.getElementById("kzyc-dl-expand-wrap");
+    if (!listEl) return;
+
+    const visibleItems = isDownloadsExpanded ? myDownloadsCache : myDownloadsCache.slice(0, 4);
+
+    listEl.innerHTML = visibleItems
+      .map(
+        (item) => `
+        <div class="kzyc-history-row">
+          <span class="kzyc-history-row-title" title="${escapeHTML(item.resource_title)}">
+            📦 ${escapeHTML(item.resource_title)}
+          </span>
+          <span class="kzyc-history-row-date">${item.downloaded_at.slice(0, 10)}</span>
+        </div>
+      `
+      )
+      .join("");
+
+    if (expandWrap) {
+      if (myDownloadsCache.length > 4) {
+        expandWrap.innerHTML = `
+          <button type="button" class="kzyc-history-expand-btn" id="kzyc-toggle-expand-btn">
+            ${isDownloadsExpanded ? "收起记录 ▴" : `查看更多下载记录 (共 ${myDownloadsCache.length} 条) ▾`}
+          </button>
+        `;
+        document.getElementById("kzyc-toggle-expand-btn").addEventListener("click", () => {
+          isDownloadsExpanded = !isDownloadsExpanded;
+          renderDownloadsList();
+        });
+      } else {
+        expandWrap.innerHTML = "";
+      }
+    }
+  }
+
+  // 读取个人下载历史记录
   async function loadMyDownloads() {
     const listEl = document.getElementById("kzyc-dl-history-list");
+    const countEl = document.getElementById("kzyc-dl-history-count");
+    const expandWrap = document.getElementById("kzyc-dl-expand-wrap");
     if (!listEl) return;
+
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) return;
 
@@ -689,17 +778,18 @@
       });
       const data = await res.json();
       if (data.success && data.downloads.length > 0) {
-        listEl.innerHTML = data.downloads
-          .map((item) => `
-            <div class="kzyc-history-item">
-              <span>📦 ${item.resource_title}</span>
-              <span style="opacity: 0.6;">${item.downloaded_at.slice(0, 10)}</span>
-            </div>
-          `).join("");
+        myDownloadsCache = data.downloads;
+        if (countEl) countEl.textContent = `共 ${myDownloadsCache.length} 条`;
+        renderDownloadsList();
       } else {
-        listEl.innerHTML = "<div style='opacity: 0.5;'>暂无下载记录</div>";
+        if (countEl) countEl.textContent = "0 条";
+        listEl.innerHTML = "<div style='opacity: 0.5; padding: 12px 0; text-align: center; font-size: 0.8rem;'>暂无下载记录</div>";
+        if (expandWrap) expandWrap.innerHTML = "";
       }
-    } catch {}
+    } catch {
+      listEl.innerHTML = "<div style='opacity: 0.5; padding: 12px 0; text-align: center; font-size: 0.8rem;'>加载记录失败</div>";
+      if (expandWrap) expandWrap.innerHTML = "";
+    }
   }
 
   function bindEvents() {
@@ -801,13 +891,7 @@
             if (data.success) {
               if (forgotMsgEl) {
                 forgotMsgEl.className = "kzyc-msg success";
-                if (data.debug_code) {
-                  forgotMsgEl.textContent = `验证码已生成！测试环境：${data.debug_code}`;
-                  const codeInp = document.getElementById("kzyc-forgot-code");
-                  if (codeInp) codeInp.value = data.debug_code;
-                } else {
-                  forgotMsgEl.textContent = data.message || "验证码已发送至邮箱，请查收！";
-                }
+                forgotMsgEl.textContent = data.message || "验证码已发送至邮箱，请查收！";
               }
               let count = 60;
               const timer = setInterval(() => {
@@ -1162,14 +1246,27 @@
             const uName = document.getElementById("kzyc-prof-username");
             const uMail = document.getElementById("kzyc-prof-email");
             const uId = document.getElementById("kzyc-prof-id");
+            const uRole = document.getElementById("kzyc-prof-role");
+
             if (uName) uName.textContent = currentUser.username;
             if (uMail) uMail.textContent = currentUser.email;
             if (uId) uId.textContent = `#${currentUser.id}`;
+
+            if (uRole) {
+              if (currentUser.role === "admin" || currentUser.email === "ifruitmr@126.com" || currentUser.id === 1) {
+                uRole.textContent = "👑 站长";
+                uRole.className = "kzyc-prof-badge admin";
+              } else {
+                uRole.textContent = "普通用户";
+                uRole.className = "kzyc-prof-badge";
+              }
+            }
 
             if (authView) authView.style.display = "none";
             if (forgotView) forgotView.style.display = "none";
             if (profileView) profileView.style.display = "block";
             if (backdrop) backdrop.classList.add("active");
+            isDownloadsExpanded = false;
             loadMyDownloads();
           });
         }

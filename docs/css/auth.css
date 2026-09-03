@@ -698,3 +698,231 @@
   padding: 10px;
   border-radius: 8px;
 }
+
+/* ========================================================
+   1:1 精确复刻参考图：高级极简个人中心
+   ======================================================== */
+
+.kzyc-prof-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.kzyc-prof-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kzyc-prof-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.kzyc-prof-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: inherit;
+}
+.kzyc-prof-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+.kzyc-prof-badge.admin {
+  background: rgba(234, 88, 12, 0.1);
+  color: #ea580c;
+  border-color: rgba(234, 88, 12, 0.3);
+}
+
+/* 1. 用户信息卡片：带边框背景框 + 紫色圆点 */
+.kzyc-user-info-card {
+  background: rgba(127, 127, 127, 0.05);
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kzyc-user-info-row {
+  display: flex;
+  align-items: center;
+  font-size: 0.88rem;
+  color: inherit;
+  gap: 8px;
+}
+.kzyc-info-dot {
+  color: #8b5cf6;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+.kzyc-info-label {
+  font-weight: 600;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.kzyc-info-val {
+  font-weight: 500;
+  opacity: 0.95;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 2. 我的下载记录专属卡片框 */
+.kzyc-history-card {
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  background: rgba(127, 127, 127, 0.03);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+.kzyc-history-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(127, 127, 127, 0.2);
+}
+.kzyc-history-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+}
+.kzyc-history-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(127, 127, 127, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  opacity: 0.8;
+}
+
+/* 列表独立条目与两端对齐 */
+.kzyc-history-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kzyc-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  background: rgba(127, 127, 127, 0.04);
+  border-radius: 7px;
+  transition: background 0.15s;
+}
+.kzyc-history-row:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+.kzyc-history-row-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.kzyc-history-row-date {
+  font-size: 0.74rem;
+  opacity: 0.55;
+  font-family: monospace;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+.kzyc-history-expand-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 5px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: transparent;
+  border: 1px dashed rgba(37, 99, 235, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.kzyc-history-expand-btn:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+/* 3. 底部双按钮与注销链接 */
+.kzyc-prof-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.kzyc-prof-btn-secondary {
+  flex: 1;
+  padding: 9px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: 9px;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  background: rgba(127, 127, 127, 0.06);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.kzyc-prof-btn-secondary:hover {
+  background: rgba(127, 127, 127, 0.12);
+}
+.kzyc-prof-btn-logout {
+  flex: 1;
+  padding: 9px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: 9px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.06);
+  color: #dc2626;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.kzyc-prof-btn-logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.kzyc-prof-del-wrap {
+  text-align: center;
+}
+.kzyc-prof-del-link {
+  font-size: 0.78rem;
+  color: inherit;
+  opacity: 0.45;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: all 0.15s;
+}
+.kzyc-prof-del-link:hover {
+  opacity: 1;
+  color: #ef4444;
+  text-decoration: underline;
+}
+ ========================================================
+   1:1 精确复刻参考图：高级极简个人中心结束
+   ======================================================== */
