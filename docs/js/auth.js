@@ -7,8 +7,6 @@
 
   let currentUser = null;
   let pendingDownloadBtn = null;
-  let myDownloadsCache = [];
-  let isDownloadsExpanded = false;
 
   function escapeHTML(str) {
     return String(str || "")
@@ -195,7 +193,7 @@
               <div class="kzyc-msg" id="kzyc-forgot-msg"></div>
             </div>
 
-            <!-- 严格对齐参考图：个人中心视图 -->
+            <!-- 个人中心视图 -->
             <div id="kzyc-profile-view" style="display: none;">
               <!-- 顶部标题 + 角色标签 -->
               <div class="kzyc-prof-topbar">
@@ -225,19 +223,18 @@
                 </div>
               </div>
 
-              <!-- 2. 我的下载记录专属卡片框 -->
+              <!-- 2. 我的下载记录专属卡片框（动态最近1-4条） -->
               <div class="kzyc-history-card">
                 <div class="kzyc-history-card-header">
                   <span class="kzyc-history-card-title">📥 我的下载记录</span>
-                  <span class="kzyc-history-badge" id="kzyc-dl-history-count">0 条</span>
+                  <span class="kzyc-history-badge" id="kzyc-dl-history-count">暂无下载</span>
                 </div>
                 <div class="kzyc-history-items" id="kzyc-dl-history-list">
                   <div style="opacity: 0.5; padding: 12px 0; text-align: center; font-size: 0.8rem;">加载中...</div>
                 </div>
-                <div id="kzyc-dl-expand-wrap"></div>
               </div>
 
-              <!-- 3. 底部操作按钮组（左右并列对称） -->
+              <!-- 3. 底部操作按钮组 -->
               <div class="kzyc-prof-actions">
                 <button type="button" class="kzyc-prof-btn-secondary" id="kzyc-toggle-pwd-btn">🔐 修改密码</button>
                 <button type="button" class="kzyc-prof-btn-logout" id="kzyc-logout-btn">退出登录</button>
@@ -337,7 +334,10 @@
               const res = await fetch(`${API_BASE}/api/download`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ resource_key: key }),
+                body: JSON.stringify({
+                  resource_key: key,
+                  post_path: location.pathname, // 记录当前文章路径，用于反向跳转
+                }),
               });
               const data = await res.json();
               if (data.success) {
@@ -471,7 +471,7 @@
           <button type="button" class="kzyc-dl-link-btn" id="kzyc-trigger-comment-login">立即登录 / 注册</button>
         </div>
       `;
-      document.getElementById("kzyc-trigger-comment-login").addEventListener("click", () => {
+      document.getElementById("kzyc-trigger-comment-login")?.addEventListener("click", () => {
         openLoginModal("🔒 请先登录后再参与评论讨论！");
       });
     }
@@ -724,49 +724,10 @@
     }
   }
 
-  // 渲染下载记录列表（带独立胶囊框、左右对齐、最多4条）
-  function renderDownloadsList() {
-    const listEl = document.getElementById("kzyc-dl-history-list");
-    const expandWrap = document.getElementById("kzyc-dl-expand-wrap");
-    if (!listEl) return;
-
-    const visibleItems = isDownloadsExpanded ? myDownloadsCache : myDownloadsCache.slice(0, 4);
-
-    listEl.innerHTML = visibleItems
-      .map(
-        (item) => `
-        <div class="kzyc-history-row">
-          <span class="kzyc-history-row-title" title="${escapeHTML(item.resource_title)}">
-            📦 ${escapeHTML(item.resource_title)}
-          </span>
-          <span class="kzyc-history-row-date">${item.downloaded_at.slice(0, 10)}</span>
-        </div>
-      `
-      )
-      .join("");
-
-    if (expandWrap) {
-      if (myDownloadsCache.length > 4) {
-        expandWrap.innerHTML = `
-          <button type="button" class="kzyc-history-expand-btn" id="kzyc-toggle-expand-btn">
-            ${isDownloadsExpanded ? "收起记录 ▴" : `查看更多下载记录 (共 ${myDownloadsCache.length} 条) ▾`}
-          </button>
-        `;
-        document.getElementById("kzyc-toggle-expand-btn").addEventListener("click", () => {
-          isDownloadsExpanded = !isDownloadsExpanded;
-          renderDownloadsList();
-        });
-      } else {
-        expandWrap.innerHTML = "";
-      }
-    }
-  }
-
-  // 读取个人下载历史记录
+  // 严格只读取与呈现最近最多 4 条下载记录（可点击跳转回文章）
   async function loadMyDownloads() {
     const listEl = document.getElementById("kzyc-dl-history-list");
     const countEl = document.getElementById("kzyc-dl-history-count");
-    const expandWrap = document.getElementById("kzyc-dl-expand-wrap");
     if (!listEl) return;
 
     const token = localStorage.getItem(TOKEN_KEY);
@@ -777,18 +738,46 @@
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success && data.downloads.length > 0) {
-        myDownloadsCache = data.downloads;
-        if (countEl) countEl.textContent = `共 ${myDownloadsCache.length} 条`;
-        renderDownloadsList();
-      } else {
-        if (countEl) countEl.textContent = "0 条";
-        listEl.innerHTML = "<div style='opacity: 0.5; padding: 12px 0; text-align: center; font-size: 0.8rem;'>暂无下载记录</div>";
-        if (expandWrap) expandWrap.innerHTML = "";
+      const downloads = data.downloads || [];
+
+      // 动态徽章展示：如“最近 1 条”、“最近 4 条”
+      if (countEl) {
+        if (downloads.length === 0) {
+          countEl.textContent = "暂无下载";
+        } else {
+          countEl.textContent = `最近 ${downloads.length} 条`;
+        }
       }
+
+      if (downloads.length === 0) {
+        listEl.innerHTML = "<div style='opacity: 0.5; padding: 12px 0; text-align: center; font-size: 0.8rem;'>暂无下载记录</div>";
+        return;
+      }
+
+      // 渲染记录，支持点击直接回跳文章
+      listEl.innerHTML = downloads
+        .map((item) => {
+          const targetUrl = item.post_path ? item.post_path : "javascript:void(0);";
+          return `
+            <a href="${targetUrl}" class="kzyc-history-row" title="点击打开文章：${escapeHTML(item.resource_title)}">
+              <span class="kzyc-history-row-title">
+                📦 ${escapeHTML(item.resource_title)}
+              </span>
+              <span class="kzyc-history-row-date">${item.downloaded_at.slice(0, 10)} ↗</span>
+            </a>
+          `;
+        })
+        .join("");
+
+      // 点击条目自动收起个人中心弹窗
+      listEl.querySelectorAll("a.kzyc-history-row").forEach((a) => {
+        a.addEventListener("click", () => {
+          const backdrop = document.getElementById("kzyc-auth-modal");
+          if (backdrop) backdrop.classList.remove("active");
+        });
+      });
     } catch {
       listEl.innerHTML = "<div style='opacity: 0.5; padding: 12px 0; text-align: center; font-size: 0.8rem;'>加载记录失败</div>";
-      if (expandWrap) expandWrap.innerHTML = "";
     }
   }
 
@@ -1266,7 +1255,6 @@
             if (forgotView) forgotView.style.display = "none";
             if (profileView) profileView.style.display = "block";
             if (backdrop) backdrop.classList.add("active");
-            isDownloadsExpanded = false;
             loadMyDownloads();
           });
         }
