@@ -926,3 +926,15 @@
  ========================================================
    1:1 精确复刻参考图：高级极简个人中心结束
    ======================================================== */
+
+
+   /* 下载记录可点击跳转样式 */
+a.kzyc-history-row {
+  text-decoration: none !important;
+  color: inherit !important;
+  cursor: pointer;
+}
+a.kzyc-history-row:hover {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #2563eb !important;
+}
