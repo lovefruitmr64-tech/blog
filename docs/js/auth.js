@@ -49,7 +49,7 @@
     }
   }
 
-  // 动态注入圆形头像按钮与悬浮弹窗样式（不折行、自适应加宽、精致小字体、完美适配明暗模式）
+  // 动态注入圆形头像按钮与悬浮弹窗样式（免疫 MkDocs 页面跳转清理）
   function injectAvatarStyles() {
     if (document.getElementById("kzyc-avatar-popover-styles")) return;
     const styleEl = document.createElement("style");
@@ -64,20 +64,20 @@
       }
       /* 固定圆形框 + 图标 (明亮模式) */
       .kzyc-header-avatar-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
         cursor: pointer;
         outline: none;
         background: rgba(99, 102, 241, 0.12);
         border: 1.5px solid rgba(99, 102, 241, 0.35);
         color: #4338ca;
         transition: all 0.25s ease;
-        padding: 0;
+        padding: 0 !important;
       }
       .kzyc-header-avatar-btn:hover {
         background: rgba(99, 102, 241, 0.22);
@@ -103,27 +103,27 @@
       }
       /* 鼠标悬浮下拉弹出框（自动加宽、完全不折行、精致阴影） */
       .kzyc-header-popover {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        margin-top: 10px;
-        z-index: 9999;
-        width: max-content;
-        min-width: 175px;
-        padding: 10px 14px;
-        border-radius: 10px;
-        box-sizing: border-box;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        color: #1e293b;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
-        pointer-events: none;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(6px);
-        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-        text-align: left;
-        white-space: nowrap;
+        position: absolute !important;
+        top: 100% !important;
+        right: 0 !important;
+        margin-top: 10px !important;
+        z-index: 9999 !important;
+        width: max-content !important;
+        min-width: 175px !important;
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #1e293b !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateY(6px) !important;
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s !important;
+        text-align: left !important;
+        white-space: nowrap !important;
       }
       .kzyc-header-popover::before {
         content: "";
@@ -134,16 +134,16 @@
         height: 12px;
       }
       .kzyc-header-user-wrap:hover .kzyc-header-popover {
-        pointer-events: auto;
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
       }
       [data-md-color-scheme="slate"] .kzyc-header-popover {
-        background: #1e293b;
-        border-color: #334155;
-        color: #f8fafc;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
       }
       .kzyc-popover-top {
         display: flex;
@@ -246,509 +246,356 @@
         white-space: nowrap;
       }
     `;
-    document.head.appendChild(styleEl);
+    (document.head || document.documentElement).appendChild(styleEl);
   }
 
-  // 多网盘横向下载卡片
-function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
-  let list = [];
-  const raw = String(rawUrl || "").trim();
+  // 独创隔离的多网盘单行横向排版体系（绝不折行、杜绝CSS样式碰撞、支持手机端）
+  function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
+    let list = [];
+    const raw = String(rawUrl || "").trim();
 
-  // 判断是否为免提取码
-  function isFreeCode(code) {
-    const value = String(code || "").trim().toLowerCase();
-    return !value ||
-      value === "免密" ||
-      value === "免提取码" ||
-      value === "无需提取码" ||
-      value === "无" ||
-      value === "none" ||
-      value === "null";
-  }
-
-  // 判断是否为 URL
-  function isUrl(value) {
-    return /^https?:\/\//i.test(String(value || "").trim());
-  }
-
-  // 根据 URL 自动识别网盘名称
-  function detectPanName(url) {
-    const value = String(url || "").toLowerCase();
-
-    if (value.includes("pan.baidu.com")) return "百度网盘";
-    if (value.includes("pan.quark.cn")) return "夸克网盘";
-    if (value.includes("pan.xunlei.com")) return "迅雷云盘";
-    if (value.includes("aliyundrive.com") || value.includes("alipan.com")) return "阿里云盘";
-    if (value.includes("123pan.com")) return "123云盘";
-
-    return "网盘下载";
-  }
-
-  // 1. JSON 格式
-  if (raw.startsWith("[")) {
-    try {
-      const arr = JSON.parse(raw);
-
-      if (Array.isArray(arr)) {
-        list = arr.map((item) => {
-          const url = String(item.url || item.download_url || "").trim();
-
-          return {
-            name: item.name || detectPanName(url),
-            url: url || "#",
-            code: item.code || item.extract_code || ""
-          };
-        }).filter(item => item.url && item.url !== "#");
-      }
-    } catch (e) {
-      console.warn("[kzyc-auth] 多网盘 JSON 解析失败:", e);
+    function isFreeCode(code) {
+      const value = String(code || "").trim().toLowerCase();
+      return !value ||
+        value === "免密" ||
+        value === "免提取码" ||
+        value === "无需提取码" ||
+        value === "无" ||
+        value === "none" ||
+        value === "null";
     }
-  }
 
-  // 2. 普通文本格式
-  //
-  // 推荐格式：
-  // 百度网盘|https://pan.baidu.com/s/xxxx|8888
-  // 夸克网盘|https://pan.quark.cn/s/xxxx|免提取码
-  // 迅雷云盘|https://pan.xunlei.com/s/xxxx|8888
-  //
-  // 同时兼容逗号格式：
-  // 百度网盘,https://pan.baidu.com/s/xxxx,8888
-  //
-  if (list.length === 0 && raw) {
-    const lines = raw
-      .split(/[\r\n;]+/)
-      .map(s => s.trim())
-      .filter(Boolean);
-
-    for (const line of lines) {
-      let name = "";
-      let url = "";
-      let code = "";
-
-      // 优先使用 |
-      if (line.includes("|")) {
-        const parts = line.split("|").map(s => s.trim());
-
-        name = parts[0] || "";
-        url = parts[1] || "";
-        code = parts[2] || "";
-      }
-
-      // 兼容逗号
-      else {
-        const urlMatch = line.match(/https?:\/\/[^\s,，]+/i);
-
-        if (urlMatch) {
-          url = urlMatch[0].trim();
-
-          const before = line.slice(0, urlMatch.index).replace(/[,，]\s*$/, "").trim();
-          const after = line.slice(urlMatch.index + urlMatch[0].length).replace(/^[,，]\s*/, "").trim();
-
-          name = before;
-          code = after;
-        }
-      }
-
-      // URL 存在才加入
-      if (url) {
-        if (!name || isUrl(name)) {
-          name = detectPanName(url);
-        }
-
-        list.push({
-          name: name || detectPanName(url),
-          url,
-          code: code || ""
-        });
-      }
+    function detectPanName(url) {
+      const value = String(url || "").toLowerCase();
+      if (value.includes("pan.baidu.com")) return "百度网盘";
+      if (value.includes("pan.quark.cn")) return "夸克网盘";
+      if (value.includes("pan.xunlei.com")) return "迅雷云盘";
+      if (value.includes("aliyundrive.com") || value.includes("alipan.com")) return "阿里云盘";
+      if (value.includes("123pan.com")) return "123云盘";
+      return "网盘下载";
     }
-  }
 
-  // 3. 如果没有识别到多网盘，则按照单链接处理
-  if (list.length === 0 && raw) {
-    list = [{
-      name: detectPanName(raw),
-      url: raw,
-      code: singleCode || ""
-    }];
-  }
+    // 1. JSON 格式解析
+    if (raw.startsWith("[")) {
+      try {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          list = arr.map((item) => {
+            const url = String(item.url || item.download_url || "").trim();
+            return {
+              name: item.name || detectPanName(url),
+              url: url || "#",
+              code: item.code || item.extract_code || ""
+            };
+          }).filter(item => item.url && item.url !== "#");
+        }
+      } catch (e) {}
+    }
 
-  // ==============================
-  // 开始生成 HTML
-  // ==============================
+    // 2. 文本格式精准提取（完美兼容逗号、竖线、分号、换行分隔）
+    if (list.length === 0 && raw) {
+      const lines = raw.split(/[\r\n;；]+/).map(s => s.trim()).filter(Boolean);
+      for (const line of lines) {
+        let name = "";
+        let url = "";
+        let code = "";
 
-  let html = `
-    <div class="kzyc-channel-wrap">
-  `;
-
-  list.forEach((ch) => {
-    const name = ch.name || detectPanName(ch.url);
-    const url = ch.url || "#";
-    const code = String(ch.code || "").trim();
-    const isFree = isFreeCode(code);
-
-    html += `
-      <div class="kzyc-channel-row">
-
-        <!-- 网盘名称 -->
-        <div class="kzyc-channel-name">
-          <span class="kzyc-channel-icon">📁</span>
-          <span>${escapeHTML(name)}</span>
-        </div>
-
-        <!-- 提取码 -->
-        <div class="kzyc-channel-code">
-          ${
-            isFree
-              ? `
-                <span class="kzyc-free-tag">
-                  免提取码
-                </span>
-              `
-              : `
-                <span class="kzyc-code-label">提取码</span>
-                <span class="kzyc-code-value">
-                  ${escapeHTML(code)}
-                </span>
-                <button
-                  type="button"
-                  class="kzyc-copy-btn"
-                  data-copy="${escapeHTML(code)}"
-                >复制</button>
-              `
+        if (line.includes("|")) {
+          const parts = line.split("|").map(s => s.trim());
+          name = parts[0] || "";
+          url = parts || "";
+          code = parts || "";
+        } else {
+          // 精确正则定位 http(s) 地址，前后准确剥离
+          const urlMatch = line.match(/https?:\/\/[^\s,，;；]+/i);
+          if (urlMatch) {
+            url = urlMatch[0].trim();
+            name = line.slice(0, urlMatch.index).replace(/[,，|:：\s]+$/, "").trim();
+            code = line.slice(urlMatch.index + urlMatch[0].length).replace(/^[,，|:：\s]+/, "").trim();
+          } else {
+            const parts = line.split(/[,，\s]+/).map(s => s.trim());
+            name = parts[0] || "";
+            url = parts || "";
+            code = parts || "";
           }
+        }
+
+        if (url) {
+          if (!name || /^https?:\/\//i.test(name)) {
+            name = detectPanName(url);
+          }
+          list.push({
+            name: name || detectPanName(url),
+            url: url,
+            code: code || ""
+          });
+        }
+      }
+    }
+
+    // 3. 单链接兜底
+    if (list.length === 0 && raw) {
+      list = [{
+        name: detectPanName(raw),
+        url: raw,
+        code: singleCode || ""
+      }];
+    }
+
+    // 生成纯净独立的单行网盘 DOM
+    let html = `<div class="kzyc-pan-card">`;
+    list.forEach((ch) => {
+      const name = ch.name || detectPanName(ch.url);
+      const url = ch.url || "#";
+      const code = String(ch.code || "").trim();
+      const isFree = isFreeCode(code);
+
+      html += `
+        <div class="kzyc-pan-row">
+          <div class="kzyc-pan-left">
+            <span class="kzyc-pan-icon">📁</span>
+            <span class="kzyc-pan-name">${escapeHTML(name)}</span>
+          </div>
+          <div class="kzyc-pan-mid">
+            ${
+              isFree
+                ? `<span class="kzyc-pan-free">免提取码</span>`
+                : `<span class="kzyc-pan-label">提取码</span>
+                   <span class="kzyc-pan-code">${escapeHTML(code)}</span>
+                   <button type="button" class="kzyc-pan-copy" data-copy="${escapeHTML(code)}">复制</button>`
+            }
+          </div>
+          <div class="kzyc-pan-right">
+            <a href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer" class="kzyc-pan-btn">点击下载 ↗</a>
+          </div>
         </div>
+      `;
+    });
 
-        <!-- 下载按钮 -->
-        <div class="kzyc-channel-download">
-          <a
-            href="${escapeHTML(url)}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="kzyc-dl-link-btn"
-          >
-            点击下载 ↗
-          </a>
+    if (unzipPwd) {
+      html += `
+        <div class="kzyc-unzip-box">
+          <div class="kzyc-unzip-txt">
+            <span>🔑 专属解压密码：</span>
+            <strong>${escapeHTML(unzipPwd)}</strong>
+          </div>
+          <button type="button" class="kzyc-pan-copy" data-copy="${escapeHTML(unzipPwd)}">复制密码</button>
         </div>
+      `;
+    }
 
-      </div>
-    `;
-  });
+    html += `</div>`;
 
-  // 解压密码
-  if (unzipPwd) {
-    html += `
-      <div class="kzyc-unzip-row">
+    // 独立注入高优先级样式（确保不被外部旧 CSS 冲突篡改，保证排版整齐）
+    if (!document.getElementById("kzyc-pan-isolated-styles")) {
+      const style = document.createElement("style");
+      style.id = "kzyc-pan-isolated-styles";
+      style.textContent = `
+        .kzyc-pan-card {
+          width: 100% !important;
+          margin: 12px 0 4px !important;
+          border: 1px solid rgba(127, 127, 127, 0.2) !important;
+          border-radius: 10px !important;
+          overflow: hidden !important;
+          background: var(--md-default-bg-color, #ffffff) !important;
+          box-sizing: border-box !important;
+        }
+        .kzyc-pan-row {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          gap: 12px !important;
+          padding: 10px 16px !important;
+          border-bottom: 1px solid rgba(127, 127, 127, 0.12) !important;
+          box-sizing: border-box !important;
+          white-space: nowrap !important;
+          flex-wrap: nowrap !important;
+        }
+        .kzyc-pan-row:last-of-type {
+          border-bottom: none !important;
+        }
+        .kzyc-pan-left {
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          min-width: 96px !important;
+          flex: 0 0 auto !important;
+        }
+        .kzyc-pan-icon {
+          font-size: 1.1rem !important;
+          line-height: 1 !important;
+        }
+        .kzyc-pan-name {
+          font-size: 0.9rem !important;
+          font-weight: 700 !important;
+          color: var(--md-default-fg-color, #1e293b) !important;
+          white-space: nowrap !important;
+        }
+        .kzyc-pan-mid {
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          flex: 1 1 auto !important;
+          justify-content: center !important;
+          white-space: nowrap !important;
+        }
+        .kzyc-pan-label {
+          font-size: 0.78rem !important;
+          opacity: 0.7 !important;
+          white-space: nowrap !important;
+        }
+        .kzyc-pan-code {
+          font-size: 0.88rem !important;
+          font-weight: 700 !important;
+          color: #2563eb !important;
+          letter-spacing: 0.5px !important;
+          white-space: nowrap !important;
+        }
+        .kzyc-pan-free {
+          font-size: 0.78rem !important;
+          opacity: 0.75 !important;
+          background: rgba(127, 127, 127, 0.08) !important;
+          padding: 2px 8px !important;
+          border-radius: 6px !important;
+          white-space: nowrap !important;
+        }
+        .kzyc-pan-copy {
+          border: 1px solid rgba(127, 127, 127, 0.25) !important;
+          background: rgba(127, 127, 127, 0.06) !important;
+          color: inherit !important;
+          border-radius: 6px !important;
+          padding: 3px 8px !important;
+          font-size: 0.72rem !important;
+          font-weight: 600 !important;
+          cursor: pointer !important;
+          white-space: nowrap !important;
+          transition: all 0.2s !important;
+        }
+        .kzyc-pan-copy:hover {
+          background: rgba(37, 99, 235, 0.12) !important;
+          border-color: #2563eb !important;
+          color: #2563eb !important;
+        }
+        .kzyc-pan-right {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: flex-end !important;
+          flex: 0 0 auto !important;
+          white-space: nowrap !important;
+        }
+        .kzyc-pan-btn {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          height: 32px !important;
+          padding: 0 14px !important;
+          border-radius: 7px !important;
+          background: #2563eb !important;
+          color: #ffffff !important;
+          text-decoration: none !important;
+          font-size: 0.78rem !important;
+          font-weight: 700 !important;
+          white-space: nowrap !important;
+          transition: all 0.2s ease !important;
+          box-sizing: border-box !important;
+        }
+        .kzyc-pan-btn:hover {
+          background: #1d4ed8 !important;
+          transform: translateY(-1px) !important;
+          box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25) !important;
+        }
+        .kzyc-unzip-box {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          gap: 12px !important;
+          padding: 9px 16px !important;
+          border-top: 1px dashed rgba(234, 88, 12, 0.3) !important;
+          background: rgba(234, 88, 12, 0.04) !important;
+          box-sizing: border-box !important;
+          white-space: nowrap !important;
+          flex-wrap: nowrap !important;
+        }
+        .kzyc-unzip-txt {
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          font-size: 0.82rem !important;
+          white-space: nowrap !important;
+        }
+        .kzyc-unzip-txt strong {
+          color: #ea580c !important;
+          font-weight: 700 !important;
+          font-size: 0.9rem !important;
+          white-space: nowrap !important;
+        }
+        [data-md-color-scheme="slate"] .kzyc-pan-card {
+          border-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        [data-md-color-scheme="slate"] .kzyc-pan-row {
+          border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        @media (max-width: 600px) {
+          .kzyc-pan-row {
+            padding: 7px 10px !important;
+            gap: 6px !important;
+          }
+          .kzyc-pan-left {
+            min-width: 76px !important;
+            gap: 4px !important;
+          }
+          .kzyc-pan-icon { font-size: 0.9rem !important; }
+          .kzyc-pan-name { font-size: 0.78rem !important; }
+          .kzyc-pan-mid { gap: 4px !important; }
+          .kzyc-pan-label { font-size: 0.68rem !important; }
+          .kzyc-pan-code { font-size: 0.76rem !important; }
+          .kzyc-pan-free { font-size: 0.68rem !important; padding: 2px 5px !important; }
+          .kzyc-pan-copy { font-size: 0.65rem !important; padding: 2px 5px !important; }
+          .kzyc-pan-btn { height: 28px !important; padding: 0 8px !important; font-size: 0.68rem !important; }
+          .kzyc-unzip-box { padding: 7px 10px !important; }
+          .kzyc-unzip-txt { font-size: 0.72rem !important; }
+        }
+      `;
+      (document.head || document.documentElement).appendChild(style);
+    }
 
-        <div class="kzyc-unzip-info">
-          <span class="kzyc-unzip-label">🔑 专属解压密码</span>
-          <span class="kzyc-unzip-value">
-            ${escapeHTML(unzipPwd)}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          class="kzyc-copy-btn unzip"
-          data-copy="${escapeHTML(unzipPwd)}"
-        >
-          复制密码
-        </button>
-
-      </div>
-    `;
+    return html;
   }
 
-  html += `
-    </div>
-  `;
-
-  // 动态注入下载卡片样式
-  if (!document.getElementById("kzyc-channel-styles")) {
-    const style = document.createElement("style");
-    style.id = "kzyc-channel-styles";
-
-    style.textContent = `
-
-      /* ==============================
-         多网盘下载区域
-         ============================== */
-
-      .kzyc-channel-wrap {
-        width: 100%;
-        margin: 14px 0 4px;
-        border: 1px solid rgba(128, 128, 128, 0.18);
-        border-radius: 12px;
-        overflow: hidden;
-        background: var(--md-default-bg-color);
-        box-sizing: border-box;
-      }
-
-      /* 每一个网盘一整行 */
-      .kzyc-channel-row {
-        display: grid;
-        grid-template-columns: minmax(120px, 1fr) auto auto;
-        align-items: center;
-        gap: 18px;
-        min-height: 54px;
-        padding: 8px 14px;
-        border-bottom: 1px solid rgba(128, 128, 128, 0.14);
-        box-sizing: border-box;
-        white-space: nowrap;
-      }
-
-      .kzyc-channel-row:last-of-type {
-        border-bottom: none;
-      }
-
-      /* 网盘名称 */
-      .kzyc-channel-name {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        min-width: 0;
-        font-size: 0.92rem;
-        font-weight: 600;
-        white-space: nowrap;
-      }
-
-      .kzyc-channel-icon {
-        flex: 0 0 auto;
-        font-size: 1rem;
-      }
-
-      /* 提取码区域 */
-      .kzyc-channel-code {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 7px;
-        white-space: nowrap;
-        min-width: max-content;
-      }
-
-      .kzyc-code-label {
-        font-size: 0.78rem;
-        color: var(--md-default-fg-color--light);
-        white-space: nowrap;
-      }
-
-      .kzyc-code-value {
-        font-size: 0.86rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        white-space: nowrap;
-      }
-
-      .kzyc-free-tag {
-        font-size: 0.78rem;
-        color: var(--md-default-fg-color--light);
-        white-space: nowrap;
-      }
-
-      /* 复制按钮 */
-      .kzyc-copy-btn {
-        border: 1px solid rgba(128, 128, 128, 0.25);
-        background: rgba(128, 128, 128, 0.06);
-        color: var(--md-default-fg-color);
-        border-radius: 6px;
-        padding: 3px 8px;
-        font-size: 0.72rem;
-        line-height: 1.3;
-        cursor: pointer;
-        white-space: nowrap;
-        transition: all 0.2s ease;
-      }
-
-      .kzyc-copy-btn:hover {
-        background: rgba(99, 102, 241, 0.1);
-        border-color: rgba(99, 102, 241, 0.35);
-      }
-
-      /* 下载按钮区域 */
-      .kzyc-channel-download {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        white-space: nowrap;
-      }
-
-      .kzyc-dl-link-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        height: 34px;
-        padding: 0 14px;
-        border-radius: 7px;
-        background: #2563eb;
-        color: #fff !important;
-        text-decoration: none !important;
-        font-size: 0.78rem;
-        font-weight: 600;
-        white-space: nowrap;
-        transition: all 0.2s ease;
-        box-sizing: border-box;
-      }
-
-      .kzyc-dl-link-btn:hover {
-        background: #1d4ed8;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-      }
-
-      /* 解压密码 */
-      .kzyc-unzip-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-height: 52px;
-        padding: 8px 14px;
-        border-top: 1px solid rgba(128, 128, 128, 0.14);
-        box-sizing: border-box;
-        white-space: nowrap;
-      }
-
-      .kzyc-unzip-info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 0;
-        white-space: nowrap;
-      }
-
-      .kzyc-unzip-label {
-        font-size: 0.82rem;
-        color: var(--md-default-fg-color--light);
-        white-space: nowrap;
-      }
-
-      .kzyc-unzip-value {
-        font-size: 0.88rem;
-        font-weight: 700;
-        white-space: nowrap;
-      }
-
-      /* 暗黑模式 */
-      [data-md-color-scheme="slate"] .kzyc-channel-wrap {
-        border-color: rgba(255, 255, 255, 0.1);
-      }
-
-      [data-md-color-scheme="slate"] .kzyc-channel-row {
-        border-color: rgba(255, 255, 255, 0.08);
-      }
-
-      [data-md-color-scheme="slate"] .kzyc-copy-btn {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.14);
-      }
-
-      /* ==============================
-         手机端
-         保持一行，不允许换行
-         ============================== */
-
-      @media (max-width: 600px) {
-
-        .kzyc-channel-row {
-          grid-template-columns: minmax(82px, 1fr) auto auto;
-          gap: 6px;
-          padding: 7px 9px;
-          min-height: 48px;
-        }
-
-        .kzyc-channel-name {
-          gap: 4px;
-          font-size: 0.76rem;
-        }
-
-        .kzyc-channel-icon {
-          font-size: 0.85rem;
-        }
-
-        .kzyc-channel-code {
-          gap: 4px;
-          font-size: 0.7rem;
-        }
-
-        .kzyc-code-label {
-          font-size: 0.66rem;
-        }
-
-        .kzyc-code-value {
-          font-size: 0.72rem;
-        }
-
-        .kzyc-free-tag {
-          font-size: 0.66rem;
-        }
-
-        .kzyc-copy-btn {
-          padding: 2px 5px;
-          font-size: 0.62rem;
-          border-radius: 5px;
-        }
-
-        .kzyc-dl-link-btn {
-          height: 29px;
-          padding: 0 8px;
-          font-size: 0.65rem;
-          border-radius: 6px;
-        }
-
-        .kzyc-unzip-row {
-          padding: 7px 9px;
-          min-height: 46px;
-          gap: 6px;
-        }
-
-        .kzyc-unzip-label {
-          font-size: 0.68rem;
-        }
-
-        .kzyc-unzip-value {
-          font-size: 0.72rem;
-        }
-
-        .kzyc-unzip-row .kzyc-copy-btn {
-          flex: 0 0 auto;
-        }
-      }
-
-    `;
-
-    document.head.appendChild(style);
-  }
-
-  return html;
-}
-
+  // 确保每次跳转新页面，都能正确在顶栏建立挂载点
   function initAuthDOM() {
     try {
-      if (document.getElementById("kzyc-auth-modal")) return;
-
-      const headerInner = document.querySelector(".md-header__inner");
-      if (!headerInner) return;
-
+      // 1. 样式随处就位
       injectAvatarStyles();
 
+      // 2. 核心修复：每次页面切换，确保新页面的 headerInner 中始终有我们的 authContainer
+      const headerInner = document.querySelector(".md-header__inner");
+      if (headerInner) {
+        let authContainer = document.getElementById("kzyc-auth-header");
+        if (!authContainer || !headerInner.contains(authContainer)) {
+          if (authContainer) authContainer.remove();
+          authContainer = document.createElement("div");
+          authContainer.id = "kzyc-auth-header";
+          authContainer.style.display = "flex";
+          authContainer.style.alignItems = "center";
+          headerInner.appendChild(authContainer);
+        }
+      }
+
+      // 3. Turnstile 脚本
       if (!document.getElementById("cf-turnstile-script")) {
         const script = document.createElement("script");
         script.id = "cf-turnstile-script";
         script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
         script.async = true;
         script.defer = true;
-        document.head.appendChild(script);
+        (document.head || document.documentElement).appendChild(script);
       }
 
-      let authContainer = document.getElementById("kzyc-auth-header");
-      if (!authContainer) {
-        authContainer = document.createElement("div");
-        authContainer.id = "kzyc-auth-header";
-        authContainer.style.display = "flex";
-        authContainer.style.alignItems = "center";
-        headerInner.appendChild(authContainer);
+      // 4. 弹窗只创建一次，如果已经存在则立刻更新头部 UI 并返回
+      if (document.getElementById("kzyc-auth-modal")) {
+        updateHeaderUI();
+        return;
       }
 
       const modalHTML = `
@@ -904,6 +751,7 @@ function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
       `;
       document.body.insertAdjacentHTML("beforeend", modalHTML);
       bindEvents();
+      updateHeaderUI();
     } catch (e) {
       console.error(e);
     }
@@ -981,7 +829,7 @@ function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
                 resultBox.style.display = "block";
                 resultBox.innerHTML = renderChannelsHTML(data.download_url, data.extract_code, data.unzip_pwd);
 
-                resultBox.querySelectorAll(".kzyc-copy-btn").forEach((cBtn) => {
+                resultBox.querySelectorAll(".kzyc-pan-copy, .kzyc-copy-btn").forEach((cBtn) => {
                   cBtn.addEventListener("click", () => {
                     navigator.clipboard.writeText(cBtn.getAttribute("data-copy"));
                     const orig = cBtn.textContent;
@@ -1864,10 +1712,25 @@ function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
     }
   }
 
+  // 渲染并保证顶栏头像处于正常状态
   function updateHeaderUI() {
     try {
-      const container = document.getElementById("kzyc-auth-header");
-      if (!container) return;
+      injectAvatarStyles();
+
+      // 双重保活：如果当前页面没有找到容器，自动在当前顶栏补齐挂载点
+      let container = document.getElementById("kzyc-auth-header");
+      if (!container) {
+        const headerInner = document.querySelector(".md-header__inner");
+        if (headerInner) {
+          container = document.createElement("div");
+          container.id = "kzyc-auth-header";
+          container.style.display = "flex";
+          container.style.alignItems = "center";
+          headerInner.appendChild(container);
+        } else {
+          return;
+        }
+      }
 
       const backdrop = document.getElementById("kzyc-auth-modal");
       const authView = document.getElementById("kzyc-auth-view");
@@ -1875,7 +1738,6 @@ function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
       const profileView = document.getElementById("kzyc-profile-view");
 
       if (currentUser) {
-        // 智能模糊兼容角色（支持中英文、表情符号）
         const rawRole = String(currentUser.role || "").trim().toLowerCase();
         const effRole = String(currentUser.effective_role || "").trim().toLowerCase();
         const isExpired = currentUser.is_expired === true;
@@ -1903,7 +1765,6 @@ function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
           roleBadgeClass = isExpired ? "expired" : "vip";
         }
 
-        // 仅对标准会员和超级会员显示到期时间，普通用户不显示
         let expireHtml = "";
         if (roleType === "vip" || roleType === "svip") {
           const expireDate = String(currentUser.vip_expire_at || currentUser.vip_expires_at || "").trim();
@@ -2098,6 +1959,7 @@ function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
     mountAll();
   }
 
+  // 监听 MkDocs Material 即时跳转事件
   if (typeof document$ !== "undefined") {
     document$.subscribe(mountAll);
   } else {
@@ -2113,6 +1975,7 @@ function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
     }, 100);
   }
 
+  // 轮询守护：确保页面带锚点跳转时下载卡片也能 100% 渲染
   let quickPollCount = 0;
   const quickPoll = setInterval(() => {
     quickPollCount++;
