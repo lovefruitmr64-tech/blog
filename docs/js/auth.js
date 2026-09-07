@@ -46,7 +46,201 @@ const API_BASE = "https://auth.kzyc.de5.net";
     }
   }
 
-  // 极简高级多网盘解析器（隐藏直链，统一显示“点击下载”）
+  // 动态注入圆形头像按钮与鼠标悬浮弹窗样式（完美兼容明亮模式与暗黑模式）
+  function injectAvatarStyles() {
+    if (document.getElementById("kzyc-avatar-popover-styles")) return;
+    const styleEl = document.createElement("style");
+    styleEl.id = "kzyc-avatar-popover-styles";
+    styleEl.textContent = `
+      .kzyc-header-user-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 10px;
+      }
+      /* 固定圆形框 + 图标 (明亮模式) */
+      .kzyc-header-avatar-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        cursor: pointer;
+        outline: none;
+        background: rgba(99, 102, 241, 0.12);
+        border: 1.5px solid rgba(99, 102, 241, 0.35);
+        color: #4338ca;
+        transition: all 0.25s ease;
+        padding: 0;
+      }
+      .kzyc-header-avatar-btn:hover {
+        background: rgba(99, 102, 241, 0.22);
+        border-color: rgba(99, 102, 241, 0.65);
+        transform: scale(1.06);
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.25);
+      }
+      .kzyc-header-avatar-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+      /* 暗黑模式适配 */
+      [data-md-color-scheme="slate"] .kzyc-header-avatar-btn {
+        background: rgba(165, 180, 252, 0.15);
+        border: 1.5px solid rgba(165, 180, 252, 0.4);
+        color: #a5b4fc;
+      }
+      [data-md-color-scheme="slate"] .kzyc-header-avatar-btn:hover {
+        background: rgba(165, 180, 252, 0.25);
+        border-color: rgba(165, 180, 252, 0.75);
+        box-shadow: 0 0 10px rgba(165, 180, 252, 0.3);
+      }
+      /* 鼠标悬浮下拉弹出框 */
+      .kzyc-header-popover {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 10px;
+        z-index: 9999;
+        min-width: 205px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        box-sizing: border-box;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #1e293b;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(6px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+        text-align: left;
+      }
+      .kzyc-header-popover::before {
+        content: "";
+        position: absolute;
+        top: -12px;
+        left: 0;
+        right: 0;
+        height: 12px;
+      }
+      .kzyc-header-user-wrap:hover .kzyc-header-popover {
+        pointer-events: auto;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      [data-md-color-scheme="slate"] .kzyc-header-popover {
+        background: #1e293b;
+        border-color: #334155;
+        color: #f8fafc;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      }
+      .kzyc-popover-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .kzyc-popover-name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        max-width: 110px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .kzyc-popover-badge {
+        font-size: 0.72rem;
+        padding: 2px 7px;
+        border-radius: 9999px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .kzyc-popover-badge.admin {
+        background: #e0e7ff;
+        color: #4338ca;
+        border: 1px solid #c7d2fe;
+      }
+      .kzyc-popover-badge.svip {
+        background: #fce7f3;
+        color: #be185d;
+        border: 1px solid #fbcfe8;
+      }
+      .kzyc-popover-badge.vip {
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+      }
+      .kzyc-popover-badge.user {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+      }
+      .kzyc-popover-badge.expired {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+      }
+      [data-md-color-scheme="slate"] .kzyc-popover-badge.admin {
+        background: rgba(99, 102, 241, 0.25);
+        color: #a5b4fc;
+        border-color: rgba(99, 102, 241, 0.5);
+      }
+      [data-md-color-scheme="slate"] .kzyc-popover-badge.svip {
+        background: rgba(236, 72, 153, 0.2);
+        color: #f472b6;
+        border-color: rgba(236, 72, 153, 0.4);
+      }
+      [data-md-color-scheme="slate"] .kzyc-popover-badge.vip {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+        border-color: rgba(245, 158, 11, 0.4);
+      }
+      [data-md-color-scheme="slate"] .kzyc-popover-badge.user {
+        background: #334155;
+        color: #94a3b8;
+        border-color: #475569;
+      }
+      .kzyc-popover-expire {
+        display: flex;
+        align-items: center;
+        font-size: 0.76rem;
+        padding-top: 8px;
+        margin-top: 4px;
+        border-top: 1px dashed rgba(148, 163, 184, 0.28);
+      }
+      .kzyc-popover-expire-label {
+        color: #64748b;
+      }
+      [data-md-color-scheme="slate"] .kzyc-popover-expire-label {
+        color: #94a3b8;
+      }
+      .kzyc-popover-expire-val {
+        color: #ea580c;
+        font-weight: 600;
+      }
+      [data-md-color-scheme="slate"] .kzyc-popover-expire-val {
+        color: #fb923c;
+      }
+      .kzyc-popover-footer-tip {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        text-align: center;
+        margin-top: 8px;
+        padding-top: 6px;
+        border-top: 1px solid rgba(148, 163, 184, 0.15);
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
+
+  // 极简高级多网盘解析器
   function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
     let list = [];
     const raw = String(rawUrl || "").trim();
@@ -73,7 +267,7 @@ const API_BASE = "https://auth.kzyc.de5.net";
           list.push({
             name: parts[0] || "网盘下载",
             url: parts || "#",
-            code: parts[2] || "",
+            code: parts || "",
           });
         }
       }
@@ -128,6 +322,8 @@ const API_BASE = "https://auth.kzyc.de5.net";
 
       const headerInner = document.querySelector(".md-header__inner");
       if (!headerInner) return;
+
+      injectAvatarStyles();
 
       if (!document.getElementById("cf-turnstile-script")) {
         const script = document.createElement("script");
@@ -215,7 +411,7 @@ const API_BASE = "https://auth.kzyc.de5.net";
               <div class="kzyc-msg" id="kzyc-forgot-msg"></div>
             </div>
 
-            <!-- 个人中心视图（已升级：独立高亮显示到期时间与下载配额） -->
+            <!-- 个人中心视图（独立高亮展示到期时间与下载配额） -->
             <div id="kzyc-profile-view" style="display: none;">
               <div class="kzyc-prof-topbar">
                 <div class="kzyc-prof-title-wrap">
@@ -1271,7 +1467,70 @@ const API_BASE = "https://auth.kzyc.de5.net";
       const profileView = document.getElementById("kzyc-profile-view");
 
       if (currentUser) {
-        container.innerHTML = `<button class="kzyc-auth-btn" id="kzyc-open-profile">👤 ${escapeHTML(currentUser.username)}</button>`;
+        // 智能模糊兼容角色（支持中英文、表情符号）
+        const rawRole = String(currentUser.role || "").trim().toLowerCase();
+        const effRole = String(currentUser.effective_role || "").trim().toLowerCase();
+        const isExpired = currentUser.is_expired === true;
+
+        let roleType = "user";
+        if (rawRole.includes("站长") || rawRole.includes("管理") || rawRole === "admin" || effRole === "admin") {
+          roleType = "admin";
+        } else if (rawRole.includes("超级") || rawRole.includes("svip") || effRole === "svip") {
+          roleType = "svip";
+        } else if (rawRole.includes("标准") || rawRole.includes("vip") || effRole === "vip") {
+          roleType = "vip";
+        }
+
+        let roleText = "普通用户";
+        let roleBadgeClass = "user";
+
+        if (roleType === "admin") {
+          roleText = "👑 站长";
+          roleBadgeClass = "admin";
+        } else if (roleType === "svip") {
+          roleText = isExpired ? "👑 超级会员 (已到期)" : "👑 超级会员";
+          roleBadgeClass = isExpired ? "expired" : "svip";
+        } else if (roleType === "vip") {
+          roleText = isExpired ? "💎 标准会员 (已到期)" : "💎 标准会员";
+          roleBadgeClass = isExpired ? "expired" : "vip";
+        }
+
+        // 仅对标准会员和超级会员显示到期时间，普通用户不显示
+        let expireHtml = "";
+        if (roleType === "vip" || roleType === "svip") {
+          const expireDate = String(currentUser.vip_expire_at || currentUser.vip_expires_at || "").trim();
+          let expireDisplay = "永久有效";
+          if (expireDate) {
+            expireDisplay = expireDate.includes("2999") ? "永久有效" : expireDate.slice(0, 10);
+            if (isExpired) expireDisplay += " (已到期)";
+          }
+          expireHtml = `
+            <div class="kzyc-popover-expire">
+              <span class="kzyc-popover-expire-label">到期时间：</span>
+              <span class="kzyc-popover-expire-val">${escapeHTML(expireDisplay)}</span>
+            </div>
+          `;
+        }
+
+        // 渲染登录后圆形固定头像 + 悬浮弹窗
+        container.innerHTML = `
+          <div class="kzyc-header-user-wrap">
+            <button type="button" class="kzyc-header-avatar-btn" id="kzyc-open-profile" title="点击查看个人中心" aria-label="个人中心">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
+            </button>
+            <div class="kzyc-header-popover">
+              <div class="kzyc-popover-top">
+                <span class="kzyc-popover-name" title="${escapeHTML(currentUser.username)}">${escapeHTML(currentUser.username)}</span>
+                <span class="kzyc-popover-badge ${roleBadgeClass}">${roleText}</span>
+              </div>
+              ${expireHtml}
+              <div class="kzyc-popover-footer-tip">点击头像查看完整中心 ↗</div>
+            </div>
+          </div>
+        `;
+
         const openProf = document.getElementById("kzyc-open-profile");
         if (openProf) {
           openProf.addEventListener("click", async () => {
@@ -1283,60 +1542,57 @@ const API_BASE = "https://auth.kzyc.de5.net";
             const expireVal = document.getElementById("kzyc-prof-expire");
             const quotaVal = document.getElementById("kzyc-prof-quota");
 
-            const renderProfileData = () => {
+            const renderProfileModal = () => {
               if (!currentUser) return;
               if (uName) uName.textContent = currentUser.username || "--";
               if (uMail) uMail.textContent = currentUser.email || "--";
               if (uId) uId.textContent = `#${currentUser.id || "--"}`;
 
-              // 智能模糊兼容角色（中英文、表情符号、有效角色）
-              const rawRole = String(currentUser.role || "").trim().toLowerCase();
-              const effRole = String(currentUser.effective_role || "").trim().toLowerCase();
-              const isExpired = currentUser.is_expired === true;
+              const curRawRole = String(currentUser.role || "").trim().toLowerCase();
+              const curEffRole = String(currentUser.effective_role || "").trim().toLowerCase();
+              const curExpired = currentUser.is_expired === true;
 
-              let roleType = "user";
-              if (rawRole.includes("站长") || rawRole.includes("管理") || rawRole === "admin" || effRole === "admin") {
-                roleType = "admin";
-              } else if (rawRole.includes("超级") || rawRole.includes("svip") || effRole === "svip") {
-                roleType = "svip";
-              } else if (rawRole.includes("标准") || rawRole.includes("vip") || effRole === "vip") {
-                roleType = "vip";
+              let curType = "user";
+              if (curRawRole.includes("站长") || curRawRole.includes("管理") || curRawRole === "admin" || curEffRole === "admin") {
+                curType = "admin";
+              } else if (curRawRole.includes("超级") || curRawRole.includes("svip") || curEffRole === "svip") {
+                curType = "svip";
+              } else if (curRawRole.includes("标准") || curRawRole.includes("vip") || curEffRole === "vip") {
+                curType = "vip";
               }
 
-              let roleText = "普通用户";
-              let roleClass = "kzyc-prof-badge user";
+              let curText = "普通用户";
+              let curClass = "kzyc-prof-badge user";
 
-              if (roleType === "admin") {
-                roleText = "👑 站长";
-                roleClass = "kzyc-prof-badge admin";
-              } else if (roleType === "svip") {
-                roleText = isExpired ? "👑 超级会员 (已到期)" : "👑 超级会员";
-                roleClass = isExpired ? "kzyc-prof-badge expired" : "kzyc-prof-badge svip";
-              } else if (roleType === "vip") {
-                roleText = isExpired ? "💎 标准会员 (已到期)" : "💎 标准会员";
-                roleClass = isExpired ? "kzyc-prof-badge expired" : "kzyc-prof-badge vip";
+              if (curType === "admin") {
+                curText = "👑 站长";
+                curClass = "kzyc-prof-badge admin";
+              } else if (curType === "svip") {
+                curText = curExpired ? "👑 超级会员 (已到期)" : "👑 超级会员";
+                curClass = curExpired ? "kzyc-prof-badge expired" : "kzyc-prof-badge svip";
+              } else if (curType === "vip") {
+                curText = curExpired ? "💎 标准会员 (已到期)" : "💎 标准会员";
+                curClass = curExpired ? "kzyc-prof-badge expired" : "kzyc-prof-badge vip";
               }
 
               if (uRole) {
-                uRole.textContent = roleText;
-                uRole.className = roleClass;
+                uRole.textContent = curText;
+                uRole.className = curClass;
               }
 
-              // 配额计算
               const todayCount = currentUser.today_downloads || 0;
-              const limit = currentUser.daily_limit || (roleType === "svip" ? 20 : (roleType === "vip" ? 10 : 3));
-              const quotaText = roleType === "admin" ? "无限制" : `${todayCount} / ${limit} 篇`;
+              const limit = currentUser.daily_limit || (curType === "svip" ? 20 : (curType === "vip" ? 10 : 3));
+              const quotaText = curType === "admin" ? "无限制" : `${todayCount} / ${limit} 篇`;
               if (quotaVal) quotaVal.textContent = quotaText;
 
-              // 到期时间处理
               const expireDate = String(currentUser.vip_expire_at || currentUser.vip_expires_at || "").trim();
               let expireDisplay = "未开通";
-              if (roleType === "admin") {
+              if (curType === "admin") {
                 expireDisplay = "永久有效";
-              } else if (roleType === "vip" || roleType === "svip") {
+              } else if (curType === "vip" || curType === "svip") {
                 if (expireDate) {
                   expireDisplay = expireDate.includes("2999") ? "永久有效" : expireDate.slice(0, 10);
-                  if (isExpired) expireDisplay += " (已到期)";
+                  if (curExpired) expireDisplay += " (已到期)";
                 } else {
                   expireDisplay = "永久有效";
                 }
@@ -1344,12 +1600,11 @@ const API_BASE = "https://auth.kzyc.de5.net";
 
               if (expireVal) expireVal.textContent = expireDisplay;
               if (expireRow) {
-                expireRow.style.display = (roleType === "vip" || roleType === "svip" || roleType === "admin") ? "flex" : "none";
+                expireRow.style.display = (curType === "vip" || curType === "svip" || curType === "admin") ? "flex" : "none";
               }
             };
 
-            // 1. 先用本地内存数据立即展现
-            renderProfileData();
+            renderProfileModal();
 
             if (authView) authView.style.display = "none";
             if (forgotView) forgotView.style.display = "none";
@@ -1357,7 +1612,6 @@ const API_BASE = "https://auth.kzyc.de5.net";
             if (backdrop) backdrop.classList.add("active");
             loadMyDownloads();
 
-            // 2. 异步请求 /api/me 确保获取到最新的到期时间与下载记录
             try {
               const res = await fetch(`${API_BASE}/api/me`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
@@ -1365,7 +1619,8 @@ const API_BASE = "https://auth.kzyc.de5.net";
               const d = await res.json();
               if (d.success && d.user) {
                 currentUser = d.user;
-                renderProfileData();
+                renderProfileModal();
+                updateHeaderUI();
               }
             } catch (err) {
               console.error("[kzyc-auth] /api/me 请求异常:", err);
@@ -1450,7 +1705,6 @@ const API_BASE = "https://auth.kzyc.de5.net";
     }, 100);
   }
 
-  // 轮询守护：确保页面带锚点跳转时下载卡片也能100%渲染
   let quickPollCount = 0;
   const quickPoll = setInterval(() => {
     quickPollCount++;
