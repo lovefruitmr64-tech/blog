@@ -17,6 +17,35 @@
       .replace(/'/g, "&#039;");
   }
 
+  // 自定义屏幕正中确认弹窗（替代浏览器原生顶部 confirm）
+  function showCenterConfirm(msg, onConfirm) {
+    let wrap = document.getElementById("kzyc-confirm-modal");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.id = "kzyc-confirm-modal";
+      wrap.innerHTML = `
+        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999999;display:flex;align-items:center;justify-content:center;">
+          <div style="background:var(--md-default-bg-color,#fff);color:var(--md-default-fg-color,#1e293b);padding:22px 24px;border-radius:12px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.3);max-width:340px;width:88%;text-align:center;box-sizing:border-box;">
+            <div style="font-size:1.05rem;font-weight:700;margin-bottom:10px;">提示确认</div>
+            <div id="kzyc-confirm-msg" style="font-size:0.86rem;line-height:1.5;margin-bottom:20px;opacity:0.85;"></div>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="kzyc-confirm-cancel" type="button" style="padding:6px 18px;border-radius:6px;border:1px solid rgba(128,128,128,0.3);background:transparent;cursor:pointer;color:inherit;font-size:0.82rem;">取消</button>
+              <button id="kzyc-confirm-ok" type="button" style="padding:6px 18px;border-radius:6px;border:none;background:#ef4444;color:#fff;cursor:pointer;font-size:0.82rem;font-weight:600;">确定删除</button>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(wrap);
+    }
+    document.getElementById("kzyc-confirm-msg").textContent = msg;
+    wrap.style.display = "block";
+
+    document.getElementById("kzyc-confirm-cancel").onclick = () => { wrap.style.display = "none"; };
+    document.getElementById("kzyc-confirm-ok").onclick = () => {
+      wrap.style.display = "none";
+      if (typeof onConfirm === "function") onConfirm();
+    };
+  }
+
   function getAvatarColor(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -304,7 +333,7 @@
           const parts = line.split("|").map(s => s.trim());
           name = parts[0] || "";
           url = parts || "";
-          code = parts[2] || "";
+          code = parts || "";
         } else {
           // 精确正则定位 http(s) 地址，前后准确剥离
           const urlMatch = line.match(/https?:\/\/[^\s,，;；]+/i);
@@ -316,7 +345,7 @@
             const parts = line.split(/[,，\s]+/).map(s => s.trim());
             name = parts[0] || "";
             url = parts || "";
-            code = parts[2] || "";
+            code = parts || "";
           }
         }
 
@@ -597,7 +626,7 @@
           }
         }
       `;
-      (document.head || document.documentElement).appendChild(style);
+      (document.head || document.documentElement).appendChild(styleEl);
     }
 
     return html;
@@ -1208,26 +1237,27 @@
     });
 
     document.querySelectorAll(".kzyc-del-action").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        if (!confirm("确定要删除这条评论吗？相关楼中楼回复也会一并删除！")) return;
-        const token = localStorage.getItem(TOKEN_KEY);
-        const commentId = btn.getAttribute("data-id");
+      btn.addEventListener("click", () => {
+        showCenterConfirm("确定要删除这条评论吗？相关楼中楼回复也会一并删除！", async () => {
+          const token = localStorage.getItem(TOKEN_KEY);
+          const commentId = btn.getAttribute("data-id");
 
-        try {
-          const res = await fetch(`${API_BASE}/api/comments/delete`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ comment_id: commentId }),
-          });
-          const data = await res.json();
-          if (data.success) {
-            loadComments(path);
-          } else {
-            alert(data.error || "删除失败");
+          try {
+            const res = await fetch(`${API_BASE}/api/comments/delete`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ comment_id: commentId }),
+            });
+            const data = await res.json();
+            if (data.success) {
+              loadComments(path);
+            } else {
+              alert(data.error || "删除失败");
+            }
+          } catch {
+            alert("网络异常");
           }
-        } catch {
-          alert("网络异常");
-        }
+        });
       });
     });
   }
