@@ -436,7 +436,7 @@ color:white;
               
                 
               
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1449,13 +1449,22 @@ color:white;
 </div>
 
 <style>
+/* 核心居中与自适应加宽：让管理后台水平居中，消除偏左现象 */
+.md-content__inner {
+  max-width: 1200px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
 .kzyc-adm-card {
   background: var(--md-default-bg-color, #ffffff);
   border: 1px solid rgba(127, 127, 127, 0.18);
   border-radius: 14px;
   padding: 22px;
-  margin-top: 10px;
+  margin: 10px auto 30px auto !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
 }
 .kzyc-adm-topbar {
   display: flex;
@@ -1477,7 +1486,7 @@ color:white;
 }
 .kzyc-adm-tab {
   padding: 7px 14px;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 700;
   border-radius: 8px;
   border: none;
@@ -1507,12 +1516,12 @@ color:white;
 .kzyc-adm-stat-num.warn { color: #ea580c; }
 .kzyc-adm-stat-label { font-size: 0.8rem; opacity: 0.7; }
 
+/* 表格自适应扩展与字体微调 */
 .kzyc-adm-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   margin-top: 10px;
-  table-layout: fixed;
 }
 .kzyc-adm-table th, .kzyc-adm-table td {
   padding: 8px 10px;
@@ -1522,22 +1531,31 @@ color:white;
 }
 .kzyc-adm-table th { background: rgba(127, 127, 127, 0.06); font-weight: 700; font-size: 0.78rem; }
 
+/* 关键防折行类 */
+.kzyc-nowrap {
+  white-space: nowrap !important;
+}
+
 .kzyc-cell-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   display: block;
+  max-width: 380px;
 }
 
 .kzyc-adm-btn {
-  padding: 5px 11px;
-  font-size: 0.78rem;
+  padding: 4px 10px;
+  font-size: 0.75rem;
   font-weight: 600;
   border-radius: 6px;
   border: none;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .kzyc-adm-btn.primary { background: #2563eb; color: #fff !important; }
 .kzyc-adm-btn.success { background: #16a34a; color: #fff !important; }
@@ -1815,7 +1833,7 @@ color:white;
     `;
   }
 
-  // 2. 资源管理（含会员专享设置）
+  // 2. 资源管理（已优化：下载权限、解压密码单行不折行）
   async function renderResourcesTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在读取资源列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -1885,23 +1903,23 @@ color:white;
         <table class="kzyc-adm-table">
           <thead>
             <tr>
-              <th style="width: 140px;">标识 Key</th>
-              <th style="width: 220px;">软件标题</th>
+              <th class="kzyc-nowrap" style="width: 140px;">标识 Key</th>
+              <th class="kzyc-nowrap" style="width: 220px;">软件标题</th>
               <th>网盘链接配置 (单行截断，编辑查看全部)</th>
-              <th style="width: 80px;">解压密码</th>
-              <th style="width: 90px;">下载权限</th>
-              <th style="width: 110px;">操作</th>
+              <th class="kzyc-nowrap" style="width: 90px;">解压密码</th>
+              <th class="kzyc-nowrap" style="width: 105px;">下载权限</th>
+              <th class="kzyc-nowrap" style="width: 110px;">操作</th>
             </tr>
           </thead>
           <tbody>
             ${pageItems.length === 0 ? '<tr><td colspan="6" style="text-align: center; opacity: 0.5; padding: 20px;">暂无匹配资源</td></tr>' : pageItems.map(r => `
               <tr>
-                <td><code class="kzyc-cell-truncate" title="${escapeHTML(r.resource_key)}">${escapeHTML(r.resource_key)}</code></td>
-                <td><strong class="kzyc-cell-truncate" title="${escapeHTML(r.title)}">${escapeHTML(r.title)}</strong></td>
+                <td class="kzyc-nowrap"><code class="kzyc-cell-truncate" style="max-width: 130px;" title="${escapeHTML(r.resource_key)}">${escapeHTML(r.resource_key)}</code></td>
+                <td><strong class="kzyc-cell-truncate" style="max-width: 200px;" title="${escapeHTML(r.title)}">${escapeHTML(r.title)}</strong></td>
                 <td><span class="kzyc-cell-truncate" style="opacity: 0.8;" title="${escapeHTML(r.download_url)}">${escapeHTML(r.download_url)}</span></td>
-                <td><span style="background: rgba(234, 88, 12, 0.1); color: #ea580c; padding: 1px 5px; border-radius: 4px; font-size: 0.75rem;">${escapeHTML(r.unzip_pwd || '无')}</span></td>
-                <td>${r.is_vip_only === 1 ? '<span style="color: #ea580c; font-weight: 700; background: rgba(234,88,12,0.1); padding: 1px 6px; border-radius: 4px;">🔒 会员专享</span>' : '<span style="opacity: 0.7;">🌐 公开</span>'}</td>
-                <td>
+                <td class="kzyc-nowrap"><span style="background: rgba(234, 88, 12, 0.1); color: #ea580c; padding: 2px 6px; border-radius: 4px; font-size: 0.74rem; font-weight: 600; white-space: nowrap;">${escapeHTML(r.unzip_pwd || '无')}</span></td>
+                <td class="kzyc-nowrap">${r.is_vip_only === 1 ? '<span style="color: #ea580c; font-weight: 700; background: rgba(234,88,12,0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">🔒 会员专享</span>' : '<span style="opacity: 0.7; white-space: nowrap;">🌐 公开</span>'}</td>
+                <td class="kzyc-nowrap">
                   <button class="kzyc-adm-btn primary" data-key="${escapeHTML(r.resource_key)}" data-title="${escapeHTML(r.title)}" data-url="${escapeHTML(r.download_url)}" data-pwd="${escapeHTML(r.unzip_pwd || '')}" data-vip="${r.is_vip_only || 0}" onclick="handleEditResource(this)">编辑</button>
                   <button class="kzyc-adm-btn danger" onclick="deleteResource('${escapeHTML(r.resource_key)}')">删除</button>
                 </td>
@@ -2085,7 +2103,7 @@ color:white;
     }
   };
 
-  // 4. 用户与会员管理
+  // 4. 用户与会员管理（已优化：身份角色不换行，已注销账号增加恢复与删除操作）
   async function renderUsersTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在加载用户列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -2167,21 +2185,26 @@ color:white;
         <table class="kzyc-adm-table">
           <thead>
             <tr>
-              <th style="width: 60px;">UID</th>
-              <th style="width: 160px;">用户名</th>
+              <th class="kzyc-nowrap" style="width: 60px;">UID</th>
+              <th class="kzyc-nowrap" style="width: 150px;">用户名</th>
               <th>邮箱</th>
-              <th style="width: 120px;">身份角色</th>
-              <th style="width: 120px;">会员到期时间</th>
-              <th style="width: 130px;">注册时间</th>
-              <th style="width: 110px;">管理操作</th>
+              <th class="kzyc-nowrap" style="width: 120px;">身份角色</th>
+              <th class="kzyc-nowrap" style="width: 115px;">会员到期时间</th>
+              <th class="kzyc-nowrap" style="width: 130px;">注册时间</th>
+              <th class="kzyc-nowrap" style="width: 110px;">管理操作</th>
             </tr>
           </thead>
           <tbody>
             ${pageItems.length === 0 ? '<tr><td colspan="7" style="text-align: center; opacity: 0.5; padding: 20px;">暂无匹配用户</td></tr>' : pageItems.map(u => {
-              let roleBadge = '<span style="color: #2563eb; background: rgba(37,99,235,0.1); padding: 2px 6px; border-radius: 4px;">普通用户</span>';
-              if (u.role === 'admin') roleBadge = '<span style="color: #ea580c; font-weight: 700; background: rgba(234,88,12,0.1); padding: 2px 6px; border-radius: 4px;">👑 站长</span>';
-              if (u.role === 'svip') roleBadge = '<span style="color: #c026d3; font-weight: 700; background: rgba(217,70,239,0.1); padding: 2px 6px; border-radius: 4px;">👑 超级会员</span>';
-              if (u.role === 'vip') roleBadge = '<span style="color: #2563eb; font-weight: 700; background: rgba(37,99,235,0.15); padding: 2px 6px; border-radius: 4px;">💎 标准会员</span>';
+              let roleBadge = '<span style="color: #2563eb; background: rgba(37,99,235,0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">普通用户</span>';
+              const rLower = String(u.role || "").toLowerCase();
+              if (rLower.includes('admin') || rLower.includes('站长') || rLower.includes('管理')) {
+                roleBadge = '<span style="color: #ea580c; font-weight: 700; background: rgba(234,88,12,0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">👑 站长</span>';
+              } else if (rLower.includes('svip') || rLower.includes('超级')) {
+                roleBadge = '<span style="color: #c026d3; font-weight: 700; background: rgba(217,70,239,0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">👑 超级会员</span>';
+              } else if (rLower.includes('vip') || rLower.includes('标准')) {
+                roleBadge = '<span style="color: #2563eb; font-weight: 700; background: rgba(37,99,235,0.15); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">💎 标准会员</span>';
+              }
 
               let expireText = '--';
               if (u.vip_expire_at) {
@@ -2191,13 +2214,13 @@ color:white;
 
               return `
                 <tr>
-                  <td>#${u.id}</td>
-                  <td><strong class="kzyc-cell-truncate" title="${escapeHTML(u.username)}">${escapeHTML(u.username)}</strong></td>
+                  <td class="kzyc-nowrap">#${u.id}</td>
+                  <td><strong class="kzyc-cell-truncate" style="max-width: 140px;" title="${escapeHTML(u.username)}">${escapeHTML(u.username)}</strong></td>
                   <td><span class="kzyc-cell-truncate" title="${escapeHTML(u.email)}">${escapeHTML(u.email)}</span></td>
-                  <td>${roleBadge}</td>
-                  <td style="font-size: 0.76rem;">${expireText}</td>
-                  <td style="font-size: 0.74rem; opacity: 0.6;">${u.created_at ? u.created_at.slice(0, 16) : '--'}</td>
-                  <td>
+                  <td class="kzyc-nowrap">${roleBadge}</td>
+                  <td class="kzyc-nowrap" style="font-size: 0.76rem;">${expireText}</td>
+                  <td class="kzyc-nowrap" style="font-size: 0.74rem; opacity: 0.6;">${u.created_at ? u.created_at.slice(0, 16) : '--'}</td>
+                  <td class="kzyc-nowrap">
                     <button class="kzyc-adm-btn primary" data-id="${u.id}" data-name="${escapeHTML(u.username)}" data-email="${escapeHTML(u.email)}" data-role="${u.role}" data-expire="${u.vip_expire_at || ''}" onclick="handleEditUser(this)">编辑</button>
                     <button class="kzyc-adm-btn danger" onclick="handleDeleteUser(${u.id}, '${escapeHTML(u.username)}')">删除</button>
                   </td>
@@ -2212,19 +2235,32 @@ color:white;
         ${renderPaginationHTML(userCurrentPage, filteredUsers.length, USER_PAGE_SIZE, "gotoUserPage")}
       </div>
 
+      <!-- 已注销账号表格：支持一键恢复账号与彻底删除记录 -->
       <div style="margin-top: 24px;">
-        <span style="font-weight: 700; font-size: 0.88rem; color: #ef4444;">⚠️ 已注销账号（1年冷静期拦截）(${allDeletedAccounts.length})</span>
-        <div style="overflow-x: auto; margin-top: 6px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <span style="font-weight: 700; font-size: 0.88rem; color: #ef4444;">⚠️ 已注销账号列表与拦截管控 (${allDeletedAccounts.length})</span>
+          <span style="font-size: 0.74rem; opacity: 0.6;">注销期内禁止注册，可通过下方按钮直接恢复或删除</span>
+        </div>
+        <div style="overflow-x: auto;">
           <table class="kzyc-adm-table">
             <thead>
-              <tr><th>原用户名</th><th>原注册邮箱</th><th>注销时间</th></tr>
+              <tr>
+                <th class="kzyc-nowrap" style="width: 140px;">原用户名</th>
+                <th>原注册邮箱</th>
+                <th class="kzyc-nowrap" style="width: 150px;">注销时间</th>
+                <th class="kzyc-nowrap" style="width: 150px;">管理操作</th>
+              </tr>
             </thead>
             <tbody>
-              ${allDeletedAccounts.length === 0 ? '<tr><td colspan="3" style="opacity: 0.5; text-align: center; padding: 12px;">暂无注销记录</td></tr>' : allDeletedAccounts.map(d => `
+              ${allDeletedAccounts.length === 0 ? '<tr><td colspan="4" style="opacity: 0.5; text-align: center; padding: 12px;">暂无注销记录</td></tr>' : allDeletedAccounts.map(d => `
                 <tr>
-                  <td>${escapeHTML(d.username)}</td>
-                  <td>${escapeHTML(d.email)}</td>
-                  <td style="font-size: 0.76rem; color: #ef4444;">${d.deleted_at}</td>
+                  <td class="kzyc-nowrap"><strong>${escapeHTML(d.username)}</strong></td>
+                  <td><span class="kzyc-cell-truncate" title="${escapeHTML(d.email)}">${escapeHTML(d.email)}</span></td>
+                  <td class="kzyc-nowrap" style="font-size: 0.76rem; color: #ef4444;">${d.deleted_at}</td>
+                  <td class="kzyc-nowrap">
+                    <button class="kzyc-adm-btn success" onclick="handleRestoreDeleted('${escapeHTML(d.email)}', '${escapeHTML(d.username)}')">恢复账号</button>
+                    <button class="kzyc-adm-btn danger" onclick="handleDeleteDeleted('${escapeHTML(d.email)}', '${escapeHTML(d.username)}')">彻底删除</button>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
@@ -2348,18 +2384,26 @@ color:white;
       <div style="overflow-x: auto;">
         <table class="kzyc-adm-table">
           <thead>
-            <tr><th style="width: 50px;">ID</th><th style="width: 140px;">文章路径</th><th style="width: 100px;">发布用户</th><th>评论内容</th><th style="width: 80px;">状态</th><th style="width: 120px;">发布时间</th><th style="width: 110px;">操作</th></tr>
+            <tr>
+              <th class="kzyc-nowrap" style="width: 50px;">ID</th>
+              <th style="width: 150px;">文章路径</th>
+              <th class="kzyc-nowrap" style="width: 100px;">发布用户</th>
+              <th>评论内容</th>
+              <th class="kzyc-nowrap" style="width: 80px;">状态</th>
+              <th class="kzyc-nowrap" style="width: 120px;">发布时间</th>
+              <th class="kzyc-nowrap" style="width: 110px;">操作</th>
+            </tr>
           </thead>
           <tbody>
             ${list.map(c => `
               <tr>
-                <td>#${c.id}</td>
-                <td><span class="kzyc-cell-truncate" title="${escapeHTML(c.post_path)}">${escapeHTML(c.post_path)}</span></td>
-                <td><strong class="kzyc-cell-truncate" title="${escapeHTML(c.username)}">${escapeHTML(c.username)}</strong></td>
+                <td class="kzyc-nowrap">#${c.id}</td>
+                <td><span class="kzyc-cell-truncate" style="max-width: 140px;" title="${escapeHTML(c.post_path)}">${escapeHTML(c.post_path)}</span></td>
+                <td class="kzyc-nowrap"><strong class="kzyc-cell-truncate" style="max-width: 90px;" title="${escapeHTML(c.username)}">${escapeHTML(c.username)}</strong></td>
                 <td><span class="kzyc-cell-truncate" title="${escapeHTML(c.content)}">${escapeHTML(c.content)}</span></td>
-                <td>${c.status === 'pending' ? '<span style="color: #ea580c; font-weight: 700;">待审核</span>' : '<span style="color: #16a34a;">已通过</span>'}</td>
-                <td style="font-size: 0.74rem; opacity: 0.6;">${c.created_at.slice(0, 16)}</td>
-                <td>
+                <td class="kzyc-nowrap">${c.status === 'pending' ? '<span style="color: #ea580c; font-weight: 700; white-space: nowrap;">待审核</span>' : '<span style="color: #16a34a; white-space: nowrap;">已通过</span>'}</td>
+                <td class="kzyc-nowrap" style="font-size: 0.74rem; opacity: 0.6;">${c.created_at.slice(0, 16)}</td>
+                <td class="kzyc-nowrap">
                   ${c.status === 'pending' ? `<button class="kzyc-adm-btn success" onclick="moderateComment(${c.id}, 'approved')">通过</button>` : `<button class="kzyc-adm-btn warn" onclick="moderateComment(${c.id}, 'pending')">待审</button>`}
                   <button class="kzyc-adm-btn danger" onclick="deleteComment(${c.id})">删除</button>
                 </td>
@@ -2480,6 +2524,44 @@ color:white;
     const data = await res.json();
     if (data.success) {
       alert("用户已删除！");
+      const panel = document.getElementById("kzyc-adm-panel");
+      if (panel) renderUsersTab(panel);
+    } else {
+      alert(data.error || "删除失败");
+    }
+  };
+
+  // 恢复已注销账号
+  window.handleRestoreDeleted = async function(email, username) {
+    if (!confirm(`确定要恢复已注销账号 [${username}] (${email}) 吗？\n\n恢复后该用户将重新加入用户列表，初始密码设为 12345678，并自动解除注销拦截限制！`)) return;
+    const token = localStorage.getItem(TOKEN_KEY);
+    const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/restore`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message || "账号已成功恢复！");
+      const panel = document.getElementById("kzyc-adm-panel");
+      if (panel) renderUsersTab(panel);
+    } else {
+      alert(data.error || "恢复失败");
+    }
+  };
+
+  // 彻底删除注销记录
+  window.handleDeleteDeleted = async function(email, username) {
+    if (!confirm(`确定要彻底删除 [${username}] (${email}) 的注销记录吗？\n\n删除后该用户名和邮箱将立即解除1年冷却期锁定，允许重新注册！`)) return;
+    const token = localStorage.getItem(TOKEN_KEY);
+    const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message || "注销记录已彻底清除！");
       const panel = document.getElementById("kzyc-adm-panel");
       if (panel) renderUsersTab(panel);
     } else {

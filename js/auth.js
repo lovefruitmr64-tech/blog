@@ -49,7 +49,7 @@
     }
   }
 
-  // 动态注入圆形头像按钮与鼠标悬浮弹窗样式（完美兼容明亮模式与暗黑模式）
+  // 动态注入圆形头像按钮与悬浮弹窗样式（不折行、自适应加宽、精致小字体、完美适配明暗模式）
   function injectAvatarStyles() {
     if (document.getElementById("kzyc-avatar-popover-styles")) return;
     const styleEl = document.createElement("style");
@@ -101,16 +101,17 @@
         border-color: rgba(165, 180, 252, 0.75);
         box-shadow: 0 0 10px rgba(165, 180, 252, 0.3);
       }
-      /* 鼠标悬浮下拉弹出框 */
+      /* 鼠标悬浮下拉弹出框（自动加宽、完全不折行、精致阴影） */
       .kzyc-header-popover {
         position: absolute;
         top: 100%;
         right: 0;
         margin-top: 10px;
         z-index: 9999;
-        min-width: 205px;
-        padding: 12px 14px;
-        border-radius: 12px;
+        width: max-content;
+        min-width: 175px;
+        padding: 10px 14px;
+        border-radius: 10px;
         box-sizing: border-box;
         background: #ffffff;
         border: 1px solid #e2e8f0;
@@ -122,6 +123,7 @@
         transform: translateY(6px);
         transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
         text-align: left;
+        white-space: nowrap;
       }
       .kzyc-header-popover::before {
         content: "";
@@ -147,20 +149,18 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        margin-bottom: 6px;
+        gap: 12px;
+        margin-bottom: 5px;
+        white-space: nowrap;
       }
       .kzyc-popover-name {
         font-weight: 700;
-        font-size: 0.95rem;
-        max-width: 110px;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 0.85rem;
         white-space: nowrap;
       }
       .kzyc-popover-badge {
-        font-size: 0.72rem;
-        padding: 2px 7px;
+        font-size: 0.68rem;
+        padding: 1.5px 6px;
         border-radius: 9999px;
         font-weight: 600;
         white-space: nowrap;
@@ -213,13 +213,17 @@
       .kzyc-popover-expire {
         display: flex;
         align-items: center;
-        font-size: 0.76rem;
-        padding-top: 8px;
-        margin-top: 4px;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 0.72rem;
+        padding-top: 6px;
+        margin-top: 3px;
         border-top: 1px dashed rgba(148, 163, 184, 0.28);
+        white-space: nowrap;
       }
       .kzyc-popover-expire-label {
         color: #64748b;
+        white-space: nowrap;
       }
       [data-md-color-scheme="slate"] .kzyc-popover-expire-label {
         color: #94a3b8;
@@ -227,17 +231,19 @@
       .kzyc-popover-expire-val {
         color: #ea580c;
         font-weight: 600;
+        white-space: nowrap;
       }
       [data-md-color-scheme="slate"] .kzyc-popover-expire-val {
         color: #fb923c;
       }
       .kzyc-popover-footer-tip {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: #94a3b8;
         text-align: center;
-        margin-top: 8px;
-        padding-top: 6px;
+        margin-top: 6px;
+        padding-top: 5px;
         border-top: 1px solid rgba(148, 163, 184, 0.15);
+        white-space: nowrap;
       }
     `;
     document.head.appendChild(styleEl);
