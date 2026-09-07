@@ -1,7 +1,4 @@
-(function () {
-  console.log("[kzyc-auth] 核心脚本启动成功！");
-
-  const API_BASE = "https://auth.kzyc.de5.net";
+const API_BASE = "https://auth.kzyc.de5.net";
   const TOKEN_KEY = "kzyc_token";
   const TURNSTILE_SITE_KEY = "0x4AAAAAAElpbO-4m9lnVEmf";
 
@@ -218,7 +215,7 @@
               <div class="kzyc-msg" id="kzyc-forgot-msg"></div>
             </div>
 
-            <!-- 个人中心视图 -->
+            <!-- 个人中心视图（已升级：独立高亮显示到期时间与下载配额） -->
             <div id="kzyc-profile-view" style="display: none;">
               <div class="kzyc-prof-topbar">
                 <div class="kzyc-prof-title-wrap">
@@ -1292,17 +1289,17 @@
               if (uMail) uMail.textContent = currentUser.email || "--";
               if (uId) uId.textContent = `#${currentUser.id || "--"}`;
 
-              // 智能兼容角色（中英文、大小写、生效角色）
+              // 智能模糊兼容角色（中英文、表情符号、有效角色）
               const rawRole = String(currentUser.role || "").trim().toLowerCase();
               const effRole = String(currentUser.effective_role || "").trim().toLowerCase();
               const isExpired = currentUser.is_expired === true;
 
               let roleType = "user";
-              if (rawRole === "admin" || rawRole === "管理员" || rawRole === "站长" || effRole === "admin") {
+              if (rawRole.includes("站长") || rawRole.includes("管理") || rawRole === "admin" || effRole === "admin") {
                 roleType = "admin";
-              } else if (rawRole === "svip" || rawRole === "超级会员" || effRole === "svip") {
+              } else if (rawRole.includes("超级") || rawRole.includes("svip") || effRole === "svip") {
                 roleType = "svip";
-              } else if (rawRole === "vip" || rawRole === "标准会员" || effRole === "vip") {
+              } else if (rawRole.includes("标准") || rawRole.includes("vip") || effRole === "vip") {
                 roleType = "vip";
               }
 
@@ -1325,12 +1322,13 @@
                 uRole.className = roleClass;
               }
 
-              // 配额与到期信息
+              // 配额计算
               const todayCount = currentUser.today_downloads || 0;
               const limit = currentUser.daily_limit || (roleType === "svip" ? 20 : (roleType === "vip" ? 10 : 3));
               const quotaText = roleType === "admin" ? "无限制" : `${todayCount} / ${limit} 篇`;
               if (quotaVal) quotaVal.textContent = quotaText;
 
+              // 到期时间处理
               const expireDate = String(currentUser.vip_expire_at || currentUser.vip_expires_at || "").trim();
               let expireDisplay = "未开通";
               if (roleType === "admin") {
@@ -1350,7 +1348,7 @@
               }
             };
 
-            // 1. 先用现有数据立即渲染弹窗
+            // 1. 先用本地内存数据立即展现
             renderProfileData();
 
             if (authView) authView.style.display = "none";
@@ -1359,7 +1357,7 @@
             if (backdrop) backdrop.classList.add("active");
             loadMyDownloads();
 
-            // 2. 异步请求 /api/me 刷新最新数据（包含到期时间和今日下载记录）
+            // 2. 异步请求 /api/me 确保获取到最新的到期时间与下载记录
             try {
               const res = await fetch(`${API_BASE}/api/me`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
