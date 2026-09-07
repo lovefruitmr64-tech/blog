@@ -304,7 +304,7 @@
           const parts = line.split("|").map(s => s.trim());
           name = parts[0] || "";
           url = parts || "";
-          code = parts || "";
+          code = parts[2] || "";
         } else {
           // 精确正则定位 http(s) 地址，前后准确剥离
           const urlMatch = line.match(/https?:\/\/[^\s,，;；]+/i);
@@ -316,7 +316,7 @@
             const parts = line.split(/[,，\s]+/).map(s => s.trim());
             name = parts[0] || "";
             url = parts || "";
-            code = parts || "";
+            code = parts[2] || "";
           }
         }
 
@@ -343,7 +343,7 @@
     }
 
     // 生成纯净独立的单行网盘 DOM
-    let html = `<div class="kzyc-pan-card">`;
+    let html = `<div class="kzyc-netdisk-card">`;
     list.forEach((ch) => {
       const name = ch.name || detectPanName(ch.url);
       const url = ch.url || "#";
@@ -351,22 +351,22 @@
       const isFree = isFreeCode(code);
 
       html += `
-        <div class="kzyc-pan-row">
-          <div class="kzyc-pan-left">
-            <span class="kzyc-pan-icon">📁</span>
-            <span class="kzyc-pan-name">${escapeHTML(name)}</span>
+        <div class="kzyc-netdisk-row">
+          <div class="kzyc-netdisk-left">
+            <span class="kzyc-netdisk-icon">📁</span>
+            <span class="kzyc-netdisk-name">${escapeHTML(name)}</span>
           </div>
-          <div class="kzyc-pan-mid">
+          <div class="kzyc-netdisk-center">
             ${
               isFree
-                ? `<span class="kzyc-pan-free">免提取码</span>`
-                : `<span class="kzyc-pan-label">提取码</span>
-                   <span class="kzyc-pan-code">${escapeHTML(code)}</span>
-                   <button type="button" class="kzyc-pan-copy" data-copy="${escapeHTML(code)}">复制</button>`
+                ? `<span class="kzyc-netdisk-free">免提取码</span>`
+                : `<span class="kzyc-netdisk-label">提取码</span>
+                   <span class="kzyc-netdisk-code">${escapeHTML(code)}</span>
+                   <button type="button" class="kzyc-netdisk-copy-btn" data-copy="${escapeHTML(code)}">复制</button>`
             }
           </div>
-          <div class="kzyc-pan-right">
-            <a href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer" class="kzyc-pan-btn">点击下载 ↗</a>
+          <div class="kzyc-netdisk-right">
+            <a href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer" class="kzyc-netdisk-dl-btn">点击下载 ↗</a>
           </div>
         </div>
       `;
@@ -374,116 +374,118 @@
 
     if (unzipPwd) {
       html += `
-        <div class="kzyc-unzip-box">
-          <div class="kzyc-unzip-txt">
-            <span>🔑 专属解压密码：</span>
-            <strong>${escapeHTML(unzipPwd)}</strong>
+        <div class="kzyc-netdisk-unzip-row">
+          <div class="kzyc-netdisk-unzip-info">
+            <span class="kzyc-netdisk-unzip-label">🔑 专属解压密码：</span>
+            <span class="kzyc-netdisk-unzip-val">${escapeHTML(unzipPwd)}</span>
           </div>
-          <button type="button" class="kzyc-pan-copy" data-copy="${escapeHTML(unzipPwd)}">复制密码</button>
+          <button type="button" class="kzyc-netdisk-copy-btn unzip" data-copy="${escapeHTML(unzipPwd)}">复制密码</button>
         </div>
       `;
     }
 
     html += `</div>`;
 
-    // 独立注入高优先级样式（确保不被外部旧 CSS 冲突篡改，保证排版整齐）
-    if (!document.getElementById("kzyc-pan-isolated-styles")) {
+    // 独立注入高优先级专属样式
+    if (!document.getElementById("kzyc-netdisk-isolated-styles")) {
       const style = document.createElement("style");
-      style.id = "kzyc-pan-isolated-styles";
+      style.id = "kzyc-netdisk-isolated-styles";
       style.textContent = `
-        .kzyc-pan-card {
+        .kzyc-netdisk-card {
           width: 100% !important;
-          margin: 12px 0 4px !important;
-          border: 1px solid rgba(127, 127, 127, 0.2) !important;
-          border-radius: 10px !important;
+          margin: 14px 0 6px !important;
+          border: 1px solid rgba(128, 128, 128, 0.18) !important;
+          border-radius: 12px !important;
           overflow: hidden !important;
           background: var(--md-default-bg-color, #ffffff) !important;
           box-sizing: border-box !important;
         }
-        .kzyc-pan-row {
+        .kzyc-netdisk-row {
           display: flex !important;
           align-items: center !important;
           justify-content: space-between !important;
           gap: 12px !important;
-          padding: 10px 16px !important;
-          border-bottom: 1px solid rgba(127, 127, 127, 0.12) !important;
+          min-height: 52px !important;
+          padding: 8px 16px !important;
+          border-bottom: 1px solid rgba(128, 128, 128, 0.12) !important;
           box-sizing: border-box !important;
           white-space: nowrap !important;
           flex-wrap: nowrap !important;
         }
-        .kzyc-pan-row:last-of-type {
+        .kzyc-netdisk-row:last-of-type {
           border-bottom: none !important;
         }
-        .kzyc-pan-left {
-          display: inline-flex !important;
+        .kzyc-netdisk-left {
+          display: flex !important;
           align-items: center !important;
           gap: 8px !important;
-          min-width: 96px !important;
+          min-width: 100px !important;
           flex: 0 0 auto !important;
         }
-        .kzyc-pan-icon {
+        .kzyc-netdisk-icon {
           font-size: 1.1rem !important;
           line-height: 1 !important;
         }
-        .kzyc-pan-name {
-          font-size: 0.9rem !important;
-          font-weight: 700 !important;
+        .kzyc-netdisk-name {
+          font-size: 0.92rem !important;
+          font-weight: 600 !important;
           color: var(--md-default-fg-color, #1e293b) !important;
           white-space: nowrap !important;
         }
-        .kzyc-pan-mid {
-          display: inline-flex !important;
+        .kzyc-netdisk-center {
+          display: flex !important;
           align-items: center !important;
           gap: 8px !important;
+          white-space: nowrap !important;
           flex: 1 1 auto !important;
           justify-content: center !important;
-          white-space: nowrap !important;
         }
-        .kzyc-pan-label {
+        .kzyc-netdisk-label {
           font-size: 0.78rem !important;
-          opacity: 0.7 !important;
+          color: var(--md-default-fg-color--light, #64748b) !important;
           white-space: nowrap !important;
         }
-        .kzyc-pan-code {
+        .kzyc-netdisk-code {
           font-size: 0.88rem !important;
           font-weight: 700 !important;
           color: #2563eb !important;
           letter-spacing: 0.5px !important;
           white-space: nowrap !important;
         }
-        .kzyc-pan-free {
+        .kzyc-netdisk-free {
           font-size: 0.78rem !important;
-          opacity: 0.75 !important;
-          background: rgba(127, 127, 127, 0.08) !important;
-          padding: 2px 8px !important;
+          color: var(--md-default-fg-color--light, #64748b) !important;
+          background: rgba(128, 128, 128, 0.08) !important;
+          padding: 3px 8px !important;
           border-radius: 6px !important;
           white-space: nowrap !important;
         }
-        .kzyc-pan-copy {
-          border: 1px solid rgba(127, 127, 127, 0.25) !important;
-          background: rgba(127, 127, 127, 0.06) !important;
-          color: inherit !important;
+        .kzyc-netdisk-copy-btn {
+          border: 1px solid rgba(128, 128, 128, 0.25) !important;
+          background: rgba(128, 128, 128, 0.06) !important;
+          color: var(--md-default-fg-color, inherit) !important;
           border-radius: 6px !important;
-          padding: 3px 8px !important;
+          padding: 3px 9px !important;
           font-size: 0.72rem !important;
           font-weight: 600 !important;
           cursor: pointer !important;
           white-space: nowrap !important;
-          transition: all 0.2s !important;
+          transition: all 0.2s ease !important;
+          outline: none !important;
         }
-        .kzyc-pan-copy:hover {
+        .kzyc-netdisk-copy-btn:hover {
           background: rgba(37, 99, 235, 0.12) !important;
           border-color: #2563eb !important;
           color: #2563eb !important;
         }
-        .kzyc-pan-right {
-          display: inline-flex !important;
+        .kzyc-netdisk-right {
+          display: flex !important;
           align-items: center !important;
           justify-content: flex-end !important;
-          flex: 0 0 auto !important;
           white-space: nowrap !important;
+          flex: 0 0 auto !important;
         }
-        .kzyc-pan-btn {
+        .kzyc-netdisk-dl-btn {
           display: inline-flex !important;
           align-items: center !important;
           justify-content: center !important;
@@ -494,66 +496,105 @@
           color: #ffffff !important;
           text-decoration: none !important;
           font-size: 0.78rem !important;
-          font-weight: 700 !important;
+          font-weight: 600 !important;
           white-space: nowrap !important;
           transition: all 0.2s ease !important;
           box-sizing: border-box !important;
         }
-        .kzyc-pan-btn:hover {
+        .kzyc-netdisk-dl-btn:hover {
           background: #1d4ed8 !important;
           transform: translateY(-1px) !important;
           box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25) !important;
         }
-        .kzyc-unzip-box {
+        .kzyc-netdisk-unzip-row {
           display: flex !important;
           align-items: center !important;
           justify-content: space-between !important;
           gap: 12px !important;
-          padding: 9px 16px !important;
+          min-height: 48px !important;
+          padding: 8px 16px !important;
           border-top: 1px dashed rgba(234, 88, 12, 0.3) !important;
           background: rgba(234, 88, 12, 0.04) !important;
           box-sizing: border-box !important;
           white-space: nowrap !important;
           flex-wrap: nowrap !important;
         }
-        .kzyc-unzip-txt {
-          display: inline-flex !important;
+        .kzyc-netdisk-unzip-info {
+          display: flex !important;
           align-items: center !important;
           gap: 6px !important;
+          white-space: nowrap !important;
+        }
+        .kzyc-netdisk-unzip-label {
           font-size: 0.82rem !important;
+          color: var(--md-default-fg-color--light, #64748b) !important;
           white-space: nowrap !important;
         }
-        .kzyc-unzip-txt strong {
-          color: #ea580c !important;
-          font-weight: 700 !important;
+        .kzyc-netdisk-unzip-val {
           font-size: 0.9rem !important;
+          font-weight: 700 !important;
+          color: #ea580c !important;
           white-space: nowrap !important;
         }
-        [data-md-color-scheme="slate"] .kzyc-pan-card {
+        [data-md-color-scheme="slate"] .kzyc-netdisk-card {
           border-color: rgba(255, 255, 255, 0.12) !important;
         }
-        [data-md-color-scheme="slate"] .kzyc-pan-row {
+        [data-md-color-scheme="slate"] .kzyc-netdisk-row {
           border-color: rgba(255, 255, 255, 0.08) !important;
         }
+        [data-md-color-scheme="slate"] .kzyc-netdisk-copy-btn {
+          background: rgba(255, 255, 255, 0.06) !important;
+          border-color: rgba(255, 255, 255, 0.14) !important;
+        }
         @media (max-width: 600px) {
-          .kzyc-pan-row {
+          .kzyc-netdisk-row {
             padding: 7px 10px !important;
             gap: 6px !important;
+            min-height: 44px !important;
           }
-          .kzyc-pan-left {
+          .kzyc-netdisk-left {
             min-width: 76px !important;
             gap: 4px !important;
           }
-          .kzyc-pan-icon { font-size: 0.9rem !important; }
-          .kzyc-pan-name { font-size: 0.78rem !important; }
-          .kzyc-pan-mid { gap: 4px !important; }
-          .kzyc-pan-label { font-size: 0.68rem !important; }
-          .kzyc-pan-code { font-size: 0.76rem !important; }
-          .kzyc-pan-free { font-size: 0.68rem !important; padding: 2px 5px !important; }
-          .kzyc-pan-copy { font-size: 0.65rem !important; padding: 2px 5px !important; }
-          .kzyc-pan-btn { height: 28px !important; padding: 0 8px !important; font-size: 0.68rem !important; }
-          .kzyc-unzip-box { padding: 7px 10px !important; }
-          .kzyc-unzip-txt { font-size: 0.72rem !important; }
+          .kzyc-netdisk-icon {
+            font-size: 0.9rem !important;
+          }
+          .kzyc-netdisk-name {
+            font-size: 0.78rem !important;
+          }
+          .kzyc-netdisk-center {
+            gap: 4px !important;
+          }
+          .kzyc-netdisk-label {
+            font-size: 0.68rem !important;
+          }
+          .kzyc-netdisk-code {
+            font-size: 0.76rem !important;
+          }
+          .kzyc-netdisk-free {
+            font-size: 0.68rem !important;
+            padding: 2px 5px !important;
+          }
+          .kzyc-netdisk-copy-btn {
+            font-size: 0.65rem !important;
+            padding: 2px 6px !important;
+          }
+          .kzyc-netdisk-dl-btn {
+            height: 28px !important;
+            padding: 0 8px !important;
+            font-size: 0.68rem !important;
+          }
+          .kzyc-netdisk-unzip-row {
+            padding: 7px 10px !important;
+            min-height: 42px !important;
+            gap: 6px !important;
+          }
+          .kzyc-netdisk-unzip-label {
+            font-size: 0.7rem !important;
+          }
+          .kzyc-netdisk-unzip-val {
+            font-size: 0.76rem !important;
+          }
         }
       `;
       (document.head || document.documentElement).appendChild(style);
@@ -829,7 +870,8 @@
                 resultBox.style.display = "block";
                 resultBox.innerHTML = renderChannelsHTML(data.download_url, data.extract_code, data.unzip_pwd);
 
-                resultBox.querySelectorAll(".kzyc-pan-copy, .kzyc-copy-btn").forEach((cBtn) => {
+                // 绑定复制功能（兼顾所有按钮）
+                resultBox.querySelectorAll(".kzyc-netdisk-copy-btn, .kzyc-pan-copy, .kzyc-copy-btn").forEach((cBtn) => {
                   cBtn.addEventListener("click", () => {
                     navigator.clipboard.writeText(cBtn.getAttribute("data-copy"));
                     const orig = cBtn.textContent;
