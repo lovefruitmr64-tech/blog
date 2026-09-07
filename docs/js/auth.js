@@ -1,4 +1,7 @@
-const API_BASE = "https://auth.kzyc.de5.net";
+(function () {
+  console.log("[kzyc-auth] 核心脚本启动成功！");
+
+  const API_BASE = "https://auth.kzyc.de5.net";
   const TOKEN_KEY = "kzyc_token";
   const TURNSTILE_SITE_KEY = "0x4AAAAAAElpbO-4m9lnVEmf";
 
