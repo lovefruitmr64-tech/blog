@@ -249,81 +249,480 @@
     document.head.appendChild(styleEl);
   }
 
-  // 极简高级多网盘解析器
-  function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
-    let list = [];
-    const raw = String(rawUrl || "").trim();
+  // 多网盘横向下载卡片
+function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
+  let list = [];
+  const raw = String(rawUrl || "").trim();
 
-    if (raw.startsWith("[")) {
-      try {
-        const arr = JSON.parse(raw);
-        list = arr.map((item) => ({
-          name: item.name || "网盘下载",
-          url: item.url || "#",
-          code: item.code || item.extract_code || "",
-        }));
-      } catch {}
+  // 判断是否为免提取码
+  function isFreeCode(code) {
+    const value = String(code || "").trim().toLowerCase();
+    return !value ||
+      value === "免密" ||
+      value === "免提取码" ||
+      value === "无需提取码" ||
+      value === "无" ||
+      value === "none" ||
+      value === "null";
+  }
+
+  // 判断是否为 URL
+  function isUrl(value) {
+    return /^https?:\/\//i.test(String(value || "").trim());
+  }
+
+  // 根据 URL 自动识别网盘名称
+  function detectPanName(url) {
+    const value = String(url || "").toLowerCase();
+
+    if (value.includes("pan.baidu.com")) return "百度网盘";
+    if (value.includes("pan.quark.cn")) return "夸克网盘";
+    if (value.includes("pan.xunlei.com")) return "迅雷云盘";
+    if (value.includes("aliyundrive.com") || value.includes("alipan.com")) return "阿里云盘";
+    if (value.includes("123pan.com")) return "123云盘";
+
+    return "网盘下载";
+  }
+
+  // 1. JSON 格式
+  if (raw.startsWith("[")) {
+    try {
+      const arr = JSON.parse(raw);
+
+      if (Array.isArray(arr)) {
+        list = arr.map((item) => {
+          const url = String(item.url || item.download_url || "").trim();
+
+          return {
+            name: item.name || detectPanName(url),
+            url: url || "#",
+            code: item.code || item.extract_code || ""
+          };
+        }).filter(item => item.url && item.url !== "#");
+      }
+    } catch (e) {
+      console.warn("[kzyc-auth] 多网盘 JSON 解析失败:", e);
     }
+  }
 
-    if (list.length === 0) {
-      const lines = raw.split(/[\r\n;]+/).map((s) => s.trim()).filter(Boolean);
-      for (const line of lines) {
-        let parts = line.split(/[|]/).map((s) => s.trim());
-        if (parts.length < 2) {
-          parts = line.split(/[,，]/).map((s) => s.trim());
-        }
-        if (parts.length >= 2) {
-          list.push({
-            name: parts[0] || "网盘下载",
-            url: parts || "#",
-            code: parts || "",
-          });
+  // 2. 普通文本格式
+  //
+  // 推荐格式：
+  // 百度网盘|https://pan.baidu.com/s/xxxx|8888
+  // 夸克网盘|https://pan.quark.cn/s/xxxx|免提取码
+  // 迅雷云盘|https://pan.xunlei.com/s/xxxx|8888
+  //
+  // 同时兼容逗号格式：
+  // 百度网盘,https://pan.baidu.com/s/xxxx,8888
+  //
+  if (list.length === 0 && raw) {
+    const lines = raw
+      .split(/[\r\n;]+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    for (const line of lines) {
+      let name = "";
+      let url = "";
+      let code = "";
+
+      // 优先使用 |
+      if (line.includes("|")) {
+        const parts = line.split("|").map(s => s.trim());
+
+        name = parts[0] || "";
+        url = parts[1] || "";
+        code = parts[2] || "";
+      }
+
+      // 兼容逗号
+      else {
+        const urlMatch = line.match(/https?:\/\/[^\s,，]+/i);
+
+        if (urlMatch) {
+          url = urlMatch[0].trim();
+
+          const before = line.slice(0, urlMatch.index).replace(/[,，]\s*$/, "").trim();
+          const after = line.slice(urlMatch.index + urlMatch[0].length).replace(/^[,，]\s*/, "").trim();
+
+          name = before;
+          code = after;
         }
       }
-    }
 
-    if (list.length === 0 && raw) {
-      list = [{ name: "网盘直通", url: raw, code: singleCode || "" }];
-    }
+      // URL 存在才加入
+      if (url) {
+        if (!name || isUrl(name)) {
+          name = detectPanName(url);
+        }
 
-    let html = `<div class="kzyc-channel-wrap">`;
-    list.forEach((ch) => {
-      const isFree = !ch.code || ch.code === "免密" || ch.code === "免提取码" || ch.code === "无";
-      html += `
-        <div class="kzyc-channel-row">
-          <div class="kzyc-channel-left">
-            <span class="kzyc-channel-tag">📁 ${escapeHTML(ch.name)}</span>
-          </div>
-          <div class="kzyc-channel-right">
-            ${
-              !isFree
-                ? `<div class="kzyc-code-wrap">
-                     <span>提取码:</span>
-                     <span class="kzyc-code-val">${escapeHTML(ch.code)}</span>
-                     <button type="button" class="kzyc-copy-btn" data-copy="${escapeHTML(ch.code)}">复制</button>
-                   </div>`
-                : `<span class="kzyc-free-tag">免提取码</span>`
-            }
-            <a href="${ch.url}" target="_blank" rel="noopener" class="kzyc-dl-link-btn">点击下载 ↗</a>
-          </div>
-        </div>
-      `;
-    });
-
-    if (unzipPwd) {
-      html += `
-        <div class="kzyc-unzip-row">
-          <div>
-            <span>🔑 专属解压密码：</span>
-            <span class="kzyc-unzip-pwd-tag">${escapeHTML(unzipPwd)}</span>
-          </div>
-          <button type="button" class="kzyc-copy-btn unzip" data-copy="${escapeHTML(unzipPwd)}">复制密码</button>
-        </div>
-      `;
+        list.push({
+          name: name || detectPanName(url),
+          url,
+          code: code || ""
+        });
+      }
     }
-    html += `</div>`;
-    return html;
   }
+
+  // 3. 如果没有识别到多网盘，则按照单链接处理
+  if (list.length === 0 && raw) {
+    list = [{
+      name: detectPanName(raw),
+      url: raw,
+      code: singleCode || ""
+    }];
+  }
+
+  // ==============================
+  // 开始生成 HTML
+  // ==============================
+
+  let html = `
+    <div class="kzyc-channel-wrap">
+  `;
+
+  list.forEach((ch) => {
+    const name = ch.name || detectPanName(ch.url);
+    const url = ch.url || "#";
+    const code = String(ch.code || "").trim();
+    const isFree = isFreeCode(code);
+
+    html += `
+      <div class="kzyc-channel-row">
+
+        <!-- 网盘名称 -->
+        <div class="kzyc-channel-name">
+          <span class="kzyc-channel-icon">📁</span>
+          <span>${escapeHTML(name)}</span>
+        </div>
+
+        <!-- 提取码 -->
+        <div class="kzyc-channel-code">
+          ${
+            isFree
+              ? `
+                <span class="kzyc-free-tag">
+                  免提取码
+                </span>
+              `
+              : `
+                <span class="kzyc-code-label">提取码</span>
+                <span class="kzyc-code-value">
+                  ${escapeHTML(code)}
+                </span>
+                <button
+                  type="button"
+                  class="kzyc-copy-btn"
+                  data-copy="${escapeHTML(code)}"
+                >复制</button>
+              `
+          }
+        </div>
+
+        <!-- 下载按钮 -->
+        <div class="kzyc-channel-download">
+          <a
+            href="${escapeHTML(url)}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="kzyc-dl-link-btn"
+          >
+            点击下载 ↗
+          </a>
+        </div>
+
+      </div>
+    `;
+  });
+
+  // 解压密码
+  if (unzipPwd) {
+    html += `
+      <div class="kzyc-unzip-row">
+
+        <div class="kzyc-unzip-info">
+          <span class="kzyc-unzip-label">🔑 专属解压密码</span>
+          <span class="kzyc-unzip-value">
+            ${escapeHTML(unzipPwd)}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="kzyc-copy-btn unzip"
+          data-copy="${escapeHTML(unzipPwd)}"
+        >
+          复制密码
+        </button>
+
+      </div>
+    `;
+  }
+
+  html += `
+    </div>
+  `;
+
+  // 动态注入下载卡片样式
+  if (!document.getElementById("kzyc-channel-styles")) {
+    const style = document.createElement("style");
+    style.id = "kzyc-channel-styles";
+
+    style.textContent = `
+
+      /* ==============================
+         多网盘下载区域
+         ============================== */
+
+      .kzyc-channel-wrap {
+        width: 100%;
+        margin: 14px 0 4px;
+        border: 1px solid rgba(128, 128, 128, 0.18);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--md-default-bg-color);
+        box-sizing: border-box;
+      }
+
+      /* 每一个网盘一整行 */
+      .kzyc-channel-row {
+        display: grid;
+        grid-template-columns: minmax(120px, 1fr) auto auto;
+        align-items: center;
+        gap: 18px;
+        min-height: 54px;
+        padding: 8px 14px;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.14);
+        box-sizing: border-box;
+        white-space: nowrap;
+      }
+
+      .kzyc-channel-row:last-of-type {
+        border-bottom: none;
+      }
+
+      /* 网盘名称 */
+      .kzyc-channel-name {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-width: 0;
+        font-size: 0.92rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .kzyc-channel-icon {
+        flex: 0 0 auto;
+        font-size: 1rem;
+      }
+
+      /* 提取码区域 */
+      .kzyc-channel-code {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 7px;
+        white-space: nowrap;
+        min-width: max-content;
+      }
+
+      .kzyc-code-label {
+        font-size: 0.78rem;
+        color: var(--md-default-fg-color--light);
+        white-space: nowrap;
+      }
+
+      .kzyc-code-value {
+        font-size: 0.86rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+
+      .kzyc-free-tag {
+        font-size: 0.78rem;
+        color: var(--md-default-fg-color--light);
+        white-space: nowrap;
+      }
+
+      /* 复制按钮 */
+      .kzyc-copy-btn {
+        border: 1px solid rgba(128, 128, 128, 0.25);
+        background: rgba(128, 128, 128, 0.06);
+        color: var(--md-default-fg-color);
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: 0.72rem;
+        line-height: 1.3;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+      }
+
+      .kzyc-copy-btn:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: rgba(99, 102, 241, 0.35);
+      }
+
+      /* 下载按钮区域 */
+      .kzyc-channel-download {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        white-space: nowrap;
+      }
+
+      .kzyc-dl-link-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 34px;
+        padding: 0 14px;
+        border-radius: 7px;
+        background: #2563eb;
+        color: #fff !important;
+        text-decoration: none !important;
+        font-size: 0.78rem;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+      }
+
+      .kzyc-dl-link-btn:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+      }
+
+      /* 解压密码 */
+      .kzyc-unzip-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 52px;
+        padding: 8px 14px;
+        border-top: 1px solid rgba(128, 128, 128, 0.14);
+        box-sizing: border-box;
+        white-space: nowrap;
+      }
+
+      .kzyc-unzip-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        white-space: nowrap;
+      }
+
+      .kzyc-unzip-label {
+        font-size: 0.82rem;
+        color: var(--md-default-fg-color--light);
+        white-space: nowrap;
+      }
+
+      .kzyc-unzip-value {
+        font-size: 0.88rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      /* 暗黑模式 */
+      [data-md-color-scheme="slate"] .kzyc-channel-wrap {
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      [data-md-color-scheme="slate"] .kzyc-channel-row {
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      [data-md-color-scheme="slate"] .kzyc-copy-btn {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.14);
+      }
+
+      /* ==============================
+         手机端
+         保持一行，不允许换行
+         ============================== */
+
+      @media (max-width: 600px) {
+
+        .kzyc-channel-row {
+          grid-template-columns: minmax(82px, 1fr) auto auto;
+          gap: 6px;
+          padding: 7px 9px;
+          min-height: 48px;
+        }
+
+        .kzyc-channel-name {
+          gap: 4px;
+          font-size: 0.76rem;
+        }
+
+        .kzyc-channel-icon {
+          font-size: 0.85rem;
+        }
+
+        .kzyc-channel-code {
+          gap: 4px;
+          font-size: 0.7rem;
+        }
+
+        .kzyc-code-label {
+          font-size: 0.66rem;
+        }
+
+        .kzyc-code-value {
+          font-size: 0.72rem;
+        }
+
+        .kzyc-free-tag {
+          font-size: 0.66rem;
+        }
+
+        .kzyc-copy-btn {
+          padding: 2px 5px;
+          font-size: 0.62rem;
+          border-radius: 5px;
+        }
+
+        .kzyc-dl-link-btn {
+          height: 29px;
+          padding: 0 8px;
+          font-size: 0.65rem;
+          border-radius: 6px;
+        }
+
+        .kzyc-unzip-row {
+          padding: 7px 9px;
+          min-height: 46px;
+          gap: 6px;
+        }
+
+        .kzyc-unzip-label {
+          font-size: 0.68rem;
+        }
+
+        .kzyc-unzip-value {
+          font-size: 0.72rem;
+        }
+
+        .kzyc-unzip-row .kzyc-copy-btn {
+          flex: 0 0 auto;
+        }
+      }
+
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  return html;
+}
 
   function initAuthDOM() {
     try {
