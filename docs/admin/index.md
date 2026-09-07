@@ -52,7 +52,6 @@ hide:
 .kzyc-adm-tab:hover { opacity: 1; background: rgba(37, 99, 235, 0.08); }
 .kzyc-adm-tab.active { opacity: 1; background: #2563eb; color: #ffffff !important; }
 
-/* 统计卡片网格 */
 .kzyc-adm-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -70,7 +69,6 @@ hide:
 .kzyc-adm-stat-num.warn { color: #ea580c; }
 .kzyc-adm-stat-label { font-size: 0.8rem; opacity: 0.7; }
 
-/* 表格紧凑轻量化 */
 .kzyc-adm-table {
   width: 100%;
   border-collapse: collapse;
@@ -86,7 +84,6 @@ hide:
 }
 .kzyc-adm-table th { background: rgba(127, 127, 127, 0.06); font-weight: 700; font-size: 0.78rem; }
 
-/* 单行截断省略，不撑开表格 */
 .kzyc-cell-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -109,7 +106,6 @@ hide:
 .kzyc-adm-btn.danger { background: #dc2626; color: #fff !important; }
 .kzyc-adm-btn.warn { background: #ea580c; color: #fff !important; }
 
-/* 表单与输入框 */
 .kzyc-adm-form-card {
   background: rgba(127, 127, 127, 0.04);
   border: 1px solid rgba(127, 127, 127, 0.18);
@@ -138,7 +134,6 @@ hide:
   width: 220px;
 }
 
-/* 分页条组件 */
 .kzyc-pagination-wrap {
   display: flex;
   align-items: center;
@@ -181,7 +176,6 @@ hide:
   font-size: 0.78rem;
 }
 
-/* 轮播图管理专属卡片 */
 .kzyc-banner-card {
   border: 1px solid rgba(127, 127, 127, 0.18);
   border-radius: 10px;
@@ -207,13 +201,11 @@ hide:
   let adminStats = null;
   let activeTab = "overview";
 
-  // 资源分页与搜索状态
   let allResources = [];
   let filteredResources = [];
   let resCurrentPage = 1;
   const RES_PAGE_SIZE = 10;
 
-  // 用户分页与搜索状态
   let allUsers = [];
   let filteredUsers = [];
   let userCurrentPage = 1;
@@ -229,14 +221,11 @@ hide:
       .replace(/'/g, "&#039;");
   }
 
-  // 通用高级分页条渲染算法（支持 首页 1 2 3 ... 34 35 末页 + 指定页码输入框）
   function renderPaginationHTML(currentPage, totalItems, pageSize, funcName) {
     const totalPages = Math.ceil(totalItems / pageSize) || 1;
     if (totalPages <= 1) return "";
 
     let html = `<div class="kzyc-pagination-wrap">`;
-
-    // 首页 & 上一页
     if (currentPage > 1) {
       html += `<button class="kzyc-page-btn" onclick="${funcName}(1)">首页</button>`;
       html += `<button class="kzyc-page-btn" onclick="${funcName}(${currentPage - 1})">上一页</button>`;
@@ -245,7 +234,6 @@ hide:
       html += `<button class="kzyc-page-btn disabled">上一页</button>`;
     }
 
-    // 中间页码（如 1 2 3 ... 34 35）
     const delta = 2;
     const range = [];
     for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
@@ -253,24 +241,15 @@ hide:
     }
 
     html += `<button class="kzyc-page-btn ${currentPage === 1 ? 'active' : ''}" onclick="${funcName}(1)">1</button>`;
-
-    if (range.length > 0 && range[0] > 2) {
-      html += `<span class="kzyc-page-ellipsis">...</span>`;
-    }
-
+    if (range.length > 0 && range[0] > 2) html += `<span class="kzyc-page-ellipsis">...</span>`;
     for (let i of range) {
       html += `<button class="kzyc-page-btn ${currentPage === i ? 'active' : ''}" onclick="${funcName}(${i})">${i}</button>`;
     }
-
-    if (range.length > 0 && range[range.length - 1] < totalPages - 1) {
-      html += `<span class="kzyc-page-ellipsis">...</span>`;
-    }
-
+    if (range.length > 0 && range[range.length - 1] < totalPages - 1) html += `<span class="kzyc-page-ellipsis">...</span>`;
     if (totalPages > 1) {
       html += `<button class="kzyc-page-btn ${currentPage === totalPages ? 'active' : ''}" onclick="${funcName}(${totalPages})">${totalPages}</button>`;
     }
 
-    // 下一页 & 末页
     if (currentPage < totalPages) {
       html += `<button class="kzyc-page-btn" onclick="${funcName}(${currentPage + 1})">下一页</button>`;
       html += `<button class="kzyc-page-btn" onclick="${funcName}(${totalPages})">末页</button>`;
@@ -279,14 +258,12 @@ hide:
       html += `<button class="kzyc-page-btn disabled">末页</button>`;
     }
 
-    // 跳转框
     html += `
       <span class="kzyc-page-jump">
         到第 <input type="number" class="kzyc-page-input" id="${funcName}-jump-val" min="1" max="${totalPages}" value="${currentPage}" onkeydown="if(event.key==='Enter') ${funcName}(parseInt(this.value, 10))" /> 页
         <button class="kzyc-page-btn" onclick="${funcName}(parseInt(document.getElementById('${funcName}-jump-val').value, 10))">跳转</button>
       </span>
     `;
-
     html += `</div>`;
     return html;
   }
@@ -348,7 +325,7 @@ hide:
           <button class="kzyc-adm-tab" data-tab="resources">📦 资源管理</button>
           <button class="kzyc-adm-tab" data-tab="banners">🖼️ 首页轮播图</button>
           <button class="kzyc-adm-tab" data-tab="comments">💬 评论审核 ${adminStats.pending_comments > 0 ? `<span style="background: #ea580c; color: #fff; padding: 1px 6px; border-radius: 10px; font-size: 0.7rem;">${adminStats.pending_comments}</span>` : ''}</button>
-          <button class="kzyc-adm-tab" data-tab="users">👥 用户管理</button>
+          <button class="kzyc-adm-tab" data-tab="users">👥 用户与会员</button>
           <button class="kzyc-adm-tab" data-tab="words">🧹 敏感词库</button>
         </div>
 
@@ -385,7 +362,7 @@ hide:
     if (tab === "words") renderWordsTab(panel);
   }
 
-  // 1. 数据概览
+  // 1. 数据看板
   function renderOverviewTab(panel) {
     panel.innerHTML = `
       <div class="kzyc-adm-grid">
@@ -396,11 +373,11 @@ hide:
         <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📥 今日下载次数</div><div class="kzyc-adm-stat-num">${adminStats.today_downloads}</div></div>
         <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📦 全站总资源数</div><div class="kzyc-adm-stat-num">${adminStats.total_resources}</div></div>
       </div>
-      <div style="font-size: 0.82rem; opacity: 0.6; text-align: center;">⚡ Cloudflare D1 边缘数据库实时聚合驱动</div>
+      <div style="font-size: 0.82rem; opacity: 0.6; text-align: center;">⚡ Cloudflare D1 边缘数据库实时驱动</div>
     `;
   }
 
-  // 2. 资源管理（带左侧搜索框、文字缩小单行截断、10条分页与跳转）
+  // 2. 资源管理（含会员专享设置）
   async function renderResourcesTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在读取资源列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -423,7 +400,6 @@ hide:
     const pageItems = filteredResources.slice(startIdx, startIdx + RES_PAGE_SIZE);
 
     panel.innerHTML = `
-      <!-- 搜索框与新增按钮顶栏 -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <input class="kzyc-search-input" id="kzyc-res-search-input" placeholder="🔍 搜索软件标题或 Key..." />
@@ -432,7 +408,6 @@ hide:
         <button class="kzyc-adm-btn primary" id="kzyc-add-res-btn">➕ 新增软件资源</button>
       </div>
 
-      <!-- 资源编辑/新增表单 -->
       <div id="kzyc-res-form-wrap" style="display: none;" class="kzyc-adm-form-card">
         <h4 style="margin-top: 0; font-size: 0.92rem;" id="kzyc-res-form-title">新增软件资源</h4>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
@@ -442,16 +417,25 @@ hide:
           </div>
           <div>
             <label style="font-size: 0.78rem; font-weight: 600;">软件标题名称</label>
-            <input class="kzyc-adm-input" id="kzyc-inp-title" placeholder="如: Adobe Illustrator 2026 直装版" />
+            <input class="kzyc-adm-input" id="kzyc-inp-title" placeholder="如: Adobe Illustrator 2026 中文直装版" />
           </div>
         </div>
         <div style="margin-bottom: 8px;">
-          <label style="font-size: 0.78rem; font-weight: 600;">多网盘链接与提取码（网盘名 | 链接 | 提取码，多个分号 ; 隔开）</label>
+          <label style="font-size: 0.78rem; font-weight: 600;">多网盘链接与提取码（网盘名 | 链接 | 提取码，分号 ; 隔开）</label>
           <textarea class="kzyc-adm-input" id="kzyc-inp-url" style="min-height: 80px;" placeholder="百度网盘 | https://pan.baidu.com/... | 8888; 夸克网盘 | https://pan.quark.cn/... | 免密"></textarea>
         </div>
-        <div style="margin-bottom: 12px; max-width: 300px;">
-          <label style="font-size: 0.78rem; font-weight: 600;">专属解压密码</label>
-          <input class="kzyc-adm-input" id="kzyc-inp-pwd" placeholder="如: 爱果核" />
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <label style="font-size: 0.78rem; font-weight: 600;">专属解压密码</label>
+            <input class="kzyc-adm-input" id="kzyc-inp-pwd" placeholder="如: 爱果核" />
+          </div>
+          <div>
+            <label style="font-size: 0.78rem; font-weight: 600;">下载门槛权限</label>
+            <select class="kzyc-adm-input" id="kzyc-inp-vip-only">
+              <option value="0">🌐 普通公开资源 (所有登录用户可下载，受每日配额限制)</option>
+              <option value="1">🔒 会员专享资源 (仅标准会员/超级会员/站长可下载)</option>
+            </select>
+          </div>
         </div>
         <div style="display: flex; gap: 8px; justify-content: flex-end;">
           <button class="kzyc-adm-btn" id="kzyc-cancel-res-btn">取消</button>
@@ -459,27 +443,28 @@ hide:
         </div>
       </div>
 
-      <!-- 表格内容（紧凑、截断） -->
       <div style="overflow-x: auto;">
         <table class="kzyc-adm-table">
           <thead>
             <tr>
               <th style="width: 140px;">标识 Key</th>
               <th style="width: 220px;">软件标题</th>
-              <th>网盘链接与配置 (单行截断，编辑查看全部)</th>
+              <th>网盘链接配置 (单行截断，编辑查看全部)</th>
               <th style="width: 80px;">解压密码</th>
+              <th style="width: 90px;">下载权限</th>
               <th style="width: 110px;">操作</th>
             </tr>
           </thead>
           <tbody>
-            ${pageItems.length === 0 ? '<tr><td colspan="5" style="text-align: center; opacity: 0.5; padding: 20px;">暂无匹配资源</td></tr>' : pageItems.map(r => `
+            ${pageItems.length === 0 ? '<tr><td colspan="6" style="text-align: center; opacity: 0.5; padding: 20px;">暂无匹配资源</td></tr>' : pageItems.map(r => `
               <tr>
                 <td><code class="kzyc-cell-truncate" title="${escapeHTML(r.resource_key)}">${escapeHTML(r.resource_key)}</code></td>
                 <td><strong class="kzyc-cell-truncate" title="${escapeHTML(r.title)}">${escapeHTML(r.title)}</strong></td>
                 <td><span class="kzyc-cell-truncate" style="opacity: 0.8;" title="${escapeHTML(r.download_url)}">${escapeHTML(r.download_url)}</span></td>
                 <td><span style="background: rgba(234, 88, 12, 0.1); color: #ea580c; padding: 1px 5px; border-radius: 4px; font-size: 0.75rem;">${escapeHTML(r.unzip_pwd || '无')}</span></td>
+                <td>${r.is_vip_only === 1 ? '<span style="color: #ea580c; font-weight: 700; background: rgba(234,88,12,0.1); padding: 1px 6px; border-radius: 4px;">🔒 会员专享</span>' : '<span style="opacity: 0.7;">🌐 公开</span>'}</td>
                 <td>
-                  <button class="kzyc-adm-btn primary" data-key="${escapeHTML(r.resource_key)}" data-title="${escapeHTML(r.title)}" data-url="${escapeHTML(r.download_url)}" data-pwd="${escapeHTML(r.unzip_pwd || '')}" onclick="handleEditResource(this)">编辑</button>
+                  <button class="kzyc-adm-btn primary" data-key="${escapeHTML(r.resource_key)}" data-title="${escapeHTML(r.title)}" data-url="${escapeHTML(r.download_url)}" data-pwd="${escapeHTML(r.unzip_pwd || '')}" data-vip="${r.is_vip_only || 0}" onclick="handleEditResource(this)">编辑</button>
                   <button class="kzyc-adm-btn danger" onclick="deleteResource('${escapeHTML(r.resource_key)}')">删除</button>
                 </td>
               </tr>
@@ -488,13 +473,11 @@ hide:
         </table>
       </div>
 
-      <!-- 10条/页分页条 -->
       <div id="kzyc-res-pagination-container">
         ${renderPaginationHTML(resCurrentPage, filteredResources.length, RES_PAGE_SIZE, "gotoResPage")}
       </div>
     `;
 
-    // 搜索事件监听
     const searchInput = document.getElementById("kzyc-res-search-input");
     if (searchInput) {
       searchInput.addEventListener("input", (e) => {
@@ -506,7 +489,6 @@ hide:
         );
         resCurrentPage = 1;
         drawResourcesTable(panel);
-        // 保持搜索框焦点
         const newSearchInput = document.getElementById("kzyc-res-search-input");
         if (newSearchInput) {
           newSearchInput.value = e.target.value;
@@ -524,6 +506,7 @@ hide:
       document.getElementById("kzyc-inp-title").value = "";
       document.getElementById("kzyc-inp-url").value = "";
       document.getElementById("kzyc-inp-pwd").value = "";
+      document.getElementById("kzyc-inp-vip-only").value = "0";
       document.getElementById("kzyc-res-form-wrap").scrollIntoView({ behavior: 'smooth' });
     });
 
@@ -536,6 +519,7 @@ hide:
       const title = document.getElementById("kzyc-inp-title").value.trim();
       const download_url = document.getElementById("kzyc-inp-url").value.trim();
       const unzip_pwd = document.getElementById("kzyc-inp-pwd").value.trim();
+      const is_vip_only = document.getElementById("kzyc-inp-vip-only").value;
 
       if (!key || !title || !download_url) {
         alert("请完整填写标识Key、软件标题和网盘链接！");
@@ -545,7 +529,7 @@ hide:
       const res = await fetch(`${API_BASE}/api/admin/resources/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ resource_key: key, title, download_url, unzip_pwd })
+        body: JSON.stringify({ resource_key: key, title, download_url, unzip_pwd, is_vip_only })
       });
       const data = await res.json();
       if (data.success) {
@@ -566,7 +550,7 @@ hide:
     if (panel) drawResourcesTable(panel);
   };
 
-  // 3. 首页轮播图管理
+  // 3. 轮播图管理
   async function renderBannersTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在读取首页轮播图配置...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -584,7 +568,7 @@ hide:
         <h4 style="margin: 0 0 10px; color: #2563eb;">📌 轮播图 1 配置</h4>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
           <div>
-            <label style="font-size: 0.8rem; font-weight: 600;">图片地址 (绝对URL或相对路径)</label>
+            <label style="font-size: 0.8rem; font-weight: 600;">图片地址</label>
             <input class="kzyc-adm-input" id="b1-img" value="${escapeHTML(b1.image_url)}" placeholder="https://... 或 assets/images/..." oninput="updateBannerPreview(1)" />
           </div>
           <div>
@@ -647,11 +631,8 @@ hide:
         body: JSON.stringify({ banners: payload })
       });
       const d = await r.json();
-      if (d.success) {
-        alert("首页轮播图配置已成功更新并实时生效！");
-      } else {
-        alert(d.error || "保存失败");
-      }
+      if (d.success) alert("首页轮播图配置已成功更新并实时生效！");
+      else alert(d.error || "保存失败");
     });
   }
 
@@ -666,7 +647,7 @@ hide:
     }
   };
 
-  // 4. 用户管理（带搜索、添加、修改、删除与10条分页）
+  // 4. 用户与会员管理
   async function renderUsersTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在加载用户列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -690,7 +671,6 @@ hide:
     const pageItems = filteredUsers.slice(startIdx, startIdx + USER_PAGE_SIZE);
 
     panel.innerHTML = `
-      <!-- 搜索与添加顶栏 -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <input class="kzyc-search-input" id="kzyc-user-search-input" placeholder="🔍 搜索 UID、用户名或邮箱..." />
@@ -699,7 +679,7 @@ hide:
         <button class="kzyc-adm-btn primary" id="kzyc-add-user-btn">➕ 添加新用户</button>
       </div>
 
-      <!-- 添加/编辑用户弹窗表单 -->
+      <!-- 用户新增/编辑表单 -->
       <div id="kzyc-user-form-wrap" style="display: none;" class="kzyc-adm-form-card">
         <h4 style="margin-top: 0; font-size: 0.92rem;" id="kzyc-user-form-title">添加新用户</h4>
         <input type="hidden" id="kzyc-user-id-val" />
@@ -713,18 +693,31 @@ hide:
             <input class="kzyc-adm-input" id="kzyc-user-email-inp" placeholder="example@mail.com" />
           </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
           <div>
-            <label style="font-size: 0.78rem; font-weight: 600;">用户身份角色</label>
+            <label style="font-size: 0.78rem; font-weight: 600;">会员身份角色</label>
             <select class="kzyc-adm-input" id="kzyc-user-role-inp">
-              <option value="user">普通用户</option>
-              <option value="admin">👑 站长管理员</option>
+              <option value="user">普通用户 (每日限 3 篇，仅公开资源)</option>
+              <option value="vip">💎 标准会员 (每日限 10 篇，可下会员专享)</option>
+              <option value="svip">👑 超级会员 (每日限 20 篇，全站畅下)</option>
+              <option value="admin">👑 站长管理员 (无限量畅享)</option>
             </select>
           </div>
           <div>
-            <label style="font-size: 0.78rem; font-weight: 600;" id="kzyc-user-pwd-label">登录密码 (至少8位)</label>
+            <label style="font-size: 0.78rem; font-weight: 600;" id="kzyc-user-pwd-label">登录初始密码 (至少8位)</label>
             <input class="kzyc-adm-input" type="password" id="kzyc-user-pwd-inp" placeholder="输入密码" />
           </div>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-size: 0.78rem; font-weight: 600;">会员到期日期 (普通用户可留空)</label>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('year')">+1 年</button>
+              <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('forever')">永久 (2999年)</button>
+              <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('clear')">清空</button>
+            </div>
+          </div>
+          <input class="kzyc-adm-input" type="date" id="kzyc-user-expire-inp" />
         </div>
         <div style="display: flex; gap: 8px; justify-content: flex-end;">
           <button class="kzyc-adm-btn" id="kzyc-cancel-user-btn">取消</button>
@@ -732,45 +725,57 @@ hide:
         </div>
       </div>
 
-      <!-- 用户列表表格 -->
       <div style="overflow-x: auto;">
         <table class="kzyc-adm-table">
           <thead>
             <tr>
-              <th style="width: 70px;">UID</th>
-              <th style="width: 170px;">用户名</th>
+              <th style="width: 60px;">UID</th>
+              <th style="width: 160px;">用户名</th>
               <th>邮箱</th>
-              <th style="width: 110px;">身份角色</th>
-              <th style="width: 140px;">注册时间</th>
+              <th style="width: 120px;">身份角色</th>
+              <th style="width: 120px;">会员到期时间</th>
+              <th style="width: 130px;">注册时间</th>
               <th style="width: 110px;">管理操作</th>
             </tr>
           </thead>
           <tbody>
-            ${pageItems.length === 0 ? '<tr><td colspan="6" style="text-align: center; opacity: 0.5; padding: 20px;">暂无匹配用户</td></tr>' : pageItems.map(u => `
-              <tr>
-                <td>#${u.id}</td>
-                <td><strong class="kzyc-cell-truncate" title="${escapeHTML(u.username)}">${escapeHTML(u.username)}</strong></td>
-                <td><span class="kzyc-cell-truncate" title="${escapeHTML(u.email)}">${escapeHTML(u.email)}</span></td>
-                <td>${u.role === 'admin' ? '<span style="color: #ea580c; font-weight: 700; background: rgba(234,88,12,0.1); padding: 2px 6px; border-radius: 4px;">👑 站长</span>' : '<span style="color: #2563eb; background: rgba(37,99,235,0.1); padding: 2px 6px; border-radius: 4px;">普通用户</span>'}</td>
-                <td style="font-size: 0.76rem; opacity: 0.6;">${u.created_at ? u.created_at.slice(0, 16) : '--'}</td>
-                <td>
-                  <button class="kzyc-adm-btn primary" data-id="${u.id}" data-name="${escapeHTML(u.username)}" data-email="${escapeHTML(u.email)}" data-role="${u.role}" onclick="handleEditUser(this)">编辑</button>
-                  <button class="kzyc-adm-btn danger" onclick="handleDeleteUser(${u.id}, '${escapeHTML(u.username)}')">删除</button>
-                </td>
-              </tr>
-            `).join('')}
+            ${pageItems.length === 0 ? '<tr><td colspan="7" style="text-align: center; opacity: 0.5; padding: 20px;">暂无匹配用户</td></tr>' : pageItems.map(u => {
+              let roleBadge = '<span style="color: #2563eb; background: rgba(37,99,235,0.1); padding: 2px 6px; border-radius: 4px;">普通用户</span>';
+              if (u.role === 'admin') roleBadge = '<span style="color: #ea580c; font-weight: 700; background: rgba(234,88,12,0.1); padding: 2px 6px; border-radius: 4px;">👑 站长</span>';
+              if (u.role === 'svip') roleBadge = '<span style="color: #c026d3; font-weight: 700; background: rgba(217,70,239,0.1); padding: 2px 6px; border-radius: 4px;">👑 超级会员</span>';
+              if (u.role === 'vip') roleBadge = '<span style="color: #2563eb; font-weight: 700; background: rgba(37,99,235,0.15); padding: 2px 6px; border-radius: 4px;">💎 标准会员</span>';
+
+              let expireText = '--';
+              if (u.vip_expire_at) {
+                if (u.vip_expire_at.includes('2999')) expireText = '<span style="color: #16a34a; font-weight: 700;">永久有效</span>';
+                else expireText = u.vip_expire_at;
+              }
+
+              return `
+                <tr>
+                  <td>#${u.id}</td>
+                  <td><strong class="kzyc-cell-truncate" title="${escapeHTML(u.username)}">${escapeHTML(u.username)}</strong></td>
+                  <td><span class="kzyc-cell-truncate" title="${escapeHTML(u.email)}">${escapeHTML(u.email)}</span></td>
+                  <td>${roleBadge}</td>
+                  <td style="font-size: 0.76rem;">${expireText}</td>
+                  <td style="font-size: 0.74rem; opacity: 0.6;">${u.created_at ? u.created_at.slice(0, 16) : '--'}</td>
+                  <td>
+                    <button class="kzyc-adm-btn primary" data-id="${u.id}" data-name="${escapeHTML(u.username)}" data-email="${escapeHTML(u.email)}" data-role="${u.role}" data-expire="${u.vip_expire_at || ''}" onclick="handleEditUser(this)">编辑</button>
+                    <button class="kzyc-adm-btn danger" onclick="handleDeleteUser(${u.id}, '${escapeHTML(u.username)}')">删除</button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
           </tbody>
         </table>
       </div>
 
-      <!-- 10条/页分页条 -->
       <div id="kzyc-user-pagination-container">
         ${renderPaginationHTML(userCurrentPage, filteredUsers.length, USER_PAGE_SIZE, "gotoUserPage")}
       </div>
 
-      <!-- 注销保护期列表 -->
       <div style="margin-top: 24px;">
-        <span style="font-weight: 700; font-size: 0.88rem; color: #ef4444;">⚠️ 已注销账号（1年冷静期拦截，禁止重新注册）(${allDeletedAccounts.length})</span>
+        <span style="font-weight: 700; font-size: 0.88rem; color: #ef4444;">⚠️ 已注销账号（1年冷静期拦截）(${allDeletedAccounts.length})</span>
         <div style="overflow-x: auto; margin-top: 6px;">
           <table class="kzyc-adm-table">
             <thead>
@@ -790,7 +795,6 @@ hide:
       </div>
     `;
 
-    // 用户搜索监听
     const searchInput = document.getElementById("kzyc-user-search-input");
     if (searchInput) {
       searchInput.addEventListener("input", (e) => {
@@ -810,7 +814,6 @@ hide:
       });
     }
 
-    // 添加新用户按钮
     document.getElementById("kzyc-add-user-btn")?.addEventListener("click", () => {
       const wrap = document.getElementById("kzyc-user-form-wrap");
       wrap.style.display = "block";
@@ -822,6 +825,7 @@ hide:
       document.getElementById("kzyc-user-pwd-inp").value = "";
       document.getElementById("kzyc-user-pwd-label").textContent = "登录初始密码 (至少8位)";
       document.getElementById("kzyc-user-pwd-inp").required = true;
+      document.getElementById("kzyc-user-expire-inp").value = "";
       wrap.scrollIntoView({ behavior: 'smooth' });
     });
 
@@ -829,13 +833,13 @@ hide:
       document.getElementById("kzyc-user-form-wrap").style.display = "none";
     });
 
-    // 保存提交用户
     document.getElementById("kzyc-save-user-btn")?.addEventListener("click", async () => {
       const uid = document.getElementById("kzyc-user-id-val").value.trim();
       const username = document.getElementById("kzyc-user-name-inp").value.trim();
       const email = document.getElementById("kzyc-user-email-inp").value.trim();
       const role = document.getElementById("kzyc-user-role-inp").value;
       const pwd = document.getElementById("kzyc-user-pwd-inp").value.trim();
+      const vipExpireAt = document.getElementById("kzyc-user-expire-inp").value.trim();
 
       if (!username || !email) {
         alert("用户名和邮箱不能为空！");
@@ -849,8 +853,8 @@ hide:
 
       const endpoint = uid ? `${API_BASE}/api/admin/users/update` : `${API_BASE}/api/admin/users/add`;
       const payload = uid
-        ? { user_id: uid, username, email, role, new_password: pwd }
-        : { username, email, password: pwd, role };
+        ? { user_id: uid, username, email, role, vip_expire_at: vipExpireAt, new_password: pwd }
+        : { username, email, password: pwd, role, vip_expire_at: vipExpireAt };
 
       const r = await fetch(endpoint, {
         method: "POST",
@@ -866,6 +870,20 @@ hide:
       }
     });
   }
+
+  window.setExpireHelper = function(type) {
+    const inp = document.getElementById("kzyc-user-expire-inp");
+    if (!inp) return;
+    if (type === "year") {
+      const d = new Date();
+      d.setFullYear(d.getFullYear() + 1);
+      inp.value = d.toISOString().slice(0, 10);
+    } else if (type === "forever") {
+      inp.value = "2999-12-31";
+    } else {
+      inp.value = "";
+    }
+  };
 
   window.gotoUserPage = function(p) {
     const totalPages = Math.ceil(filteredUsers.length / USER_PAGE_SIZE) || 1;
@@ -956,7 +974,6 @@ hide:
     });
   }
 
-  // 全局交互钩子
   window.handleEditResource = function(btn) {
     const wrap = document.getElementById("kzyc-res-form-wrap");
     if (!wrap) return;
@@ -966,6 +983,7 @@ hide:
     const title = btn.getAttribute("data-title");
     const url = btn.getAttribute("data-url");
     const pwd = btn.getAttribute("data-pwd");
+    const vip = btn.getAttribute("data-vip");
 
     document.getElementById("kzyc-res-form-title").textContent = `✏️ 编辑软件资源：${key}`;
     const inpKey = document.getElementById("kzyc-inp-key");
@@ -974,6 +992,7 @@ hide:
     document.getElementById("kzyc-inp-title").value = title;
     document.getElementById("kzyc-inp-url").value = url;
     document.getElementById("kzyc-inp-pwd").value = pwd;
+    document.getElementById("kzyc-inp-vip-only").value = vip || "0";
     wrap.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -998,15 +1017,17 @@ hide:
     const name = btn.getAttribute("data-name");
     const email = btn.getAttribute("data-email");
     const role = btn.getAttribute("data-role");
+    const expire = btn.getAttribute("data-expire");
 
     document.getElementById("kzyc-user-form-title").textContent = `✏️ 编辑用户 UID: #${uid}`;
     document.getElementById("kzyc-user-id-val").value = uid;
     document.getElementById("kzyc-user-name-inp").value = name;
     document.getElementById("kzyc-user-email-inp").value = email;
     document.getElementById("kzyc-user-role-inp").value = role || "user";
-    document.getElementById("kzyc-user-pwd-label").textContent = "重置登录密码 (如不修改请留空)";
+    document.getElementById("kzyc-user-pwd-label").textContent = "重置登录密码 (留空则不修改)";
     document.getElementById("kzyc-user-pwd-inp").value = "";
     document.getElementById("kzyc-user-pwd-inp").required = false;
+    document.getElementById("kzyc-user-expire-inp").value = expire || "";
     wrap.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -1039,7 +1060,7 @@ hide:
   };
 
   window.deleteComment = async function(id) {
-    if (!confirm("确定要彻底删除这条评论及其相关回复吗？")) return;
+    if (!confirm("确定要彻底删除这条评论吗？相关楼中楼回复也会一并删除！")) return;
     const token = localStorage.getItem(TOKEN_KEY);
     await fetch(`${API_BASE}/api/admin/comments/delete`, {
       method: "POST",

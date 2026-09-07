@@ -26,9 +26,16 @@
     return colors[Math.abs(hash) % colors.length];
   }
 
+  // 修复时区计算：兼容 SQLite UTC 时间戳，准确对齐中国北京时间
   function timeAgo(dateStr) {
     try {
-      const diff = Date.now() - new Date(dateStr).getTime();
+      if (!dateStr) return "";
+      let isoStr = String(dateStr).trim().replace(" ", "T");
+      if (!isoStr.endsWith("Z") && !/[+-]\d{2}:\d{2}$/.test(isoStr)) {
+        isoStr += "Z";
+      }
+
+      const diff = Date.now() - new Date(isoStr).getTime();
       const minutes = Math.floor(diff / 60000);
       if (minutes < 1) return "刚刚";
       if (minutes < 60) return `${minutes}分钟前`;
@@ -36,12 +43,13 @@
       if (hours < 24) return `${hours}小时前`;
       const days = Math.floor(hours / 24);
       if (days < 30) return `${days}天前`;
-      return dateStr.slice(0, 10);
+      return isoStr.slice(0, 10);
     } catch {
       return "";
     }
   }
 
+  // 极简高级多网盘解析器（隐藏直链，统一显示“点击下载”）
   function renderChannelsHTML(rawUrl, singleCode, unzipPwd) {
     let list = [];
     const raw = String(rawUrl || "").trim();
@@ -59,16 +67,17 @@
 
     if (list.length === 0) {
       const lines = raw.split(/[\r\n;]+/).map((s) => s.trim()).filter(Boolean);
-      if (lines.length > 1 || lines[0].includes("|")) {
-        for (const line of lines) {
-          const parts = line.split("|").map((s) => s.trim());
-          if (parts.length >= 2) {
-            list.push({
-              name: parts[0],
-              url: parts,
-              code: parts || "",
-            });
-          }
+      for (const line of lines) {
+        let parts = line.split(/[|]/).map((s) => s.trim());
+        if (parts.length < 2) {
+          parts = line.split(/[,，]/).map((s) => s.trim());
+        }
+        if (parts.length >= 2) {
+          list.push({
+            name: parts[0] || "网盘下载",
+            url: parts || "#",
+            code: parts[2] || "",
+          });
         }
       }
     }
@@ -79,11 +88,24 @@
 
     let html = `<div class="kzyc-channel-wrap">`;
     list.forEach((ch) => {
+      const isFree = !ch.code || ch.code === "免密" || ch.code === "免提取码" || ch.code === "无";
       html += `
         <div class="kzyc-channel-row">
-          <span class="kzyc-channel-tag">📁 ${ch.name}</span>
-          <a href="${ch.url}" target="_blank" rel="noopener" class="kzyc-dl-link-btn">打开网盘 ↗</a>
-          ${ch.code ? `<span class="kzyc-code-wrap">提取码: <span class="kzyc-code-tag">${ch.code}</span><button type="button" class="kzyc-copy-btn" data-copy="${ch.code}">复制</button></span>` : ""}
+          <div class="kzyc-channel-left">
+            <span class="kzyc-channel-tag">📁 ${escapeHTML(ch.name)}</span>
+          </div>
+          <div class="kzyc-channel-right">
+            ${
+              !isFree
+                ? `<div class="kzyc-code-wrap">
+                     <span>提取码:</span>
+                     <span class="kzyc-code-val">${escapeHTML(ch.code)}</span>
+                     <button type="button" class="kzyc-copy-btn" data-copy="${escapeHTML(ch.code)}">复制</button>
+                   </div>`
+                : `<span class="kzyc-free-tag">免提取码</span>`
+            }
+            <a href="${ch.url}" target="_blank" rel="noopener" class="kzyc-dl-link-btn">点击下载 ↗</a>
+          </div>
         </div>
       `;
     });
@@ -91,8 +113,11 @@
     if (unzipPwd) {
       html += `
         <div class="kzyc-unzip-row">
-          <span>🔑 专属解压密码：<span class="kzyc-code-tag">${unzipPwd}</span></span>
-          <button type="button" class="kzyc-copy-btn" data-copy="${unzipPwd}">复制密码</button>
+          <div>
+            <span>🔑 专属解压密码：</span>
+            <span class="kzyc-unzip-pwd-tag">${escapeHTML(unzipPwd)}</span>
+          </div>
+          <button type="button" class="kzyc-copy-btn unzip" data-copy="${escapeHTML(unzipPwd)}">复制密码</button>
         </div>
       `;
     }
@@ -195,7 +220,6 @@
 
             <!-- 个人中心视图 -->
             <div id="kzyc-profile-view" style="display: none;">
-              <!-- 顶部标题 + 角色标签 -->
               <div class="kzyc-prof-topbar">
                 <div class="kzyc-prof-title-wrap">
                   <span class="kzyc-prof-icon">👤</span>
@@ -204,7 +228,6 @@
                 </div>
               </div>
 
-              <!-- 1. 用户信息卡片：圆点列表 -->
               <div class="kzyc-user-info-card">
                 <div class="kzyc-user-info-row">
                   <span class="kzyc-info-dot">●</span>
@@ -221,9 +244,18 @@
                   <span class="kzyc-info-label">U I D:</span>
                   <span class="kzyc-info-val" id="kzyc-prof-id">#--</span>
                 </div>
+                <div class="kzyc-user-info-row" id="kzyc-prof-expire-row">
+                  <span class="kzyc-info-dot">●</span>
+                  <span class="kzyc-info-label">到期时间:</span>
+                  <span class="kzyc-info-val" id="kzyc-prof-expire" style="color: #ea580c; font-weight: bold;">--</span>
+                </div>
+                <div class="kzyc-user-info-row">
+                  <span class="kzyc-info-dot">●</span>
+                  <span class="kzyc-info-label">今日下载:</span>
+                  <span class="kzyc-info-val" id="kzyc-prof-quota">--</span>
+                </div>
               </div>
 
-              <!-- 2. 我的下载记录专属卡片框（动态最近1-4条） -->
               <div class="kzyc-history-card">
                 <div class="kzyc-history-card-header">
                   <span class="kzyc-history-card-title">📥 我的下载记录</span>
@@ -234,7 +266,6 @@
                 </div>
               </div>
 
-              <!-- 3. 底部操作按钮组 -->
               <div class="kzyc-prof-actions">
                 <button type="button" class="kzyc-prof-btn-secondary" id="kzyc-toggle-pwd-btn">🔐 修改密码</button>
                 <button type="button" class="kzyc-prof-btn-logout" id="kzyc-logout-btn">退出登录</button>
@@ -293,10 +324,14 @@
 
   function initDownloadCards() {
     try {
-      const boxes = document.querySelectorAll(".kzyc-download-box:not([data-rendered])");
+      const boxes = document.querySelectorAll(".kzyc-download-box");
       if (boxes.length === 0) return;
 
       boxes.forEach((box) => {
+        if (box.getAttribute("data-rendered") === "true" && box.innerHTML.trim() !== "") {
+          return;
+        }
+
         box.setAttribute("data-rendered", "true");
         const key = box.getAttribute("data-key");
         const customTitle = box.getAttribute("data-title") || "专属软件资源包";
@@ -306,7 +341,7 @@
             <div class="kzyc-card-header">
               <span class="kzyc-card-icon">📦</span>
               <div>
-                <div class="kzyc-card-title">${customTitle}</div>
+                <div class="kzyc-card-title">${escapeHTML(customTitle)}</div>
                 <div class="kzyc-card-tip">🔒 登录用户专享资源 · 验证身份后自动呈现多网盘分流地址</div>
               </div>
             </div>
@@ -336,7 +371,7 @@
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
                   resource_key: key,
-                  post_path: location.pathname, // 记录当前文章路径，用于反向跳转
+                  post_path: location.pathname,
                 }),
               });
               const data = await res.json();
@@ -348,8 +383,9 @@
                 resultBox.querySelectorAll(".kzyc-copy-btn").forEach((cBtn) => {
                   cBtn.addEventListener("click", () => {
                     navigator.clipboard.writeText(cBtn.getAttribute("data-copy"));
+                    const orig = cBtn.textContent;
                     cBtn.textContent = "已复制！";
-                    setTimeout(() => { cBtn.textContent = "复制"; }, 1500);
+                    setTimeout(() => { cBtn.textContent = orig; }, 1500);
                   });
                 });
               } else {
@@ -724,7 +760,6 @@
     }
   }
 
-  // 严格只读取与呈现最近最多 4 条下载记录（可点击跳转回文章）
   async function loadMyDownloads() {
     const listEl = document.getElementById("kzyc-dl-history-list");
     const countEl = document.getElementById("kzyc-dl-history-count");
@@ -740,7 +775,6 @@
       const data = await res.json();
       const downloads = data.downloads || [];
 
-      // 动态徽章展示：如“最近 1 条”、“最近 4 条”
       if (countEl) {
         if (downloads.length === 0) {
           countEl.textContent = "暂无下载";
@@ -754,12 +788,11 @@
         return;
       }
 
-      // 渲染记录，支持点击直接回跳文章
       listEl.innerHTML = downloads
         .map((item) => {
-          const targetUrl = item.post_path ? item.post_path : "javascript:void(0);";
+          const path = item.post_path ? item.post_path : "";
           return `
-            <a href="${targetUrl}" class="kzyc-history-row" title="点击打开文章：${escapeHTML(item.resource_title)}">
+            <a href="${path ? path : 'javascript:void(0);'}" class="kzyc-history-row" data-path="${escapeHTML(path)}" title="${path ? `点击直达文章：${escapeHTML(item.resource_title)}` : '旧记录暂未关联文章'}">
               <span class="kzyc-history-row-title">
                 📦 ${escapeHTML(item.resource_title)}
               </span>
@@ -769,11 +802,24 @@
         })
         .join("");
 
-      // 点击条目自动收起个人中心弹窗
       listEl.querySelectorAll("a.kzyc-history-row").forEach((a) => {
-        a.addEventListener("click", () => {
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          const targetPath = a.getAttribute("data-path");
+          if (!targetPath) {
+            alert("该条记录是在功能升级前下载的旧数据，当时未记录文章地址。\n\n请在软件文章页重新点击一次“立即获取”，即可自动关联文章地址！");
+            return;
+          }
+
           const backdrop = document.getElementById("kzyc-auth-modal");
           if (backdrop) backdrop.classList.remove("active");
+
+          if (location.pathname === targetPath) {
+            alert("您当前已经在该文章页面了！");
+            return;
+          }
+
+          window.location.href = targetPath;
         });
       });
     } catch {
@@ -1228,34 +1274,104 @@
       const profileView = document.getElementById("kzyc-profile-view");
 
       if (currentUser) {
-        container.innerHTML = `<button class="kzyc-auth-btn" id="kzyc-open-profile">👤 ${currentUser.username}</button>`;
+        container.innerHTML = `<button class="kzyc-auth-btn" id="kzyc-open-profile">👤 ${escapeHTML(currentUser.username)}</button>`;
         const openProf = document.getElementById("kzyc-open-profile");
         if (openProf) {
-          openProf.addEventListener("click", () => {
+          openProf.addEventListener("click", async () => {
             const uName = document.getElementById("kzyc-prof-username");
             const uMail = document.getElementById("kzyc-prof-email");
             const uId = document.getElementById("kzyc-prof-id");
             const uRole = document.getElementById("kzyc-prof-role");
+            const expireRow = document.getElementById("kzyc-prof-expire-row");
+            const expireVal = document.getElementById("kzyc-prof-expire");
+            const quotaVal = document.getElementById("kzyc-prof-quota");
 
-            if (uName) uName.textContent = currentUser.username;
-            if (uMail) uMail.textContent = currentUser.email;
-            if (uId) uId.textContent = `#${currentUser.id}`;
+            const renderProfileData = () => {
+              if (!currentUser) return;
+              if (uName) uName.textContent = currentUser.username || "--";
+              if (uMail) uMail.textContent = currentUser.email || "--";
+              if (uId) uId.textContent = `#${currentUser.id || "--"}`;
 
-            if (uRole) {
-              if (currentUser.role === "admin" || currentUser.email === "ifruitmr@126.com" || currentUser.id === 1) {
-                uRole.textContent = "👑 站长";
-                uRole.className = "kzyc-prof-badge admin";
-              } else {
-                uRole.textContent = "普通用户";
-                uRole.className = "kzyc-prof-badge";
+              // 智能兼容角色（中英文、大小写、生效角色）
+              const rawRole = String(currentUser.role || "").trim().toLowerCase();
+              const effRole = String(currentUser.effective_role || "").trim().toLowerCase();
+              const isExpired = currentUser.is_expired === true;
+
+              let roleType = "user";
+              if (rawRole === "admin" || rawRole === "管理员" || rawRole === "站长" || effRole === "admin") {
+                roleType = "admin";
+              } else if (rawRole === "svip" || rawRole === "超级会员" || effRole === "svip") {
+                roleType = "svip";
+              } else if (rawRole === "vip" || rawRole === "标准会员" || effRole === "vip") {
+                roleType = "vip";
               }
-            }
+
+              let roleText = "普通用户";
+              let roleClass = "kzyc-prof-badge user";
+
+              if (roleType === "admin") {
+                roleText = "👑 站长";
+                roleClass = "kzyc-prof-badge admin";
+              } else if (roleType === "svip") {
+                roleText = isExpired ? "👑 超级会员 (已到期)" : "👑 超级会员";
+                roleClass = isExpired ? "kzyc-prof-badge expired" : "kzyc-prof-badge svip";
+              } else if (roleType === "vip") {
+                roleText = isExpired ? "💎 标准会员 (已到期)" : "💎 标准会员";
+                roleClass = isExpired ? "kzyc-prof-badge expired" : "kzyc-prof-badge vip";
+              }
+
+              if (uRole) {
+                uRole.textContent = roleText;
+                uRole.className = roleClass;
+              }
+
+              // 配额与到期信息
+              const todayCount = currentUser.today_downloads || 0;
+              const limit = currentUser.daily_limit || (roleType === "svip" ? 20 : (roleType === "vip" ? 10 : 3));
+              const quotaText = roleType === "admin" ? "无限制" : `${todayCount} / ${limit} 篇`;
+              if (quotaVal) quotaVal.textContent = quotaText;
+
+              const expireDate = String(currentUser.vip_expire_at || currentUser.vip_expires_at || "").trim();
+              let expireDisplay = "未开通";
+              if (roleType === "admin") {
+                expireDisplay = "永久有效";
+              } else if (roleType === "vip" || roleType === "svip") {
+                if (expireDate) {
+                  expireDisplay = expireDate.includes("2999") ? "永久有效" : expireDate.slice(0, 10);
+                  if (isExpired) expireDisplay += " (已到期)";
+                } else {
+                  expireDisplay = "永久有效";
+                }
+              }
+
+              if (expireVal) expireVal.textContent = expireDisplay;
+              if (expireRow) {
+                expireRow.style.display = (roleType === "vip" || roleType === "svip" || roleType === "admin") ? "flex" : "none";
+              }
+            };
+
+            // 1. 先用现有数据立即渲染弹窗
+            renderProfileData();
 
             if (authView) authView.style.display = "none";
             if (forgotView) forgotView.style.display = "none";
             if (profileView) profileView.style.display = "block";
             if (backdrop) backdrop.classList.add("active");
             loadMyDownloads();
+
+            // 2. 异步请求 /api/me 刷新最新数据（包含到期时间和今日下载记录）
+            try {
+              const res = await fetch(`${API_BASE}/api/me`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
+              });
+              const d = await res.json();
+              if (d.success && d.user) {
+                currentUser = d.user;
+                renderProfileData();
+              }
+            } catch (err) {
+              console.error("[kzyc-auth] /api/me 请求异常:", err);
+            }
           });
         }
       } else {
@@ -1336,13 +1452,18 @@
     }, 100);
   }
 
+  // 轮询守护：确保页面带锚点跳转时下载卡片也能100%渲染
   let quickPollCount = 0;
   const quickPoll = setInterval(() => {
     quickPollCount++;
-    const hasUnrenderedCards = document.querySelector(".kzyc-download-box:not([data-rendered])");
-    const hasUnrenderedComments = document.querySelector("#kzyc-comments-root:not([data-rendered])");
-    if (hasUnrenderedCards) initDownloadCards();
-    if (hasUnrenderedComments) initComments();
+    const unrenderedCards = document.querySelectorAll(".kzyc-download-box");
+    let needsRender = false;
+    unrenderedCards.forEach((box) => {
+      if (!box.getAttribute("data-rendered") || box.innerHTML.trim() === "") {
+        needsRender = true;
+      }
+    });
+    if (needsRender) initDownloadCards();
     if (quickPollCount >= 20) {
       clearInterval(quickPoll);
     }
