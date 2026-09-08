@@ -1821,7 +1821,6 @@ color:white;
     });
 
     document.getElementById("kzyc-admin-login-btn")?.addEventListener("click", () => {
-      // 100% 稳妥唤醒登录弹窗
       const backdrop = document.getElementById("kzyc-auth-modal");
       if (backdrop) {
         backdrop.classList.add("active");
@@ -1831,11 +1830,33 @@ color:white;
         if (authView) authView.style.display = "block";
         if (profView) profView.style.display = "none";
         if (forgView) forgView.style.display = "none";
+
         const msgEl = document.getElementById("kzyc-auth-msg");
         if (msgEl) {
           msgEl.className = "kzyc-msg error";
           msgEl.textContent = "请登录具有【站长/管理员】权限的账号！";
         }
+
+        // 关键修复：确保 Cloudflare 人机验证框 100% 渲染呈现
+        function ensureTurnstile() {
+          if (!document.getElementById("cf-turnstile-script")) {
+            const s = document.createElement("script");
+            s.id = "cf-turnstile-script";
+            s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+            s.async = true;
+            s.defer = true;
+            (document.head || document.documentElement).appendChild(s);
+          }
+          if (typeof turnstile !== "undefined") {
+            const loginEl = document.getElementById("kzyc-login-turnstile");
+            if (loginEl && !loginEl.hasChildNodes()) {
+              turnstile.render(loginEl, { sitekey: "0x4AAAAAAElpbO-4m9lnVEmf", theme: "auto" });
+            }
+          } else {
+            setTimeout(ensureTurnstile, 200);
+          }
+        }
+        ensureTurnstile();
       } else {
         document.getElementById("kzyc-open-auth")?.click();
       }
@@ -2682,6 +2703,7 @@ color:white;
     switchTab("words");
   };
 
+  // 立即执行校验
   window.checkAdminAuth = checkAdminAuth;
   checkAdminAuth();
 
@@ -2692,6 +2714,7 @@ color:white;
     document$.subscribe(checkAdminAuth);
   }
 
+  // 轮询保活
   let retryCount = 0;
   const pollTimer = setInterval(() => {
     retryCount++;
