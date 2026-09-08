@@ -335,7 +335,6 @@
           url = parts || "";
           code = parts || "";
         } else {
-          // 精确正则定位 http(s) 地址，前后准确剥离
           const urlMatch = line.match(/https?:\/\/[^\s,，;；]+/i);
           if (urlMatch) {
             url = urlMatch[0].trim();
@@ -894,7 +893,6 @@
                 }),
               });
 
-              // 凭证失效处理：自动清除并引导重新登录
               if (res.status === 401) {
                 localStorage.removeItem(TOKEN_KEY);
                 currentUser = null;
@@ -917,7 +915,6 @@
                 resultBox.style.display = "block";
                 resultBox.innerHTML = renderChannelsHTML(data.download_url, data.extract_code, data.unzip_pwd);
 
-                // 绑定复制功能（兼顾所有按钮）
                 resultBox.querySelectorAll(".kzyc-netdisk-copy-btn, .kzyc-pan-copy, .kzyc-copy-btn").forEach((cBtn) => {
                   cBtn.addEventListener("click", () => {
                     navigator.clipboard.writeText(cBtn.getAttribute("data-copy"));
@@ -949,7 +946,8 @@
 
   function initComments() {
     const root = document.getElementById("kzyc-comments-root");
-    if (!root || root.getAttribute("data-rendered")) return;
+    if (!root) return;
+    if (root.getAttribute("data-rendered") === "true" && root.innerHTML.trim() !== "") return;
     root.setAttribute("data-rendered", "true");
 
     const postPath = location.pathname;
@@ -2041,6 +2039,10 @@
       if (!token) {
         updateHeaderUI();
         renderCommentInputBox();
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/renderCommentInputBox();
         return;
       }
 
