@@ -283,15 +283,15 @@
     let list = [];
     const raw = String(rawUrl || "").trim();
 
-    function isFreeCode(code) {
-      const value = String(code || "").trim().toLowerCase();
-      return !value ||
-        value === "免密" ||
-        value === "免提取码" ||
-        value === "无需提取码" ||
-        value === "无" ||
-        value === "none" ||
-        value === "null";
+    function isFreeCode(str) {
+      const v = String(str || "").trim().toLowerCase();
+      return !v ||
+        v === "免密" ||
+        v === "免提取码" ||
+        v === "无需提取码" ||
+        v === "无" ||
+        v === "none" ||
+        v === "null";
     }
 
     function detectPanName(url) {
@@ -310,10 +310,10 @@
         const arr = JSON.parse(raw);
         if (Array.isArray(arr)) {
           list = arr.map((item) => {
-            const url = String(item.url || item.download_url || "").trim();
+            const u = String(item.url || item.download_url || "").trim();
             return {
-              name: item.name || detectPanName(url),
-              url: url || "#",
+              name: item.name || detectPanName(u),
+              url: u || "#",
               code: item.code || item.extract_code || ""
             };
           }).filter(item => item.url && item.url !== "#");
@@ -321,7 +321,7 @@
       } catch (e) {}
     }
 
-    // 2. 文本格式精准提取（完美兼容逗号、竖线、分号、换行分隔）
+    // 2. 文本格式（采用解构赋值，杜绝任何索引转义异常）
     if (list.length === 0 && raw) {
       const lines = raw.split(/[\r\n;；]+/).map(s => s.trim()).filter(Boolean);
       for (const line of lines) {
@@ -330,22 +330,23 @@
         let code = "";
 
         if (line.includes("|")) {
-          const parts = line.split("|").map(s => s.trim());
-          name = parts[0] || "";
-          url = parts || "";
-          code = parts || "";
-        } else {
-          const urlMatch = line.match(/https?:\/\/[^\s,，;；]+/i);
-          if (urlMatch) {
-            url = urlMatch[0].trim();
-            name = line.slice(0, urlMatch.index).replace(/[,，|:：\s]+$/, "").trim();
-            code = line.slice(urlMatch.index + urlMatch[0].length).replace(/^[,，|:：\s]+/, "").trim();
-          } else {
-            const parts = line.split(/[,，\s]+/).map(s => s.trim());
-            name = parts[0] || "";
-            url = parts || "";
-            code = parts || "";
-          }
+          const [pName, pUrl, pCode] = line.split("|").map(s => s.trim());
+          name = pName || "";
+          url = pUrl || "";
+          code = pCode || "";
+        } else if (line.includes(",") || line.includes("，")) {
+          const [pName, pUrl, pCode] = line.split(/[,，]/).map(s => s.trim());
+          name = pName || "";
+          url = pUrl || "";
+          code = pCode || "";
+        }
+
+        const urlMatch = line.match(/https?:\/\/[^\s,，;；|]+/i);
+        if (urlMatch) {
+          const [matchedUrl] = urlMatch;
+          if (!url || !url.startsWith("http")) url = matchedUrl.trim();
+          if (!name) name = line.slice(0, urlMatch.index).replace(/[,，|:：\s]+$/, "").trim();
+          if (!code) code = line.slice(urlMatch.index + matchedUrl.length).replace(/^[,，|:：\s]+/, "").trim();
         }
 
         if (url) {
@@ -634,10 +635,8 @@
   // 确保每次跳转新页面，都能正确在顶栏建立挂载点
   function initAuthDOM() {
     try {
-      // 1. 样式随处就位
       injectAvatarStyles();
 
-      // 2. 核心修复：每次页面切换，确保新页面的 headerInner 中始终有我们的 authContainer
       const headerInner = document.querySelector(".md-header__inner");
       if (headerInner) {
         let authContainer = document.getElementById("kzyc-auth-header");
@@ -651,7 +650,6 @@
         }
       }
 
-      // 3. Turnstile 脚本
       if (!document.getElementById("cf-turnstile-script")) {
         const script = document.createElement("script");
         script.id = "cf-turnstile-script";
@@ -661,7 +659,6 @@
         (document.head || document.documentElement).appendChild(script);
       }
 
-      // 4. 弹窗只创建一次，如果已经存在则立刻更新头部 UI 并返回
       if (document.getElementById("kzyc-auth-modal")) {
         updateHeaderUI();
         return;
@@ -1267,7 +1264,6 @@
               body: JSON.stringify({ comment_id: Number(commentId) || commentId }),
             });
 
-            // 只要响应状态正常 (200-299)，即代表后端已成功删除
             if (res.ok) {
               let data = null;
               try {
@@ -1275,11 +1271,8 @@
               } catch {}
 
               if (!data || data.success !== false) {
-                // 1. 立即从当前界面移除被删评论节点（零延迟视觉反馈）
                 const el = document.getElementById(`comment-${commentId}`);
                 if (el) el.remove();
-
-                // 2. 自动无感拉取最新列表与讨论计数
                 await loadComments(targetPath);
                 return;
               } else {
@@ -1288,7 +1281,6 @@
               }
             }
 
-            // 状态码异常处理
             let errText = "删除失败";
             try {
               const errData = await res.json();
@@ -1297,7 +1289,6 @@
             alert(errText);
           } catch (err) {
             console.error("[kzyc-auth] 删除评论请求异常:", err);
-            // 兜底再次拉取列表，保证数据最新
             await loadComments(targetPath);
           }
         });
@@ -1832,7 +1823,6 @@
     try {
       injectAvatarStyles();
 
-      // 双重保活：如果当前页面没有找到容器，自动在当前顶栏补齐挂载点
       let container = document.getElementById("kzyc-auth-header");
       if (!container) {
         const headerInner = document.querySelector(".md-header__inner");
@@ -1896,7 +1886,6 @@
           `;
         }
 
-        // 渲染登录后圆形固定头像 + 悬浮弹窗
         container.innerHTML = `
           <div class="kzyc-header-user-wrap">
             <button type="button" class="kzyc-header-avatar-btn" id="kzyc-open-profile" title="点击查看个人中心" aria-label="个人中心">
@@ -1975,6 +1964,8 @@
                 expireDisplay = "永久有效";
               } else if (curType === "vip" || curType === "svip") {
                 if (expireDate) {
+                  expireDisplay = expireDate.includes("2999") {
+                if (expireDate) {
                   expireDisplay = expireDate.includes("2999") ? "永久有效" : expireDate.slice(0, 10);
                   if (curExpired) expireDisplay += " (已到期)";
                 } else {
@@ -2042,10 +2033,6 @@
         return;
       }
 
-      const res = await fetch(`${API_BASE}/renderCommentInputBox();
-        return;
-      }
-
       const res = await fetch(`${API_BASE}/api/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -2078,7 +2065,6 @@
     mountAll();
   }
 
-  // 监听 MkDocs Material 即时跳转事件
   if (typeof document$ !== "undefined") {
     document$.subscribe(mountAll);
   } else {
@@ -2094,7 +2080,6 @@
     }, 100);
   }
 
-  // 轮询守护：确保页面带锚点跳转时下载卡片也能 100% 渲染
   let quickPollCount = 0;
   const quickPoll = setInterval(() => {
     quickPollCount++;
