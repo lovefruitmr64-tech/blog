@@ -417,9 +417,9 @@
 
     // 独立注入高优先级专属样式
     if (!document.getElementById("kzyc-netdisk-isolated-styles")) {
-      const style = document.createElement("style");
-      style.id = "kzyc-netdisk-isolated-styles";
-      style.textContent = `
+      const styleEl = document.createElement("style");
+      styleEl.id = "kzyc-netdisk-isolated-styles";
+      styleEl.textContent = `
         .kzyc-netdisk-card {
           width: 100% !important;
           margin: 14px 0 6px !important;
@@ -2046,6 +2046,12 @@
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", mountAll);
+  } else {
+    mountAll();
+  }
+
+  // 监听 MkDocs Material 即时跳转事件
+  if mountAll);
   } else {
     mountAll();
   }
