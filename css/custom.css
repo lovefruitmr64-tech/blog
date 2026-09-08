@@ -877,39 +877,35 @@ grid-template-columns:
 
 
 
-   /* ==========================================================================
-   修复移动端搜索时首页轮播图箭头与圆点穿透浮动的 Bug
+/* ==========================================================================
+   修复移动端搜索时首页轮播图小点和箭头穿透浮动
    ========================================================================== */
 
-/* 1. 强制轮播图容器自建局部层叠上下文，限制其子元素最高层级不超过 1 */
-.home-banner {
-  position: relative !important;
-  z-index: 1 !important;
+/* 1. 关键：大幅提升 MkDocs 顶栏层级（搜索框在 md-header 内部，必须高于轮播图） */
+.md-header {
+  z-index: 30 !important;
 }
 
-/* 2. 大幅提升 MkDocs 搜索浮层与遮罩层级，确保绝对覆盖页面内容 */
-.md-search {
-  z-index: 100 !important;
+/* 2. 压低轮播图指示点与左右箭头的层级（轮播图内部只需高于图片 0 即可） */
+.home-banner .banner-dots {
+  z-index: 5 !important;
 }
-.md-search__overlay {
-  z-index: 99 !important;
-}
-.md-search__inner {
-  z-index: 101 !important;
+.home-banner .banner-btn,
+.home-banner .banner-prev,
+.home-banner .banner-next {
+  z-index: 4 !important;
 }
 
-/* 3. 当移动端打开搜索抽屉时，彻底隐藏首页轮播图的左右箭头与指示点 */
+/* 3. 当手机端点开搜索框时，强制将轮播图箭头与指示小点直接隐藏 */
 [data-md-toggle="search"]:checked ~ .md-container .home-banner .banner-prev,
 [data-md-toggle="search"]:checked ~ .md-container .home-banner .banner-next,
 [data-md-toggle="search"]:checked ~ .md-container .home-banner .banner-dots,
-body:has(#__search:checked) .home-banner .banner-prev,
-body:has(#__search:checked) .home-banner .banner-next,
-body:has(#__search:checked) .home-banner .banner-dots {
+[data-md-toggle="search"]:checked ~ .md-container .home-banner .banner-btn {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }
-   /* ==========================================================================
-   修复移动端搜索时首页轮播图箭头与圆点穿透浮动的 Bug结束
+/* ==========================================================================
+   修复移动端搜索时首页轮播图小点和箭头穿透浮动结束
    ========================================================================== */

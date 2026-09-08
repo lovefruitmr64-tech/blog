@@ -137,3 +137,34 @@ function initHomeBanner() {
   // 开启自动播放
   startAutoPlay();
 }
+
+
+// 移动端搜索联动：打开搜索时隐藏轮播控件并暂停轮播
+(function () {
+  function bindSearchWithBanner() {
+    const searchToggle = document.getElementById("__search");
+    if (!searchToggle) return;
+
+    searchToggle.addEventListener("change", function () {
+      const isSearchOpen = this.checked;
+      const prevBtn = document.querySelector(".banner-prev");
+      const nextBtn = document.querySelector(".banner-next");
+      const dotsWrap = document.querySelector(".banner-dots");
+
+      if (prevBtn) prevBtn.style.display = isSearchOpen ? "none" : "";
+      if (nextBtn) nextBtn.style.display = isSearchOpen ? "none" : "";
+      if (dotsWrap) dotsWrap.style.display = isSearchOpen ? "none" : "";
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindSearchWithBanner);
+  } else {
+    bindSearchWithBanner();
+  }
+
+  if (typeof document$ !== "undefined") {
+    document$.subscribe(bindSearchWithBanner);
+  }
+})();
+// 移动端搜索联动：打开搜索时隐藏轮播控件并暂停轮播结束
