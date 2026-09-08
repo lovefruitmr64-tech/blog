@@ -240,6 +240,41 @@ hide:
       .replace(/'/g, "&#039;");
   }
 
+  // 实时更新顶部导航栏“评论审核”后方的待审核角标与概览数据
+  function updatePendingBadge(count) {
+    const num = Math.max(0, parseInt(count, 10) || 0);
+    if (adminStats) {
+      adminStats.pending_comments = num;
+    }
+    const badge = document.getElementById("kzyc-pending-badge");
+    if (badge) {
+      badge.textContent = num;
+      badge.style.display = num > 0 ? "inline-block" : "none";
+    }
+    const overviewStat = document.getElementById("kzyc-stat-pending-num");
+    if (overviewStat) {
+      overviewStat.textContent = num;
+      if (num > 0) overviewStat.classList.add("warn");
+      else overviewStat.classList.remove("warn");
+    }
+  }
+
+  // 静默拉取后端全局统计数据并刷新角标
+  async function refreshAdminStats() {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/overview`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success && data.stats) {
+        adminStats = data.stats;
+        updatePendingBadge(adminStats.pending_comments);
+      }
+    } catch {}
+  }
+
   function renderPaginationHTML(currentPage, totalItems, pageSize, funcName) {
     const totalPages = Math.ceil(totalItems / pageSize) || 1;
     if (totalPages <= 1) return "";
@@ -328,6 +363,7 @@ hide:
   }
 
   function renderAdminDashboard(root, admin) {
+    const pendingNum = adminStats.pending_comments || 0;
     root.innerHTML = `
       <div class="kzyc-adm-card">
         <div class="kzyc-adm-topbar">
@@ -343,7 +379,7 @@ hide:
           <button class="kzyc-adm-tab active" data-tab="overview">📊 数据概览</button>
           <button class="kzyc-adm-tab" data-tab="resources">📦 资源管理</button>
           <button class="kzyc-adm-tab" data-tab="banners">🖼️ 首页轮播图</button>
-          <button class="kzyc-adm-tab" data-tab="comments">💬 评论审核 ${adminStats.pending_comments > 0 ? `<span style="background: #ea580c; color: #fff; padding: 1px 6px; border-radius: 10px; font-size: 0.7rem;">${adminStats.pending_comments}</span>` : ''}</button>
+          <button class="kzyc-adm-tab" data-tab="comments">💬 评论审核 <span id="kzyc-pending-badge" style="background: #ea580c; color: #fff; padding: 1px 6px; border-radius: 10px; font-size: 0.7rem; display: ${pendingNum > 0 ? 'inline-block' : 'none'};">${pendingNum}</span></button>
           <button class="kzyc-adm-tab" data-tab="users">👥 用户与会员</button>
           <button class="kzyc-adm-tab" data-tab="words">🧹 敏感词库</button>
         </div>
@@ -388,7 +424,7 @@ hide:
         <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">👥 注册总用户</div><div class="kzyc-adm-stat-num">${adminStats.total_users}</div></div>
         <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📈 今日新增注册</div><div class="kzyc-adm-stat-num">${adminStats.today_reg}</div></div>
         <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">💬 全站评论总数</div><div class="kzyc-adm-stat-num">${adminStats.total_comments}</div></div>
-        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">⏳ 待审核评论</div><div class="kzyc-adm-stat-num ${adminStats.pending_comments > 0 ? 'warn' : ''}">${adminStats.pending_comments}</div></div>
+        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">⏳ 待审核评论</div><div class="kzyc-adm-stat-num ${adminStats.pending_comments > 0 ? 'warn' : ''}" id="kzyc-stat-pending-num">${adminStats.pending_comments}</div></div>
         <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📥 今日下载次数</div><div class="kzyc-adm-stat-num">${adminStats.today_downloads}</div></div>
         <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📦 全站总资源数</div><div class="kzyc-adm-stat-num">${adminStats.total_resources}</div></div>
       </div>
@@ -396,7 +432,7 @@ hide:
     `;
   }
 
-  // 2. 资源管理（已优化：下载权限、解压密码单行不折行）
+  // 2. 资源管理
   async function renderResourcesTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在读取资源列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -666,7 +702,7 @@ hide:
     }
   };
 
-  // 4. 用户与会员管理（已优化：身份角色不换行，已注销账号增加恢复与删除操作）
+  // 4. 用户与会员管理
   async function renderUsersTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在加载用户列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -698,7 +734,6 @@ hide:
         <button class="kzyc-adm-btn primary" id="kzyc-add-user-btn">➕ 添加新用户</button>
       </div>
 
-      <!-- 用户新增/编辑表单 -->
       <div id="kzyc-user-form-wrap" style="display: none;" class="kzyc-adm-form-card">
         <h4 style="margin-top: 0; font-size: 0.92rem;" id="kzyc-user-form-title">添加新用户</h4>
         <input type="hidden" id="kzyc-user-id-val" />
@@ -798,7 +833,6 @@ hide:
         ${renderPaginationHTML(userCurrentPage, filteredUsers.length, USER_PAGE_SIZE, "gotoUserPage")}
       </div>
 
-      <!-- 已注销账号表格：支持一键恢复账号与彻底删除记录 -->
       <div style="margin-top: 24px;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
           <span style="font-weight: 700; font-size: 0.88rem; color: #ef4444;">⚠️ 已注销账号列表与拦截管控 (${allDeletedAccounts.length})</span>
@@ -931,7 +965,7 @@ hide:
     if (panel) drawUsersTable(panel);
   };
 
-  // 5. 评论审核
+  // 5. 评论审核（实时同步待审核数量与徽标）
   async function renderCommentsTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在加载评论列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -939,10 +973,13 @@ hide:
     const res = await fetch(`${API_BASE}/api/admin/comments`, { headers: { Authorization: `Bearer ${token}` } });
     const data = await res.json();
     const list = data.comments || [];
+    const pendingCount = list.filter(c => c.status === "pending").length;
+    updatePendingBadge(pendingCount);
 
     panel.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
         <span style="font-weight: 700; font-size: 0.95rem;">全站最新评论列表 (${list.length})</span>
+        <span style="font-size: 0.82rem; opacity: 0.85;">当前待审核: <strong style="color: #ea580c; font-size: 0.92rem;">${pendingCount}</strong> 条</span>
       </div>
       <div style="overflow-x: auto;">
         <table class="kzyc-adm-table">
@@ -959,7 +996,7 @@ hide:
           </thead>
           <tbody>
             ${list.map(c => `
-              <tr>
+              <tr id="kzyc-admin-comment-${c.id}">
                 <td class="kzyc-nowrap">#${c.id}</td>
                 <td><span class="kzyc-cell-truncate" style="max-width: 140px;" title="${escapeHTML(c.post_path)}">${escapeHTML(c.post_path)}</span></td>
                 <td class="kzyc-nowrap"><strong class="kzyc-cell-truncate" style="max-width: 90px;" title="${escapeHTML(c.username)}">${escapeHTML(c.username)}</strong></td>
@@ -1118,6 +1155,7 @@ hide:
     if (!confirm(`确定要彻底删除 [${username}] (${email}) 的注销记录吗？\n\n删除后该用户名和邮箱将立即解除1年冷却期锁定，允许重新注册！`)) return;
     const token = localStorage.getItem(TOKEN_KEY);
     const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/delete`, {
+      method: " = await fetch(`${API_BASE}/api/admin/deleted-accounts/delete`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ email })
@@ -1140,6 +1178,7 @@ hide:
       body: JSON.stringify({ comment_id: id, status })
     });
     switchTab("comments");
+    refreshAdminStats();
   };
 
   window.deleteComment = async function(id) {
@@ -1151,6 +1190,7 @@ hide:
       body: JSON.stringify({ comment_id: id })
     });
     switchTab("comments");
+    refreshAdminStats();
   };
 
   window.deleteWord = async function(id) {
