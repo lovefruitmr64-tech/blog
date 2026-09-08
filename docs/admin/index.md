@@ -6,7 +6,7 @@ hide:
 ---
 
 <div id="kzyc-admin-mount">
-  <div style="padding: 40px 0; text-align: center; opacity: 0.6;">
+  <div style="padding: 40px 0; text-align: center; opacity: 0.6;" id="kzyc-admin-loading-tip">
     ⏳ 正在验证站长身份，请稍候...
   </div>
 </div>
@@ -240,7 +240,6 @@ hide:
       .replace(/'/g, "&#039;");
   }
 
-  // 实时更新顶部导航栏“评论审核”后方的待审核角标与概览数据
   function updatePendingBadge(count) {
     const num = Math.max(0, parseInt(count, 10) || 0);
     if (adminStats) {
@@ -259,7 +258,6 @@ hide:
     }
   }
 
-  // 静默拉取后端全局统计数据并刷新角标
   async function refreshAdminStats() {
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) return;
@@ -323,28 +321,39 @@ hide:
   }
 
   async function checkAdminAuth() {
+    console.log("[kzyc-admin] 开始验证站长权限...");
     const root = document.getElementById("kzyc-admin-mount");
     if (!root) return;
 
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) {
-      renderNoPermission(root, "您当前未登录，无法访问站长管理后台。");
+      console.warn("[kzyc-admin] 本地无登录凭证");
+      renderNoPermission(root, "您当前未登录，无法访问站长管理后台。请先登录管理员账号！");
       return;
     }
 
     try {
+      const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
+
       const res = await fetch(`${API_BASE}/api/admin/overview`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        signal: controller ? controller.signal : undefined
       });
+      if (timeoutId) clearTimeout(timeoutId);
+
       const data = await res.json();
       if (data.success) {
-        adminStats = data.stats;
-        renderAdminDashboard(root, data.admin);
+        console.log("[kzyc-admin] 验证成功，渲染管理控制台");
+        adminStats = data.stats || {};
+        renderAdminDashboard(root, data.admin || { username: "站长" });
       } else {
-        renderNoPermission(root, "当前登录账号非管理员，拒绝访问！");
+        renderNoPermission(root, data.error || "当前登录账号非管理员，拒绝访问！");
       }
-    } catch {
-      renderNoPermission(root, "通信异常，无法校验管理员权限。");
+    } catch (err) {
+      console.error("[kzyc-admin] 验证请求异常:", err);
+      const isTimeout = err.name === "AbortError";
+      renderNoPermission(root, isTimeout ? "请求超时：无法连接到认证服务器，请检查网络后重试。" : ("通信异常：" + (err.message || "无法校验管理员权限")));
     }
   }
 
@@ -353,7 +362,7 @@ hide:
       <div class="kzyc-adm-card" style="text-align: center; padding: 40px 20px;">
         <div style="font-size: 2.5rem; margin-bottom: 12px;">🔒</div>
         <h3 style="margin: 0 0 10px;">站长专属管理后台</h3>
-        <p style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 20px;">${text}</p>
+        <p style="opacity: 0.75; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">${escapeHTML(text)}</p>
         <button type="button" class="kzyc-adm-btn primary" style="padding: 10px 24px; font-size: 0.9rem;" id="kzyc-admin-login-btn">立即登录管理员账号</button>
       </div>
     `;
@@ -363,13 +372,13 @@ hide:
   }
 
   function renderAdminDashboard(root, admin) {
-    const pendingNum = adminStats.pending_comments || 0;
+    const pendingNum = (adminStats && adminStats.pending_comments) || 0;
     root.innerHTML = `
       <div class="kzyc-adm-card">
         <div class="kzyc-adm-topbar">
           <div style="font-size: 1.25rem; font-weight: 800;">👑 K资源仓 · 站长管理后台</div>
           <div style="font-size: 0.86rem; opacity: 0.85;">
-            当前站长：<strong>${escapeHTML(admin.username)}</strong>
+            当前站长：<strong>${escapeHTML(admin.username || "管理员")}</strong>
             <span style="opacity: 0.5; margin: 0 6px;">·</span>
             <a href="javascript:void(0)" id="kzyc-adm-logout" style="color: #ef4444;">退出管理</a>
           </div>
@@ -419,14 +428,15 @@ hide:
 
   // 1. 数据看板
   function renderOverviewTab(panel) {
+    const stats = adminStats || {};
     panel.innerHTML = `
       <div class="kzyc-adm-grid">
-        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">👥 注册总用户</div><div class="kzyc-adm-stat-num">${adminStats.total_users}</div></div>
-        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📈 今日新增注册</div><div class="kzyc-adm-stat-num">${adminStats.today_reg}</div></div>
-        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">💬 全站评论总数</div><div class="kzyc-adm-stat-num">${adminStats.total_comments}</div></div>
-        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">⏳ 待审核评论</div><div class="kzyc-adm-stat-num ${adminStats.pending_comments > 0 ? 'warn' : ''}" id="kzyc-stat-pending-num">${adminStats.pending_comments}</div></div>
-        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📥 今日下载次数</div><div class="kzyc-adm-stat-num">${adminStats.today_downloads}</div></div>
-        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📦 全站总资源数</div><div class="kzyc-adm-stat-num">${adminStats.total_resources}</div></div>
+        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">👥 注册总用户</div><div class="kzyc-adm-stat-num">${stats.total_users || 0}</div></div>
+        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📈 今日新增注册</div><div class="kzyc-adm-stat-num">${stats.today_reg || 0}</div></div>
+        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">💬 全站评论总数</div><div class="kzyc-adm-stat-num">${stats.total_comments || 0}</div></div>
+        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">⏳ 待审核评论</div><div class="kzyc-adm-stat-num ${(stats.pending_comments || 0) > 0 ? 'warn' : ''}" id="kzyc-stat-pending-num">${stats.pending_comments || 0}</div></div>
+        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📥 今日下载次数</div><div class="kzyc-adm-stat-num">${stats.today_downloads || 0}</div></div>
+        <div class="kzyc-adm-stat"><div class="kzyc-adm-stat-label">📦 全站总资源数</div><div class="kzyc-adm-stat-num">${stats.total_resources || 0}</div></div>
       </div>
       <div style="font-size: 0.82rem; opacity: 0.6; text-align: center;">⚡ Cloudflare D1 边缘数据库实时驱动</div>
     `;
@@ -553,7 +563,8 @@ hide:
     }
 
     document.getElementById("kzyc-add-res-btn")?.addEventListener("click", () => {
-      document.getElementById("kzyc-res-form-wrap").style.display = "block";
+      const wrap = document.getElementById("kzyc-res-form-wrap");
+      wrap.style.display = "block";
       document.getElementById("kzyc-res-form-title").textContent = "➕ 新增软件资源";
       const kInput = document.getElementById("kzyc-inp-key");
       kInput.disabled = false;
@@ -562,7 +573,7 @@ hide:
       document.getElementById("kzyc-inp-url").value = "";
       document.getElementById("kzyc-inp-pwd").value = "";
       document.getElementById("kzyc-inp-vip-only").value = "0";
-      document.getElementById("kzyc-res-form-wrap").scrollIntoView({ behavior: 'smooth' });
+      wrap.scrollIntoView({ behavior: 'smooth' });
     });
 
     document.getElementById("kzyc-cancel-res-btn")?.addEventListener("click", () => {
@@ -1131,9 +1142,8 @@ hide:
     }
   };
 
-  // 恢复已注销账号
   window.handleRestoreDeleted = async function(email, username) {
-    if (!confirm(`确定要恢复已注销账号 [${username}] (${email}) 吗？\n\n恢复后该用户将重新加入用户列表，初始密码设为 12345678，并自动解除注销拦截限制！`)) return;
+    if (!confirm(`确定要恢复已注销账号 [${username}] (${email}) 吗？\\n\\n恢复后该用户将重新加入用户列表，初始密码设为 12345678，并自动解除注销拦截限制！`)) return;
     const token = localStorage.getItem(TOKEN_KEY);
     const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/restore`, {
       method: "POST",
@@ -1150,12 +1160,10 @@ hide:
     }
   };
 
-  // 彻底删除注销记录
   window.handleDeleteDeleted = async function(email, username) {
-    if (!confirm(`确定要彻底删除 [${username}] (${email}) 的注销记录吗？\n\n删除后该用户名和邮箱将立即解除1年冷却期锁定，允许重新注册！`)) return;
+    if (!confirm(`确定要彻底删除 [${username}] (${email}) 的注销记录吗？\\n\\n删除后该用户名和邮箱将立即解除1年冷却期锁定，允许重新注册！`)) return;
     const token = localStorage.getItem(TOKEN_KEY);
     const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/delete`, {
-      method: " = await fetch(`${API_BASE}/api/admin/deleted-accounts/delete`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ email })
@@ -1203,14 +1211,28 @@ hide:
     switchTab("words");
   };
 
+  // 立即执行 + 页面就绪双重保障
+  window.checkAdminAuth = checkAdminAuth;
+  checkAdminAuth();
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", checkAdminAuth);
-  } else {
-    checkAdminAuth();
   }
-
   if (typeof document$ !== "undefined") {
     document$.subscribe(checkAdminAuth);
   }
+
+  // 轮询保活：防止 SPA 无刷新跳转时 DOM 延迟
+  let retryCount = 0;
+  const pollTimer = setInterval(() => {
+    retryCount++;
+    const loadingEl = document.getElementById("kzyc-admin-loading-tip");
+    if (loadingEl) {
+      checkAdminAuth();
+    } else {
+      clearInterval(pollTimer);
+    }
+    if (retryCount >= 10) clearInterval(pollTimer);
+  }, 250);
 })();
 </script>
