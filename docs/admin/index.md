@@ -321,20 +321,27 @@ hide:
   }
 
   async function checkAdminAuth() {
-    console.log("[kzyc-admin] 开始验证站长权限...");
     const root = document.getElementById("kzyc-admin-mount");
     if (!root) return;
 
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) {
-      console.warn("[kzyc-admin] 本地无登录凭证");
-      renderNoPermission(root, "您当前未登录，无法访问站长管理后台。请先登录管理员账号！");
+      renderNoPermission(root, "您当前未登录，无法访问站长管理后台。请先登录管理员账号！", false);
       return;
     }
 
+    root.innerHTML = `
+      <div style="padding: 50px 0; text-align: center;" id="kzyc-admin-loading-tip">
+        <div style="font-size: 2.2rem; margin-bottom: 12px;">⏳</div>
+        <div style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">正在连接云端校验站长权限...</div>
+        <div style="font-size: 0.78rem; opacity: 0.6;">跨国网络建立握手中，请稍候片刻</div>
+      </div>
+    `;
+
     try {
       const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-      const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
+      // 设置更宽容的 25 秒超时，避免国内访问 CF 边缘网络时因网络慢误判
+      const timeoutId = controller ? setTimeout(() => controller.abort(), 25000) : null;
 
       const res = await fetch(`${API_BASE}/api/admin/overview`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -344,30 +351,57 @@ hide:
 
       const data = await res.json();
       if (data.success) {
-        console.log("[kzyc-admin] 验证成功，渲染管理控制台");
         adminStats = data.stats || {};
         renderAdminDashboard(root, data.admin || { username: "站长" });
       } else {
-        renderNoPermission(root, data.error || "当前登录账号非管理员，拒绝访问！");
+        renderNoPermission(root, data.error || "当前登录账号非管理员，拒绝访问！", true);
       }
     } catch (err) {
       console.error("[kzyc-admin] 验证请求异常:", err);
       const isTimeout = err.name === "AbortError";
-      renderNoPermission(root, isTimeout ? "请求超时：无法连接到认证服务器，请检查网络后重试。" : ("通信异常：" + (err.message || "无法校验管理员权限")));
+      const errMsg = isTimeout
+        ? "连接超时：云端网络延迟较高，未能及时收到响应。请点击下方重试！"
+        : ("通信异常：" + (err.message || "无法连接到认证服务器"));
+      renderNoPermission(root, errMsg, true);
     }
   }
 
-  function renderNoPermission(root, text) {
+  function renderNoPermission(root, text, canRetry) {
     root.innerHTML = `
       <div class="kzyc-adm-card" style="text-align: center; padding: 40px 20px;">
         <div style="font-size: 2.5rem; margin-bottom: 12px;">🔒</div>
         <h3 style="margin: 0 0 10px;">站长专属管理后台</h3>
         <p style="opacity: 0.75; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">${escapeHTML(text)}</p>
-        <button type="button" class="kzyc-adm-btn primary" style="padding: 10px 24px; font-size: 0.9rem;" id="kzyc-admin-login-btn">立即登录管理员账号</button>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          ${canRetry ? `<button type="button" class="kzyc-adm-btn primary" style="padding: 10px 24px; font-size: 0.9rem;" id="kzyc-admin-retry-btn">🔄 重新尝试连接</button>` : ''}
+          <button type="button" class="kzyc-adm-btn ${canRetry ? 'warn' : 'primary'}" style="padding: 10px 24px; font-size: 0.9rem;" id="kzyc-admin-login-btn">🔑 登录 / 切换管理员账号</button>
+        </div>
       </div>
     `;
+
+    document.getElementById("kzyc-admin-retry-btn")?.addEventListener("click", () => {
+      checkAdminAuth();
+    });
+
     document.getElementById("kzyc-admin-login-btn")?.addEventListener("click", () => {
-      document.getElementById("kzyc-open-auth")?.click();
+      // 100% 稳妥唤醒登录弹窗
+      const backdrop = document.getElementById("kzyc-auth-modal");
+      if (backdrop) {
+        backdrop.classList.add("active");
+        const authView = document.getElementById("kzyc-auth-view");
+        const profView = document.getElementById("kzyc-profile-view");
+        const forgView = document.getElementById("kzyc-forgot-view");
+        if (authView) authView.style.display = "block";
+        if (profView) profView.style.display = "none";
+        if (forgView) forgView.style.display = "none";
+        const msgEl = document.getElementById("kzyc-auth-msg");
+        if (msgEl) {
+          msgEl.className = "kzyc-msg error";
+          msgEl.textContent = "请登录具有【站长/管理员】权限的账号！";
+        }
+      } else {
+        document.getElementById("kzyc-open-auth")?.click();
+      }
     });
   }
 
@@ -1143,7 +1177,7 @@ hide:
   };
 
   window.handleRestoreDeleted = async function(email, username) {
-    if (!confirm(`确定要恢复已注销账号 [${username}] (${email}) 吗？\\n\\n恢复后该用户将重新加入用户列表，初始密码设为 12345678，并自动解除注销拦截限制！`)) return;
+    if (!confirm(`确定要恢复已注销账号 [${username}] (${email}) 吗？\n\n恢复后该用户将重新加入用户列表，初始密码设为 12345678，并自动解除注销拦截限制！`)) return;
     const token = localStorage.getItem(TOKEN_KEY);
     const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/restore`, {
       method: "POST",
@@ -1161,7 +1195,7 @@ hide:
   };
 
   window.handleDeleteDeleted = async function(email, username) {
-    if (!confirm(`确定要彻底删除 [${username}] (${email}) 的注销记录吗？\\n\\n删除后该用户名和邮箱将立即解除1年冷却期锁定，允许重新注册！`)) return;
+    if (!confirm(`确定要彻底删除 [${username}] (${email}) 的注销记录吗？\n\n删除后该用户名和邮箱将立即解除1年冷却期锁定，允许重新注册！`)) return;
     const token = localStorage.getItem(TOKEN_KEY);
     const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/delete`, {
       method: "POST",
@@ -1211,7 +1245,6 @@ hide:
     switchTab("words");
   };
 
-  // 立即执行 + 页面就绪双重保障
   window.checkAdminAuth = checkAdminAuth;
   checkAdminAuth();
 
@@ -1222,7 +1255,6 @@ hide:
     document$.subscribe(checkAdminAuth);
   }
 
-  // 轮询保活：防止 SPA 无刷新跳转时 DOM 延迟
   let retryCount = 0;
   const pollTimer = setInterval(() => {
     retryCount++;
