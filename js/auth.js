@@ -1260,21 +1260,47 @@
         showCenterConfirm("确定要删除这条评论吗？相关楼中楼回复也会一并删除！", async () => {
           const token = localStorage.getItem(TOKEN_KEY);
           const commentId = btn.getAttribute("data-id");
+          const targetPath = path || location.pathname;
 
           try {
             const res = await fetch(`${API_BASE}/api/comments/delete`, {
               method: "POST",
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-              body: JSON.stringify({ comment_id: commentId }),
+              body: JSON.stringify({ comment_id: Number(commentId) || commentId }),
             });
-            const data = await res.json();
-            if (data.success) {
-              loadComments(path);
-            } else {
-              alert(data.error || "删除失败");
+
+            // 只要响应状态正常 (200-299)，即代表后端已成功删除
+            if (res.ok) {
+              let data = null;
+              try {
+                data = await res.json();
+              } catch {}
+
+              if (!data || data.success !== false) {
+                // 1. 立即从当前界面移除被删评论节点（零延迟视觉反馈）
+                const el = document.getElementById(`comment-${commentId}`);
+                if (el) el.remove();
+
+                // 2. 自动无感拉取最新列表与讨论计数
+                await loadComments(targetPath);
+                return;
+              } else {
+                alert(data.error || "删除失败");
+                return;
+              }
             }
-          } catch {
-            alert("网络异常");
+
+            // 状态码异常处理
+            let errText = "删除失败";
+            try {
+              const errData = await res.json();
+              errText = errData.error || errText;
+            } catch {}
+            alert(errText);
+          } catch (err) {
+            console.error("[kzyc-auth] 删除评论请求异常:", err);
+            // 兜底再次拉取列表，保证数据最新
+            await loadComments(targetPath);
           }
         });
       });
@@ -2046,12 +2072,6 @@
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", mountAll);
-  } else {
-    mountAll();
-  }
-
-  // 监听 MkDocs Material 即时跳转事件
-  if mountAll);
   } else {
     mountAll();
   }
