@@ -55,7 +55,7 @@
     return colors[Math.abs(hash) % colors.length];
   }
 
-  // 修复时区计算：兼容 SQLite UTC 时间戳，准确对齐中国北京时间
+  // 兼容 SQLite UTC 时间戳，准确对齐中国北京时间
   function timeAgo(dateStr) {
     try {
       if (!dateStr) return "";
@@ -83,7 +83,7 @@
     if (document.getElementById("kzyc-avatar-popover-styles")) return;
     const styleEl = document.createElement("style");
     styleEl.id = "kzyc-avatar-popover-styles";
-    styleEl.textContent = `.kzyc-header-user-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-left:10px}.kzyc-header-avatar-btn{width:36px!important;height:36px!important;border-radius:50%!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;cursor:pointer;outline:none;background:rgba(99,102,241,0.12);border:1.5px solid rgba(99,102,241,0.35);color:#4338ca;transition:all .25s ease;padding:0!important}.kzyc-header-avatar-btn:hover{background:rgba(99,102,241,0.22);border-color:rgba(99,102,241,0.65);transform:scale(1.06);box-shadow:0 0 10px rgba(99,102,241,0.25)}.kzyc-header-avatar-btn svg{width:20px;height:20px;fill:currentColor}[data-md-color-scheme="slate"] .kzyc-header-avatar-btn{background:rgba(165,180,252,0.15);border:1.5px solid rgba(165,180,252,0.4);color:#a5b4fc}[data-md-color-scheme="slate"] .kzyc-header-avatar-btn:hover{background:rgba(165,180,252,0.25);border-color:rgba(165,180,252,0.75);box-shadow:0 0 10px rgba(165,180,252,0.3)}.kzyc-header-popover{position:absolute!important;top:100%!important;right:0!important;margin-top:10px!important;z-index:9999!important;width:max-content!important;min-width:175px!important;padding:10px 14px!important;border-radius:10px!important;box-sizing:border-box!important;background:#ffffff!important;border:1px solid #e2e8f0!important;color:#1e293b!important;box-shadow:0 10px 25px -5px rgba(0,0,0,0.12),0 8px 10px -6px rgba(0,0,0,0.08)!important;pointer-events:none!important;opacity:0!important;visibility:hidden!important;transform:translateY(6px)!important;transition:opacity .2s ease,transform .2s ease,visibility .2s!important;text-align:left!important;white-space:nowrap!important}.kzyc-header-popover::before{content:"";position:absolute;top:-12px;left:0;right:0;height:12px}.kzyc-header-user-wrap:hover .kzyc-header-popover{pointer-events:auto!important;opacity:1!important;visibility:visible!important;transform:translateY(0)!important}[data-md-color-scheme="slate"] .kzyc-header-popover{background:#1e293b!important;border-color:#334155!important;color:#f8fafc!important;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5)!important}.kzyc-popover-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:5px;white-space:nowrap}.kzyc-popover-name{font-weight:700;font-size:.85rem;white-space:nowrap}.kzyc-popover-badge{font-size:.68rem;padding:1.5px 6px;border-radius:9999px;font-weight:600;white-space:nowrap}.kzyc-popover-badge.admin{background:#e0e7ff;color:#4338ca;border:1px solid #c7d2fe}.kzyc-popover-badge.svip{background:#fce7f3;color:#be185d;border:1px solid #fbcfe8}.kzyc-popover-badge.vip{background:#fef3c7;color:#b45309;border:1px solid #fde68a}.kzyc-popover-badge.user{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}.kzyc-popover-badge.expired{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}[data-md-color-scheme="slate"] .kzyc-popover-badge.admin{background:rgba(99,102,241,0.25);color:#a5b4fc;border-color:rgba(99,102,241,0.5)}[data-md-color-scheme="slate"] .kzyc-popover-badge.svip{background:rgba(236,72,153,0.2);color:#f472b6;border-color:rgba(236,72,153,0.4)}[data-md-color-scheme="slate"] .kzyc-popover-badge.vip{background:rgba(245,158,11,0.2);color:#fbbf24;border-color:rgba(245,158,11,0.4)}[data-md-color-scheme="slate"] .kzyc-popover-badge.user{background:#334155;color:#94a3b8;border-color:#475569}.kzyc-popover-expire{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.72rem;padding-top:6px;margin-top:3px;border-top:1px dashed rgba(148,163,184,0.28);white-space:nowrap}.kzyc-popover-expire-label{color:#64748b;white-space:nowrap}[data-md-color-scheme="slate"] .kzyc-popover-expire-label{color:#94a3b8}.kzyc-popover-expire-val{color:#ea580c;font-weight:600;white-space:nowrap}[data-md-color-scheme="slate"] .kzyc-popover-expire-val{color:#fb923c}.kzyc-popover-footer-tip{font-size:.65rem;color:#94a3b8;text-align:center;margin-top:6px;padding-top:5px;border-top:1px solid rgba(148,163,184,0.15);white-space:nowrap}`;
+    styleEl.textContent = `.kzyc-header-user-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-left:10px;flex-shrink:0!important}.kzyc-header-avatar-btn{width:36px!important;height:36px!important;border-radius:50%!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;cursor:pointer;outline:none;background:rgba(99,102,241,0.12);border:1.5px solid rgba(99,102,241,0.35);color:#4338ca;transition:all .25s ease;padding:0!important;flex-shrink:0!important}.kzyc-header-avatar-btn:hover{background:rgba(99,102,241,0.22);border-color:rgba(99,102,241,0.65);transform:scale(1.06);box-shadow:0 0 10px rgba(99,102,241,0.25)}.kzyc-header-avatar-btn svg{width:20px;height:20px;fill:currentColor}[data-md-color-scheme="slate"] .kzyc-header-avatar-btn{background:rgba(165,180,252,0.15);border:1.5px solid rgba(165,180,252,0.4);color:#a5b4fc}[data-md-color-scheme="slate"] .kzyc-header-avatar-btn:hover{background:rgba(165,180,252,0.25);border-color:rgba(165,180,252,0.75);box-shadow:0 0 10px rgba(165,180,252,0.3)}.kzyc-header-popover{position:absolute!important;top:100%!important;right:0!important;margin-top:10px!important;z-index:9999!important;width:max-content!important;min-width:175px!important;padding:10px 14px!important;border-radius:10px!important;box-sizing:border-box!important;background:#ffffff!important;border:1px solid #e2e8f0!important;color:#1e293b!important;box-shadow:0 10px 25px -5px rgba(0,0,0,0.12),0 8px 10px -6px rgba(0,0,0,0.08)!important;pointer-events:none!important;opacity:0!important;visibility:hidden!important;transform:translateY(6px)!important;transition:opacity .2s ease,transform .2s ease,visibility .2s!important;text-align:left!important;white-space:nowrap!important}.kzyc-header-popover::before{content:"";position:absolute;top:-12px;left:0;right:0;height:12px}.kzyc-header-user-wrap:hover .kzyc-header-popover{pointer-events:auto!important;opacity:1!important;visibility:visible!important;transform:translateY(0)!important}[data-md-color-scheme="slate"] .kzyc-header-popover{background:#1e293b!important;border-color:#334155!important;color:#f8fafc!important;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5)!important}.kzyc-popover-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:5px;white-space:nowrap}.kzyc-popover-name{font-weight:700;font-size:.85rem;white-space:nowrap}.kzyc-popover-badge{font-size:.68rem;padding:1.5px 6px;border-radius:9999px;font-weight:600;white-space:nowrap}.kzyc-popover-badge.admin{background:#e0e7ff;color:#4338ca;border:1px solid #c7d2fe}.kzyc-popover-badge.svip{background:#fce7f3;color:#be185d;border:1px solid #fbcfe8}.kzyc-popover-badge.vip{background:#fef3c7;color:#b45309;border:1px solid #fde68a}.kzyc-popover-badge.user{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}.kzyc-popover-badge.expired{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}[data-md-color-scheme="slate"] .kzyc-popover-badge.admin{background:rgba(99,102,241,0.25);color:#a5b4fc;border-color:rgba(99,102,241,0.5)}[data-md-color-scheme="slate"] .kzyc-popover-badge.svip{background:rgba(236,72,153,0.2);color:#f472b6;border-color:rgba(236,72,153,0.4)}[data-md-color-scheme="slate"] .kzyc-popover-badge.vip{background:rgba(245,158,11,0.2);color:#fbbf24;border-color:rgba(245,158,11,0.4)}[data-md-color-scheme="slate"] .kzyc-popover-badge.user{background:#334155;color:#94a3b8;border-color:#475569}.kzyc-popover-expire{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.72rem;padding-top:6px;margin-top:3px;border-top:1px dashed rgba(148,163,184,0.28);white-space:nowrap}.kzyc-popover-expire-label{color:#64748b;white-space:nowrap}[data-md-color-scheme="slate"] .kzyc-popover-expire-label{color:#94a3b8}.kzyc-popover-expire-val{color:#ea580c;font-weight:600;white-space:nowrap}[data-md-color-scheme="slate"] .kzyc-popover-expire-val{color:#fb923c}.kzyc-popover-footer-tip{font-size:.65rem;color:#94a3b8;text-align:center;margin-top:6px;padding-top:5px;border-top:1px solid rgba(148,163,184,0.15);white-space:nowrap}`;
     (document.head || document.documentElement).appendChild(styleEl);
   }
 
@@ -249,6 +249,7 @@
           authContainer.id = "kzyc-auth-header";
           authContainer.style.display = "flex";
           authContainer.style.alignItems = "center";
+          authContainer.style.flexShrink = "0";
           headerInner.appendChild(authContainer);
         }
       }
@@ -335,7 +336,7 @@
               <div class="kzyc-msg" id="kzyc-forgot-msg"></div>
             </div>
 
-            <!-- 个人中心视图（独立高亮展示到期时间与下载配额） -->
+            <!-- 个人中心视图 -->
             <div id="kzyc-profile-view" style="display: none;">
               <div class="kzyc-prof-topbar">
                 <div class="kzyc-prof-title-wrap">
@@ -525,7 +526,7 @@
                 });
               } else {
                 resultBox.style.display = "block";
-                resultBox.innerHTML = `<span style="color: #ef4444;">${data?.error || "获取下载链接失败"}</span>`;
+                resultBox.innerHTML = `<span style="color: #ef4444;">${(data && data.error) || "获取下载链接失败"}</span>`;
                 btn.disabled = false;
                 btn.textContent = "📥 重新尝试获取";
               }
@@ -644,7 +645,8 @@
           <button type="button" class="kzyc-dl-link-btn" id="kzyc-trigger-comment-login">立即登录 / 注册</button>
         </div>
       `;
-      document.getElementById("kzyc-trigger-comment-login")?.addEventListener("click", () => {
+      const triggerLoginBtn = document.getElementById("kzyc-trigger-comment-login");
+      if (triggerLoginBtn) triggerLoginBtn.addEventListener("click", () => {
         openLoginModal("🔒 请先登录后再参与评论讨论！");
       });
     }
@@ -1059,7 +1061,8 @@
 
       if (sendCodeBtn) {
         sendCodeBtn.addEventListener("click", async () => {
-          const email = document.getElementById("kzyc-forgot-email")?.value.trim();
+          const emailInput = document.getElementById("kzyc-forgot-email");
+          const email = emailInput ? emailInput.value.trim() : "";
           if (!email) {
             if (forgotMsgEl) {
               forgotMsgEl.className = "kzyc-msg error";
@@ -1131,9 +1134,9 @@
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                email: document.getElementById("kzyc-forgot-email")?.value.trim(),
-                code: document.getElementById("kzyc-forgot-code")?.value.trim(),
-                new_password: document.getElementById("kzyc-forgot-newpwd")?.value,
+                email: (document.getElementById("kzyc-forgot-email") ? document.getElementById("kzyc-forgot-email").value.trim() : ""), 
+                code: (document.getElementById("kzyc-forgot-code") ? document.getElementById("kzyc-forgot-code").value.trim() : ""), 
+                new_password: (document.getElementById("kzyc-forgot-newpwd") ? document.getElementById("kzyc-forgot-newpwd").value : ""), 
               }),
             });
             const data = await res.json();
@@ -1146,7 +1149,7 @@
                 if (forgotView) forgotView.style.display = "none";
                 if (authView) authView.style.display = "block";
                 const accInput = document.getElementById("kzyc-login-account");
-                if (accInput) accInput.value = document.getElementById("kzyc-forgot-email")?.value || "";
+                if (accInput) accInput.value = (document.getElementById("kzyc-forgot-email") ? document.getElementById("kzyc-forgot-email").value : "");
                 const pwdInput = document.getElementById("kzyc-login-pwd");
                 if (pwdInput) pwdInput.value = "";
                 if (msgEl) {
@@ -1175,7 +1178,8 @@
       if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
           e.preventDefault();
-          const turnstileToken = document.querySelector("#kzyc-login-form [name='cf-turnstile-response']")?.value;
+          const turnstileInput = document.querySelector("#kzyc-login-form [name='cf-turnstile-response']");
+          const turnstileToken = turnstileInput ? turnstileInput.value : "";
           if (!turnstileToken && typeof turnstile !== "undefined") {
             if (msgEl) {
               msgEl.className = "kzyc-msg error";
@@ -1196,8 +1200,8 @@
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                account: document.getElementById("kzyc-login-account")?.value.trim(),
-                password: document.getElementById("kzyc-login-pwd")?.value,
+                account: (document.getElementById("kzyc-login-account") ? document.getElementById("kzyc-login-account").value.trim() : ""), 
+                password: (document.getElementById("kzyc-login-pwd") ? document.getElementById("kzyc-login-pwd").value : ""), 
                 turnstile_token: turnstileToken,
               }),
             });
@@ -1241,7 +1245,8 @@
       if (regForm) {
         regForm.addEventListener("submit", async (e) => {
           e.preventDefault();
-          const turnstileToken = document.querySelector("#kzyc-register-form [name='cf-turnstile-response']")?.value;
+          const turnstileRegInput = document.querySelector("#kzyc-register-form [name='cf-turnstile-response']");
+          const turnstileToken = turnstileRegInput ? turnstileRegInput.value : "";
           if (!turnstileToken && typeof turnstile !== "undefined") {
             if (msgEl) {
               msgEl.className = "kzyc-msg error";
@@ -1262,9 +1267,9 @@
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                username: document.getElementById("kzyc-reg-username")?.value.trim(),
-                email: document.getElementById("kzyc-reg-email")?.value.trim(),
-                password: document.getElementById("kzyc-reg-pwd")?.value,
+                username: (document.getElementById("kzyc-reg-username") ? document.getElementById("kzyc-reg-username").value.trim() : ""), 
+                email: (document.getElementById("kzyc-reg-email") ? document.getElementById("kzyc-reg-email").value.trim() : ""), 
+                password: (document.getElementById("kzyc-reg-pwd") ? document.getElementById("kzyc-reg-pwd").value : ""), 
                 turnstile_token: turnstileToken,
               }),
             });
@@ -1328,8 +1333,8 @@
               method: "POST",
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
               body: JSON.stringify({
-                old_password: document.getElementById("kzyc-old-pwd")?.value,
-                new_password: document.getElementById("kzyc-new-pwd")?.value,
+                old_password: (document.getElementById("kzyc-old-pwd") ? document.getElementById("kzyc-old-pwd").value : ""), 
+                new_password: (document.getElementById("kzyc-new-pwd") ? document.getElementById("kzyc-new-pwd").value : ""), 
               }),
             });
             const data = await res.json();
@@ -1378,7 +1383,7 @@
             const res = await fetch(`${API_BASE}/api/delete-account`, {
               method: "POST",
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-              body: JSON.stringify({ password: document.getElementById("kzyc-del-pwd")?.value }),
+              body: JSON.stringify({ password: (document.getElementById("kzyc-del-pwd") ? document.getElementById("kzyc-del-pwd").value : "") }),
             });
             const data = await res.json();
             if (data.success) {
@@ -1434,6 +1439,7 @@
           container.id = "kzyc-auth-header";
           container.style.display = "flex";
           container.style.alignItems = "center";
+          container.style.flexShrink = "0";
           headerInner.appendChild(container);
         } else {
           return;
@@ -1681,19 +1687,15 @@
     }, 100);
   }
 
+  // 守护轮询：确保移动端与弱网环境下 DOM 异步挂载 100% 成功
   let quickPollCount = 0;
   const quickPoll = setInterval(() => {
     quickPollCount++;
-    const unrenderedCards = document.querySelectorAll(".kzyc-download-box");
-    let needsRender = false;
-    unrenderedCards.forEach((box) => {
-      if (!box.getAttribute("data-rendered") || box.innerHTML.trim() === "") {
-        needsRender = true;
-      }
-    });
-    if (needsRender) initDownloadCards();
-    if (quickPollCount >= 20) {
+    initAuthDOM();
+    initDownloadCards();
+    initComments();
+    if (quickPollCount >= 15) {
       clearInterval(quickPoll);
     }
-  }, 100);
+  }, 120);
 })();
