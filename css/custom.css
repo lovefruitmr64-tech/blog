@@ -874,3 +874,42 @@ grid-template-columns:
 /* ========================================================
    电脑端 + 手机端：全屏自适应文章顶部间距结束
    ======================================================== */
+
+
+
+   /* ==========================================================================
+   修复移动端搜索时首页轮播图箭头与圆点穿透浮动的 Bug
+   ========================================================================== */
+
+/* 1. 强制轮播图容器自建局部层叠上下文，限制其子元素最高层级不超过 1 */
+.home-banner {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* 2. 大幅提升 MkDocs 搜索浮层与遮罩层级，确保绝对覆盖页面内容 */
+.md-search {
+  z-index: 100 !important;
+}
+.md-search__overlay {
+  z-index: 99 !important;
+}
+.md-search__inner {
+  z-index: 101 !important;
+}
+
+/* 3. 当移动端打开搜索抽屉时，彻底隐藏首页轮播图的左右箭头与指示点 */
+[data-md-toggle="search"]:checked ~ .md-container .home-banner .banner-prev,
+[data-md-toggle="search"]:checked ~ .md-container .home-banner .banner-next,
+[data-md-toggle="search"]:checked ~ .md-container .home-banner .banner-dots,
+body:has(#__search:checked) .home-banner .banner-prev,
+body:has(#__search:checked) .home-banner .banner-next,
+body:has(#__search:checked) .home-banner .banner-dots {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+   /* ==========================================================================
+   修复移动端搜索时首页轮播图箭头与圆点穿透浮动的 Bug结束
+   ========================================================================== */
