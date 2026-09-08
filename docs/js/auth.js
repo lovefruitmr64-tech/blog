@@ -893,8 +893,26 @@
                   post_path: location.pathname,
                 }),
               });
-              const data = await res.json();
-              if (data.success) {
+
+              // 凭证失效处理：自动清除并引导重新登录
+              if (res.status === 401) {
+                localStorage.removeItem(TOKEN_KEY);
+                currentUser = null;
+                updateHeaderUI();
+                openLoginModal("🔒 您的登录状态已过期，请重新登录！");
+                btn.disabled = false;
+                btn.textContent = "📥 重新尝试获取";
+                return;
+              }
+
+              let data;
+              try {
+                data = await res.json();
+              } catch (parseErr) {
+                throw new Error(`服务器响应格式异常 (HTTP ${res.status})`);
+              }
+
+              if (data && data.success) {
                 btn.style.display = "none";
                 resultBox.style.display = "block";
                 resultBox.innerHTML = renderChannelsHTML(data.download_url, data.extract_code, data.unzip_pwd);
@@ -910,13 +928,14 @@
                 });
               } else {
                 resultBox.style.display = "block";
-                resultBox.innerHTML = `<span style="color: #ef4444;">${data.error || "获取下载链接失败"}</span>`;
+                resultBox.innerHTML = `<span style="color: #ef4444;">${data?.error || "获取下载链接失败"}</span>`;
                 btn.disabled = false;
                 btn.textContent = "📥 重新尝试获取";
               }
-            } catch {
+            } catch (err) {
+              console.error("[kzyc-auth] 下载请求异常:", err);
               resultBox.style.display = "block";
-              resultBox.innerHTML = `<span style="color: #ef4444;">网络通信异常，请重试</span>`;
+              resultBox.innerHTML = `<span style="color: #ef4444;">获取失败：${escapeHTML(err.message || "网络异常，请稍后重试")}</span>`;
               btn.disabled = false;
               btn.textContent = "📥 重新尝试获取";
             }
