@@ -233,3 +233,173 @@ if (typeof document$ !== "undefined") {
 // ==========================================
 // Material for MkDocs 博客底部分页增强：支持指定页码一键跳转结束
 // ==========================================
+
+
+// =========================================================
+// 博客卡片优化：分类点击跳转 + "查看文章"紧凑浅色描边 + 彻底杜绝换页闪烁
+// =========================================================
+function enhanceBlogCardsAndCategories() {
+  // 1. 注入自适应明暗模式的浅色描边与无闪烁样式
+  if (!document.getElementById("kzyc-blog-card-custom-styles")) {
+    const styleEl = document.createElement("style");
+    styleEl.id = "kzyc-blog-card-custom-styles";
+    styleEl.textContent = `
+      /* 1. 彻底消除翻页按钮与全部控件的原生聚焦黑框与移动端触控闪斑 */
+      .md-pagination,
+      .md-pagination *,
+      .md-pagination a,
+      .md-pagination a:focus,
+      .md-pagination a:active,
+      .md-pagination a:focus-visible,
+      .kzyc-blog-page-jump *,
+      .kzyc-page-btn {
+        outline: none !important;
+        outline-style: none !important;
+        box-shadow: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+      }
+
+      /* 2. 分类徽标：可点击、悬停变色 */
+      .kzyc-category-link,
+      .md-post__category,
+      .md-post__categories a {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 5 !important;
+        text-decoration: none !important;
+        display: inline-block !important;
+        outline: none !important;
+        transition: color 0.15s ease, background-color 0.15s ease !important;
+      }
+      .kzyc-category-link:hover,
+      .md-post__category:hover,
+      .md-post__categories a:hover {
+        background: rgba(37, 99, 235, 0.15) !important;
+        color: #2563eb !important;
+      }
+      [data-md-color-scheme="slate"] .kzyc-category-link:hover,
+      [data-md-color-scheme="slate"] .md-post__category:hover,
+      [data-md-color-scheme="slate"] .md-post__categories a:hover {
+        background: rgba(96, 165, 250, 0.22) !important;
+        color: #60a5fa !important;
+      }
+
+      /* 3. 查看文章按钮：常态绝对禁用 transition 动画，杜绝切页时边框从无到有的插值跳动！ */
+      a.kzyc-view-article-btn,
+      .md-post__action a {
+        border: 1px solid rgba(127, 127, 127, 0.24) !important;
+        width: auto !important;
+        max-width: fit-content !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+        text-decoration: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        transition: none !important; /* 核心关键：初始加载/换页时无任何动画过度，瞬间定型，彻底杜绝变粗变黑！ */
+      }
+
+      /* 仅在鼠标主动 hover 悬停时才启用柔和颜色过渡 */
+      a.kzyc-view-article-btn:hover,
+      .md-post__action a:hover {
+        border-color: #2563eb !important;
+        color: #2563eb !important;
+        background-color: rgba(37, 99, 235, 0.05) !important;
+        transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease !important;
+      }
+
+      /* 点击、按压、聚焦时坚决维持原浅色边框，不产生任何原生变粗黑线 */
+      a.kzyc-view-article-btn:focus,
+      a.kzyc-view-article-btn:active,
+      a.kzyc-view-article-btn:focus-visible,
+      .md-post__action a:focus,
+      .md-post__action a:active,
+      .md-post__action a:focus-visible {
+        outline: none !important;
+        outline-style: none !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(127, 127, 127, 0.24) !important;
+      }
+
+      /* 黑夜 (Slate) 模式自适应 */
+      [data-md-color-scheme="slate"] a.kzyc-view-article-btn,
+      [data-md-color-scheme="slate"] .md-post__action a {
+        border: 1px solid rgba(255, 255, 255, 0.24) !important;
+        transition: none !important;
+        outline: none !important;
+      }
+      [data-md-color-scheme="slate"] a.kzyc-view-article-btn:hover,
+      [data-md-color-scheme="slate"] .md-post__action a:hover {
+        border-color: #60a5fa !important;
+        color: #60a5fa !important;
+        background-color: rgba(96, 165, 250, 0.1) !important;
+        transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease !important;
+      }
+      [data-md-color-scheme="slate"] a.kzyc-view-article-btn:focus,
+      [data-md-color-scheme="slate"] a.kzyc-view-article-btn:active,
+      [data-md-color-scheme="slate"] a.kzyc-view-article-btn:focus-visible,
+      [data-md-color-scheme="slate"] .md-post__action a:focus,
+      [data-md-color-scheme="slate"] .md-post__action a:active,
+      [data-md-color-scheme="slate"] .md-post__action a:focus-visible {
+        outline: none !important;
+        outline-style: none !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.24) !important;
+      }
+
+      /* 手机移动端 (<600px) 紧凑适配 */
+      @media (max-width: 600px) {
+        a.kzyc-view-article-btn,
+        .md-post__action a {
+          padding: 3px 12px !important;
+          font-size: 0.75rem !important;
+          border-radius: 9999px !important;
+        }
+      }
+    `;
+    (document.head || document.documentElement).appendChild(styleEl);
+  }
+
+  // 2. 匹配 <a> 按钮
+  document.querySelectorAll("a").forEach((el) => {
+    const text = el.textContent.trim();
+    if (text === "查看文章" || text.startsWith("查看文章") || text === "阅读全文") {
+      el.classList.add("kzyc-view-article-btn");
+    }
+  });
+
+  // 3. 为文章卡片上的分类徽标绑定点击跳转
+  document.querySelectorAll(".md-post, .md-post--excerpt, article, [class*='post']").forEach((post) => {
+    post.querySelectorAll(".md-post__category, .md-post__categories a, [class*='category']").forEach((el) => {
+      if (el.children.length > 2) return;
+      const catText = el.textContent.trim();
+      if (!catText || catText.length > 20 || /\d{4}-\d{2}-\d{2}/.test(catText)) return;
+
+      const slug = catText.toLowerCase().replace(/\s+/g, "-");
+      const targetUrl = `/blog/category/${slug}/`;
+
+      el.classList.add("kzyc-category-link");
+      el.setAttribute("title", `点击进入 [${catText}] 分类专区`);
+
+      el.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = targetUrl;
+      };
+    });
+  });
+}
+
+// 立即运行 + 页面切换监听
+enhanceBlogCardsAndCategories();
+
+if (typeof document$ !== "undefined") {
+  document$.subscribe(enhanceBlogCardsAndCategories);
+} else {
+  document.addEventListener("DOMContentLoaded", enhanceBlogCardsAndCategories);
+}
+// =========================================================
+// 博客卡片优化：分类点击跳转 + "查看文章"紧凑浅色描边 + 彻底杜绝换页闪烁结束
+// =========================================================
