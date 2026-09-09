@@ -2214,7 +2214,7 @@ color:white;
     }
   };
 
-  // 4. 用户与会员管理（默认 10 条/页分页）
+  // 4. 用户与会员管理（新增 +1个月、+3个月、+6个月 快捷按钮）
   async function renderUsersTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在加载用户列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -2275,9 +2275,12 @@ color:white;
           </div>
         </div>
         <div style="margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
             <label style="font-size: 0.78rem; font-weight: 600;">会员到期日期 (普通用户可留空)</label>
-            <div style="display: flex; gap: 6px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('1m')">+1 个月</button>
+              <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('3m')">+3 个月</button>
+              <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('6m')">+6 个月</button>
               <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('year')">+1 年</button>
               <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('forever')">永久 (2999年)</button>
               <button type="button" class="kzyc-adm-btn" onclick="setExpireHelper('clear')">清空</button>
@@ -2460,18 +2463,44 @@ color:white;
     });
   }
 
+  // 智能会员时长辅助设置器（支持 +1m, +3m, +6m, +year, forever, clear）
   window.setExpireHelper = function(type) {
     const inp = document.getElementById("kzyc-user-expire-inp");
     if (!inp) return;
-    if (type === "year") {
-      const d = new Date();
-      d.setFullYear(d.getFullYear() + 1);
-      inp.value = d.toISOString().slice(0, 10);
-    } else if (type === "forever") {
+
+    if (type === "forever") {
       inp.value = "2999-12-31";
-    } else {
-      inp.value = "";
+      return;
     }
+    if (type === "clear") {
+      inp.value = "";
+      return;
+    }
+
+    let d = new Date();
+    // 若当前输入框已有未来的有效到期时间，则在其基础上顺延续期
+    if (inp.value && !inp.value.includes("2999")) {
+      const existing = new Date(inp.value + "T00:00:00");
+      if (!isNaN(existing.getTime()) && existing.getTime() > d.getTime()) {
+        d = existing;
+      }
+    }
+
+    if (type === "1m") {
+      d.setMonth(d.getMonth() + 1);
+    } else if (type === "3m") {
+      d.setMonth(d.getMonth() + 3);
+    } else if (type === "6m") {
+      d.setMonth(d.getMonth() + 6);
+    } else if (type === "year") {
+      d.setFullYear(d.getFullYear() + 1);
+    }
+
+    // 格式化为本地标准 YYYY-MM-DD
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    inp.value = `${y}-${m}-${day}`;
   };
 
   window.gotoUserPage = function(p) {
