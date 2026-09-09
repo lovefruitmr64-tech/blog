@@ -1668,6 +1668,17 @@ color:white;
   const USER_PAGE_SIZE = 10;
   let allDeletedAccounts = [];
 
+  let allComments = [];
+  let filteredComments = [];
+  let commCurrentPage = 1;
+  const COMM_PAGE_SIZE = 10;
+  let commFilterStatus = "all";
+
+  let allWords = [];
+  let filteredWords = [];
+  let wordCurrentPage = 1;
+  const WORD_PAGE_SIZE = 50;
+
   function escapeHTML(str) {
     return String(str || "")
       .replace(/&/g, "&amp;")
@@ -1777,7 +1788,6 @@ color:white;
 
     try {
       const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-      // 设置更宽容的 25 秒超时，避免国内访问 CF 边缘网络时因网络慢误判
       const timeoutId = controller ? setTimeout(() => controller.abort(), 25000) : null;
 
       const res = await fetch(`${API_BASE}/api/admin/overview`, {
@@ -1837,7 +1847,6 @@ color:white;
           msgEl.textContent = "请登录具有【站长/管理员】权限的账号！";
         }
 
-        // 关键修复：确保 Cloudflare 人机验证框 100% 渲染呈现
         function ensureTurnstile() {
           if (!document.getElementById("cf-turnstile-script")) {
             const s = document.createElement("script");
@@ -1934,7 +1943,7 @@ color:white;
     `;
   }
 
-  // 2. 资源管理
+  // 2. 资源管理（默认 10 条/页分页）
   async function renderResourcesTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在读取资源列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -2205,7 +2214,7 @@ color:white;
     }
   };
 
-  // 4. 用户与会员管理
+  // 4. 用户与会员管理（默认 10 条/页分页）
   async function renderUsersTab(panel) {
     panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在加载用户列表...</div>`;
     const token = localStorage.getItem(TOKEN_KEY);
@@ -2289,10 +2298,10 @@ color:white;
               <th class="kzyc-nowrap" style="width: 60px;">UID</th>
               <th class="kzyc-nowrap" style="width: 150px;">用户名</th>
               <th>邮箱</th>
-              <th class="kzyc-nowrap" style="width: 120px;">身份角色</th>
+              <th class="kzyc-nowrap" style="width: 130px;">身份状态</th>
               <th class="kzyc-nowrap" style="width: 115px;">会员到期时间</th>
               <th class="kzyc-nowrap" style="width: 130px;">注册时间</th>
-              <th class="kzyc-nowrap" style="width: 110px;">管理操作</th>
+              <th class="kzyc-nowrap" style="width: 160px;">管理操作</th>
             </tr>
           </thead>
           <tbody>
@@ -2307,6 +2316,9 @@ color:white;
                 roleBadge = '<span style="color: #2563eb; font-weight: 700; background: rgba(37,99,235,0.15); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">💎 标准会员</span>';
               }
 
+              const isBanned = (u.is_banned === 1 || u.is_banned === "1");
+              const banBadge = isBanned ? '<span style="color: #ef4444; font-weight: 700; background: rgba(239,68,68,0.12); padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-left: 4px; font-size: 0.72rem;">🚫 已封禁</span>' : '';
+
               let expireText = '--';
               if (u.vip_expire_at) {
                 if (u.vip_expire_at.includes('2999')) expireText = '<span style="color: #16a34a; font-weight: 700;">永久有效</span>';
@@ -2314,15 +2326,18 @@ color:white;
               }
 
               return `
-                <tr>
+                <tr style="${isBanned ? 'background: rgba(239, 68, 68, 0.03);' : ''}">
                   <td class="kzyc-nowrap">#${u.id}</td>
                   <td><strong class="kzyc-cell-truncate" style="max-width: 140px;" title="${escapeHTML(u.username)}">${escapeHTML(u.username)}</strong></td>
                   <td><span class="kzyc-cell-truncate" title="${escapeHTML(u.email)}">${escapeHTML(u.email)}</span></td>
-                  <td class="kzyc-nowrap">${roleBadge}</td>
+                  <td class="kzyc-nowrap">${roleBadge}${banBadge}</td>
                   <td class="kzyc-nowrap" style="font-size: 0.76rem;">${expireText}</td>
                   <td class="kzyc-nowrap" style="font-size: 0.74rem; opacity: 0.6;">${u.created_at ? u.created_at.slice(0, 16) : '--'}</td>
-                  <td class="kzyc-nowrap">
+                  <td class="kzyc-nowrap" style="display: flex; gap: 4px; align-items: center;">
                     <button class="kzyc-adm-btn primary" data-id="${u.id}" data-name="${escapeHTML(u.username)}" data-email="${escapeHTML(u.email)}" data-role="${u.role}" data-expire="${u.vip_expire_at || ''}" onclick="handleEditUser(this)">编辑</button>
+                    ${isBanned 
+                      ? `<button class="kzyc-adm-btn success" onclick="handleToggleBan(${u.id}, 0, '${escapeHTML(u.username)}')">解封</button>` 
+                      : `<button class="kzyc-adm-btn warn" onclick="handleToggleBan(${u.id}, 1, '${escapeHTML(u.username)}')">封禁</button>`}
                     <button class="kzyc-adm-btn danger" onclick="handleDeleteUser(${u.id}, '${escapeHTML(u.username)}')">删除</button>
                   </td>
                 </tr>
@@ -2468,110 +2483,29 @@ color:white;
     if (panel) drawUsersTable(panel);
   };
 
-  // 5. 评论审核（实时同步待审核数量与徽标）
-  async function renderCommentsTab(panel) {
-    panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在加载评论列表...</div>`;
+  window.handleToggleBan = async function(uid, isBanned, username) {
+    const actionText = isBanned ? "封禁拉黑" : "解除封禁";
+    const tip = isBanned 
+      ? `确定要【封禁拉黑】用户 [${username}] (UID: #${uid}) 吗？\n\n封禁后该账号将立即无法登录网站、无法获取下载资源或发表评论！`
+      : `确定要【解除封禁】用户 [${username}] (UID: #${uid}) 吗？\n\n解除后该用户将完全恢复正常的登录与全站功能使用权限。`;
+
+    if (!confirm(tip)) return;
+
     const token = localStorage.getItem(TOKEN_KEY);
-
-    const res = await fetch(`${API_BASE}/api/admin/comments`, { headers: { Authorization: `Bearer ${token}` } });
-    const data = await res.json();
-    const list = data.comments || [];
-    const pendingCount = list.filter(c => c.status === "pending").length;
-    updatePendingBadge(pendingCount);
-
-    panel.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-        <span style="font-weight: 700; font-size: 0.95rem;">全站最新评论列表 (${list.length})</span>
-        <span style="font-size: 0.82rem; opacity: 0.85;">当前待审核: <strong style="color: #ea580c; font-size: 0.92rem;">${pendingCount}</strong> 条</span>
-      </div>
-      <div style="overflow-x: auto;">
-        <table class="kzyc-adm-table">
-          <thead>
-            <tr>
-              <th class="kzyc-nowrap" style="width: 50px;">ID</th>
-              <th style="width: 150px;">文章路径</th>
-              <th class="kzyc-nowrap" style="width: 100px;">发布用户</th>
-              <th>评论内容</th>
-              <th class="kzyc-nowrap" style="width: 80px;">状态</th>
-              <th class="kzyc-nowrap" style="width: 120px;">发布时间</th>
-              <th class="kzyc-nowrap" style="width: 110px;">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${list.map(c => `
-              <tr id="kzyc-admin-comment-${c.id}">
-                <td class="kzyc-nowrap">#${c.id}</td>
-                <td><span class="kzyc-cell-truncate" style="max-width: 140px;" title="${escapeHTML(c.post_path)}">${escapeHTML(c.post_path)}</span></td>
-                <td class="kzyc-nowrap"><strong class="kzyc-cell-truncate" style="max-width: 90px;" title="${escapeHTML(c.username)}">${escapeHTML(c.username)}</strong></td>
-                <td><span class="kzyc-cell-truncate" title="${escapeHTML(c.content)}">${escapeHTML(c.content)}</span></td>
-                <td class="kzyc-nowrap">${c.status === 'pending' ? '<span style="color: #ea580c; font-weight: 700; white-space: nowrap;">待审核</span>' : '<span style="color: #16a34a; white-space: nowrap;">已通过</span>'}</td>
-                <td class="kzyc-nowrap" style="font-size: 0.74rem; opacity: 0.6;">${c.created_at.slice(0, 16)}</td>
-                <td class="kzyc-nowrap">
-                  ${c.status === 'pending' ? `<button class="kzyc-adm-btn success" onclick="moderateComment(${c.id}, 'approved')">通过</button>` : `<button class="kzyc-adm-btn warn" onclick="moderateComment(${c.id}, 'pending')">待审</button>`}
-                  <button class="kzyc-adm-btn danger" onclick="deleteComment(${c.id})">删除</button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  // 6. 敏感词库
-  async function renderWordsTab(panel) {
-    panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在读取敏感词库...</div>`;
-    const token = localStorage.getItem(TOKEN_KEY);
-
-    const res = await fetch(`${API_BASE}/api/admin/sensitive-words`, { headers: { Authorization: `Bearer ${token}` } });
-    const data = await res.json();
-    const words = data.words || [];
-
-    panel.innerHTML = `
-      <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 12px;">🧹 违规敏感词库（命中自动进入待审）</div>
-
-      <div class="kzyc-adm-form-card" style="display: flex; gap: 10px; align-items: center;">
-        <input class="kzyc-adm-input" id="kzyc-inp-word" placeholder="输入要拦截的敏感词汇（如：加微信、兼职、刷单）" style="margin: 0; flex: 1;" />
-        <button class="kzyc-adm-btn primary" id="kzyc-add-word-btn" style="padding: 8px 16px;">➕ 添加敏感词</button>
-      </div>
-
-      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;">
-        ${words.length === 0 ? '<div style="opacity: 0.5;">暂无敏感词</div>' : words.map(w => `
-          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(127,127,127,0.08); border: 1px solid rgba(127,127,127,0.18); border-radius: 6px; font-size: 0.82rem;">
-            ${escapeHTML(w.word)}
-            <button onclick="deleteWord(${w.id})" style="border: none; background: none; color: #ef4444; font-weight: bold; cursor: pointer; padding: 0 2px;">✕</button>
-          </span>
-        `).join('')}
-      </div>
-    `;
-
-    document.getElementById("kzyc-add-word-btn")?.addEventListener("click", async () => {
-      const rawText = document.getElementById("kzyc-inp-word").value.trim();
-      if (!rawText) return;
-
-      // 自动按：中英文逗号、顿号、分号、空格、换行符拆分成独立的词
-      const wordsList = rawText.split(/[,，、;\s\n\r]+/).map(w => w.trim()).filter(Boolean);
-      if (wordsList.length === 0) return;
-
-      const addBtn = document.getElementById("kzyc-add-word-btn");
-      addBtn.disabled = true;
-
-      for (let i = 0; i < wordsList.length; i++) {
-        const word = wordsList[i];
-        addBtn.textContent = `添加中 (${i + 1}/${wordsList.length})...`;
-        try {
-          await fetch(`${API_BASE}/api/admin/sensitive-words/add`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ word })
-          });
-        } catch {}
-      }
-
-      document.getElementById("kzyc-inp-word").value = "";
-      renderWordsTab(panel);
+    const res = await fetch(`${API_BASE}/api/admin/users/ban`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ user_id: uid, is_banned: isBanned })
     });
-  }
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message || "操作成功！");
+      const panel = document.getElementById("kzyc-adm-panel");
+      if (panel) renderUsersTab(panel);
+    } else {
+      alert(data.error || "操作失败");
+    }
+  };
 
   window.handleEditResource = function(btn) {
     const wrap = document.getElementById("kzyc-res-form-wrap");
@@ -2684,6 +2618,109 @@ color:white;
     }
   };
 
+  // 5. 评论审核（带状态筛选与分页系统）
+  async function renderCommentsTab(panel) {
+    panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在加载评论列表...</div>`;
+    const token = localStorage.getItem(TOKEN_KEY);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/comments`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      allComments = data.comments || [];
+      const pendingCount = allComments.filter(c => c.status === "pending").length;
+      updatePendingBadge(pendingCount);
+      commCurrentPage = 1;
+      applyCommentFilter();
+      drawCommentsTable(panel);
+    } catch (err) {
+      panel.innerHTML = `<div style="color: #ef4444; padding: 20px; text-align: center;">读取评论失败：${err.message}</div>`;
+    }
+  }
+
+  function applyCommentFilter() {
+    if (commFilterStatus === "pending") {
+      filteredComments = allComments.filter(c => c.status === "pending");
+    } else if (commFilterStatus === "approved") {
+      filteredComments = allComments.filter(c => c.status === "approved");
+    } else {
+      filteredComments = allComments;
+    }
+  }
+
+  function drawCommentsTable(panel) {
+    const startIdx = (commCurrentPage - 1) * COMM_PAGE_SIZE;
+    const pageItems = filteredComments.slice(startIdx, startIdx + COMM_PAGE_SIZE);
+    const pendingCount = allComments.filter(c => c.status === "pending").length;
+    const approvedCount = allComments.filter(c => c.status === "approved").length;
+
+    panel.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <span style="font-weight: 700; font-size: 0.95rem;">全站评论审核 (${allComments.length})</span>
+          <div style="display: inline-flex; gap: 4px; background: rgba(127,127,127,0.08); padding: 3px; border-radius: 8px;">
+            <button class="kzyc-adm-tab ${commFilterStatus === 'all' ? 'active' : ''}" style="padding: 3px 10px; font-size: 0.74rem;" onclick="filterCommentsStatus('all')">全部 (${allComments.length})</button>
+            <button class="kzyc-adm-tab ${commFilterStatus === 'pending' ? 'active' : ''}" style="padding: 3px 10px; font-size: 0.74rem; ${pendingCount > 0 ? 'color: #ea580c; font-weight: 700;' : ''}" onclick="filterCommentsStatus('pending')">待审核 (${pendingCount})</button>
+            <button class="kzyc-adm-tab ${commFilterStatus === 'approved' ? 'active' : ''}" style="padding: 3px 10px; font-size: 0.74rem;" onclick="filterCommentsStatus('approved')">已通过 (${approvedCount})</button>
+          </div>
+        </div>
+        <div style="font-size: 0.8rem; opacity: 0.6;">当前筛选共 ${filteredComments.length} 条</div>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="kzyc-adm-table">
+          <thead>
+            <tr>
+              <th class="kzyc-nowrap" style="width: 50px;">ID</th>
+              <th style="width: 150px;">文章路径</th>
+              <th class="kzyc-nowrap" style="width: 100px;">发布用户</th>
+              <th>评论内容</th>
+              <th class="kzyc-nowrap" style="width: 80px;">状态</th>
+              <th class="kzyc-nowrap" style="width: 120px;">发布时间</th>
+              <th class="kzyc-nowrap" style="width: 110px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pageItems.length === 0 ? '<tr><td colspan="7" style="text-align: center; opacity: 0.5; padding: 20px;">暂无匹配评论</td></tr>' : pageItems.map(c => `
+              <tr id="kzyc-admin-comment-${c.id}">
+                <td class="kzyc-nowrap">#${c.id}</td>
+                <td><span class="kzyc-cell-truncate" style="max-width: 140px;" title="${escapeHTML(c.post_path)}">${escapeHTML(c.post_path)}</span></td>
+                <td class="kzyc-nowrap"><strong class="kzyc-cell-truncate" style="max-width: 90px;" title="${escapeHTML(c.username)}">${escapeHTML(c.username)}</strong></td>
+                <td><span class="kzyc-cell-truncate" title="${escapeHTML(c.content)}">${escapeHTML(c.content)}</span></td>
+                <td class="kzyc-nowrap">${c.status === 'pending' ? '<span style="color: #ea580c; font-weight: 700; white-space: nowrap;">待审核</span>' : '<span style="color: #16a34a; white-space: nowrap;">已通过</span>'}</td>
+                <td class="kzyc-nowrap" style="font-size: 0.74rem; opacity: 0.6;">${c.created_at.slice(0, 16)}</td>
+                <td class="kzyc-nowrap">
+                  ${c.status === 'pending' ? `<button class="kzyc-adm-btn success" onclick="moderateComment(${c.id}, 'approved')">通过</button>` : `<button class="kzyc-adm-btn warn" onclick="moderateComment(${c.id}, 'pending')">待审</button>`}
+                  <button class="kzyc-adm-btn danger" onclick="deleteComment(${c.id})">删除</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div id="kzyc-comm-pagination-container">
+        ${renderPaginationHTML(commCurrentPage, filteredComments.length, COMM_PAGE_SIZE, "gotoCommPage")}
+      </div>
+    `;
+  }
+
+  window.filterCommentsStatus = function(st) {
+    commFilterStatus = st;
+    commCurrentPage = 1;
+    applyCommentFilter();
+    const panel = document.getElementById("kzyc-adm-panel");
+    if (panel) drawCommentsTable(panel);
+  };
+
+  window.gotoCommPage = function(p) {
+    const totalPages = Math.ceil(filteredComments.length / COMM_PAGE_SIZE) || 1;
+    if (isNaN(p) || p < 1) p = 1;
+    if (p > totalPages) p = totalPages;
+    commCurrentPage = p;
+    const panel = document.getElementById("kzyc-adm-panel");
+    if (panel) drawCommentsTable(panel);
+  };
+
   window.moderateComment = async function(id, status) {
     const token = localStorage.getItem(TOKEN_KEY);
     await fetch(`${API_BASE}/api/admin/comments/moderate`, {
@@ -2691,7 +2728,14 @@ color:white;
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ comment_id: id, status })
     });
-    switchTab("comments");
+
+    const target = allComments.find(c => c.id === id);
+    if (target) target.status = status;
+    const pendingCount = allComments.filter(c => c.status === "pending").length;
+    updatePendingBadge(pendingCount);
+    applyCommentFilter();
+    const panel = document.getElementById("kzyc-adm-panel");
+    if (panel) drawCommentsTable(panel);
     refreshAdminStats();
   };
 
@@ -2703,8 +2747,117 @@ color:white;
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ comment_id: id })
     });
-    switchTab("comments");
+
+    allComments = allComments.filter(c => c.id !== id && c.parent_id !== id);
+    const pendingCount = allComments.filter(c => c.status === "pending").length;
+    updatePendingBadge(pendingCount);
+    applyCommentFilter();
+    const totalPages = Math.ceil(filteredComments.length / COMM_PAGE_SIZE) || 1;
+    if (commCurrentPage > totalPages) commCurrentPage = totalPages;
+    const panel = document.getElementById("kzyc-adm-panel");
+    if (panel) drawCommentsTable(panel);
     refreshAdminStats();
+  };
+
+  // 6. 敏感词库（支持批量添加 + 超过50条自动分页 + 敏感词实时检索）
+  async function renderWordsTab(panel) {
+    panel.innerHTML = `<div style="text-align: center; padding: 20px; opacity: 0.6;">正在读取敏感词库...</div>`;
+    const token = localStorage.getItem(TOKEN_KEY);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/sensitive-words`, { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      allWords = data.words || [];
+      filteredWords = allWords;
+      wordCurrentPage = 1;
+      drawWordsContent(panel);
+    } catch (err) {
+      panel.innerHTML = `<div style="color: #ef4444; padding: 20px; text-align: center;">读取敏感词库失败：${err.message}</div>`;
+    }
+  }
+
+  function drawWordsContent(panel) {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const startIdx = (wordCurrentPage - 1) * WORD_PAGE_SIZE;
+    const pageItems = filteredWords.slice(startIdx, startIdx + WORD_PAGE_SIZE);
+
+    panel.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+        <div style="font-weight: 700; font-size: 0.95rem;">🧹 违规敏感词库（共 ${allWords.length} 个词）</div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input class="kzyc-search-input" id="kzyc-word-search-input" placeholder="🔍 检索词库中关键词..." style="width: 180px;" />
+          <span style="font-size: 0.8rem; opacity: 0.6;">当前展示: ${pageItems.length} 项</span>
+        </div>
+      </div>
+
+      <div class="kzyc-adm-form-card" style="display: flex; gap: 10px; align-items: center;">
+        <input class="kzyc-adm-input" id="kzyc-inp-word" placeholder="输入敏感词汇，支持用逗号、顿号、空格批量粘贴输入..." style="margin: 0; flex: 1;" />
+        <button class="kzyc-adm-btn primary" id="kzyc-add-word-btn" style="padding: 8px 16px;">➕ 添加敏感词</button>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; min-height: 50px;">
+        ${pageItems.length === 0 ? '<div style="opacity: 0.5; padding: 10px 0;">暂无匹配的敏感词</div>' : pageItems.map(w => `
+          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(127,127,127,0.08); border: 1px solid rgba(127,127,127,0.18); border-radius: 6px; font-size: 0.82rem;">
+            ${escapeHTML(w.word)}
+            <button onclick="deleteWord(${w.id})" title="删除该词" style="border: none; background: none; color: #ef4444; font-weight: bold; cursor: pointer; padding: 0 2px;">✕</button>
+          </span>
+        `).join('')}
+      </div>
+
+      <div id="kzyc-words-pagination-container">
+        ${renderPaginationHTML(wordCurrentPage, filteredWords.length, WORD_PAGE_SIZE, "gotoWordPage")}
+      </div>
+    `;
+
+    const searchInput = document.getElementById("kzyc-word-search-input");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        const q = e.target.value.trim().toLowerCase();
+        filteredWords = allWords.filter(w => w.word && w.word.toLowerCase().includes(q));
+        wordCurrentPage = 1;
+        drawWordsContent(panel);
+        const newInp = document.getElementById("kzyc-word-search-input");
+        if (newInp) {
+          newInp.value = e.target.value;
+          newInp.focus();
+        }
+      });
+    }
+
+    document.getElementById("kzyc-add-word-btn")?.addEventListener("click", async () => {
+      const rawText = document.getElementById("kzyc-inp-word").value.trim();
+      if (!rawText) return;
+
+      const wordsList = rawText.split(/[,，、;\s\n\r]+/).map(w => w.trim()).filter(Boolean);
+      if (wordsList.length === 0) return;
+
+      const addBtn = document.getElementById("kzyc-add-word-btn");
+      addBtn.disabled = true;
+
+      for (let i = 0; i < wordsList.length; i++) {
+        const word = wordsList[i];
+        addBtn.textContent = `添加中 (${i + 1}/${wordsList.length})...`;
+        try {
+          await fetch(`${API_BASE}/api/admin/sensitive-words/add`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ word })
+          });
+        } catch {}
+      }
+
+      document.getElementById("kzyc-inp-word").value = "";
+      renderWordsTab(panel);
+    });
+  }
+
+  window.gotoWordPage = function(p) {
+    const totalPages = Math.ceil(filteredWords.length / WORD_PAGE_SIZE) || 1;
+    if (isNaN(p) || p < 1) p = 1;
+    if (p > totalPages) p = totalPages;
+    wordCurrentPage = p;
+    const panel = document.getElementById("kzyc-adm-panel");
+    if (panel) drawWordsContent(panel);
   };
 
   window.deleteWord = async function(id) {
@@ -2714,10 +2867,16 @@ color:white;
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ id })
     });
-    switchTab("words");
+
+    allWords = allWords.filter(w => w.id !== id);
+    filteredWords = filteredWords.filter(w => w.id !== id);
+    const totalPages = Math.ceil(filteredWords.length / WORD_PAGE_SIZE) || 1;
+    if (wordCurrentPage > totalPages) wordCurrentPage = totalPages;
+    const panel = document.getElementById("kzyc-adm-panel");
+    if (panel) drawWordsContent(panel);
   };
 
-  // 立即执行校验
+  // 立即执行 + 页面就绪双重保障
   window.checkAdminAuth = checkAdminAuth;
   checkAdminAuth();
 
