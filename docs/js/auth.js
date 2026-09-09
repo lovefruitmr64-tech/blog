@@ -83,7 +83,7 @@
     if (document.getElementById("kzyc-avatar-popover-styles")) return;
     const styleEl = document.createElement("style");
     styleEl.id = "kzyc-avatar-popover-styles";
-    styleEl.textContent = `.kzyc-header-user-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-left:10px;flex-shrink:0!important}.kzyc-header-avatar-btn{width:36px!important;height:36px!important;border-radius:50%!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;cursor:pointer;outline:none;background:rgba(99,102,241,0.12);border:1.5px solid rgba(99,102,241,0.35);color:#4338ca;transition:all .25s ease;padding:0!important;flex-shrink:0!important}.kzyc-header-avatar-btn:hover{background:rgba(99,102,241,0.22);border-color:rgba(99,102,241,0.65);transform:scale(1.06);box-shadow:0 0 10px rgba(99,102,241,0.25)}.kzyc-header-avatar-btn svg{width:20px;height:20px;fill:currentColor}[data-md-color-scheme="slate"] .kzyc-header-avatar-btn{background:rgba(165,180,252,0.15);border:1.5px solid rgba(165,180,252,0.4);color:#a5b4fc}[data-md-color-scheme="slate"] .kzyc-header-avatar-btn:hover{background:rgba(165,180,252,0.25);border-color:rgba(165,180,252,0.75);box-shadow:0 0 10px rgba(165,180,252,0.3)}.kzyc-header-popover{position:absolute!important;top:100%!important;right:0!important;margin-top:10px!important;z-index:9999!important;width:max-content!important;min-width:175px!important;padding:10px 14px!important;border-radius:10px!important;box-sizing:border-box!important;background:#ffffff!important;border:1px solid #e2e8f0!important;color:#1e293b!important;box-shadow:0 10px 25px -5px rgba(0,0,0,0.12),0 8px 10px -6px rgba(0,0,0,0.08)!important;pointer-events:none!important;opacity:0!important;visibility:hidden!important;transform:translateY(6px)!important;transition:opacity .2s ease,transform .2s ease,visibility .2s!important;text-align:left!important;white-space:nowrap!important}.kzyc-header-popover::before{content:"";position:absolute;top:-12px;left:0;right:0;height:12px}.kzyc-header-user-wrap:hover .kzyc-header-popover{pointer-events:auto!important;opacity:1!important;visibility:visible!important;transform:translateY(0)!important}[data-md-color-scheme="slate"] .kzyc-header-popover{background:#1e293b!important;border-color:#334155!important;color:#f8fafc!important;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5)!important}.kzyc-popover-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:5px;white-space:nowrap}.kzyc-popover-name{font-weight:700;font-size:.85rem;white-space:nowrap}.kzyc-popover-badge{font-size:.68rem;padding:1.5px 6px;border-radius:9999px;font-weight:600;white-space:nowrap}.kzyc-popover-badge.admin{background:#e0e7ff;color:#4338ca;border:1px solid #c7d2fe}.kzyc-popover-badge.svip{background:#fce7f3;color:#be185d;border:1px solid #fbcfe8}.kzyc-popover-badge.vip{background:#fef3c7;color:#b45309;border:1px solid #fde68a}.kzyc-popover-badge.user{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}.kzyc-popover-badge.expired{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}[data-md-color-scheme="slate"] .kzyc-popover-badge.admin{background:rgba(99,102,241,0.25);color:#a5b4fc;border-color:rgba(99,102,241,0.5)}[data-md-color-scheme="slate"] .kzyc-popover-badge.svip{background:rgba(236,72,153,0.2);color:#f472b6;border-color:rgba(236,72,153,0.4)}[data-md-color-scheme="slate"] .kzyc-popover-badge.vip{background:rgba(245,158,11,0.2);color:#fbbf24;border-color:rgba(245,158,11,0.4)}[data-md-color-scheme="slate"] .kzyc-popover-badge.user{background:#334155;color:#94a3b8;border-color:rgba(245,158,11,0.47)}.kzyc-popover-expire{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.72rem;padding-top:6px;margin-top:3px;border-top:1px dashed rgba(148,163,184,0.28);white-space:nowrap}.kzyc-popover-expire-label{color:#64748b;white-space:nowrap}[data-md-color-scheme="slate"] .kzyc-popover-expire-label{color:#94a3b8}.kzyc-popover-expire-val{color:#ea580c;font-weight:600;white-space:nowrap}[data-md-color-scheme="slate"] .kzyc-popover-expire-val{color:#fb923c}.kzyc-popover-footer-tip{font-size:.65rem;color:#94a3b8;text-align:center;margin-top:6px;padding-top:5px;border-top:1px solid rgba(148,163,184,0.15);white-space:nowrap}`;
+    styleEl.textContent = `.kzyc-header-user-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-left:10px;flex-shrink:0!important}.kzyc-header-avatar-btn{width:36px!important;height:36px!important;border-radius:50%!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;cursor:pointer;outline:none;background:rgba(99,102,241,0.12);border:1.5px solid rgba(99,102,241,0.35);color:#4338ca;transition:all .25s ease;padding:0!important;flex-shrink:0!important}.kzyc-header-avatar-btn:hover{background:rgba(99,102,241,0.22);border-color:rgba(99,102,241,0.65);transform:scale(1.06);box-shadow:0 0 10px rgba(99,102,241,0.25)}.kzyc-header-avatar-btn svg{width:20px;height:20px;fill:currentColor}[data-md-color-scheme="slate"] .kzyc-header-avatar-btn{background:rgba(165,180,252,0.15);border:1.5px solid rgba(165,180,252,0.4);color:#a5b4fc}[data-md-color-scheme="slate"] .kzyc-header-avatar-btn:hover{background:rgba(165,180,252,0.25);border-color:rgba(165,180,252,0.75);box-shadow:0 0 10px rgba(165,180,252,0.3)}.kzyc-header-popover{position:absolute!important;top:100%!important;right:0!important;margin-top:10px!important;z-index:9999!important;width:max-content!important;min-width:175px!important;padding:10px 14px!important;border-radius:10px!important;box-sizing:border-box!important;background:#ffffff!important;border:1px solid #e2e8f0!important;color:#1e293b!important;box-shadow:0 10px 25px -5px rgba(0,0,0,0.12),0 8px 10px -6px rgba(0,0,0,0.08)!important;pointer-events:none!important;opacity:0!important;visibility:hidden!important;transform:translateY(6px)!important;transition:opacity .2s ease,transform .2s ease,visibility .2s!important;text-align:left!important;white-space:nowrap!important}.kzyc-header-popover::before{content:"";position:absolute;top:-12px;left:0;right:0;height:12px}.kzyc-header-user-wrap:hover .kzyc-header-popover{pointer-events:auto!important;opacity:1!important;visibility:visible!important;transform:translateY(0)!important}[data-md-color-scheme="slate"] .kzyc-header-popover{background:#1e293b!important;border-color:#334155!important;color:#f8fafc!important;box-shadow:0 10px 25px -5px rgba(0,0,0,0.5)!important}.kzyc-popover-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:5px;white-space:nowrap}.kzyc-popover-name{font-weight:700;font-size:.85rem;white-space:nowrap}.kzyc-popover-badge{font-size:.68rem;padding:1.5px 6px;border-radius:9999px;font-weight:600;white-space:nowrap}.kzyc-popover-badge.admin{background:#e0e7ff;color:#4338ca;border:1px solid #c7d2fe}.kzyc-popover-badge.svip{background:#fce7f3;color:#be185d;border:1px solid #fbcfe8}.kzyc-popover-badge.vip{background:#fef3c7;color:#b45309;border:1px solid #fde68a}.kzyc-popover-badge.user{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}.kzyc-popover-badge.expired{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}[data-md-color-scheme="slate"] .kzyc-popover-badge.admin{background:rgba(99,102,241,0.25);color:#a5b4fc;border-color:rgba(99,102,241,0.5)}[data-md-color-scheme="slate"] .kzyc-popover-badge.svip{background:rgba(236,72,153,0.2);color:#f472b6;border-color:rgba(236,72,153,0.4)}[data-md-color-scheme="slate"] .kzyc-popover-badge.vip{background:rgba(245,158,11,0.2);color:#fbbf24;border-color:rgba(245,158,11,0.4)}[data-md-color-scheme="slate"] .kzyc-popover-badge.user{background:#334155;color:#94a3b8;border-color:rgba(245,158,11,0.47)}.kzyc-popover-expire{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.72rem;padding-top:6px;margin-top:3px;border-top:1px dashed rgba(148,163,184,0.28);white-space:nowrap}.kzyc-popover-expire-label{color:#64748b;white-space:nowrap}[data-md-color-scheme="slate"] .kzyc-popover-expire-label{color:#94a3b8}.kzyc-popover-expire-val{color:#ea580c;font-weight:600;white-space:nowrap}[data-md-color-scheme="slate"] .kzyc-popover-expire-val{color:#fb923c}.kzyc-popover-footer-tip{font-size:0.65rem;color:#94a3b8;text-align:center;margin-top:6px;padding-top:5px;border-top:1px solid rgba(148,163,184,0.15);white-space:nowrap;}`;
     (document.head || document.documentElement).appendChild(styleEl);
   }
 
@@ -561,6 +561,80 @@
     }
   }
 
+  // 注入评论区底部分页样式
+  function injectPaginationStyles() {
+    if (document.getElementById("kzyc-pagination-styles")) return;
+    const styleEl = document.createElement("style");
+    styleEl.id = "kzyc-pagination-styles";
+    styleEl.textContent = `.kzyc-pagination-wrap{display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;margin-top:20px!important;flex-wrap:wrap!important;font-size:.8rem!important}.kzyc-page-btn{padding:4px 9px!important;border-radius:6px!important;border:1px solid rgba(127,127,127,0.25)!important;background:transparent!important;color:inherit!important;cursor:pointer!important;font-size:.76rem!important;transition:all .15s!important}.kzyc-page-btn:hover:not(.disabled):not(.active){background:rgba(37,99,235,0.08)!important;border-color:#2563eb!important;color:#2563eb!important}.kzyc-page-btn.active{background:#2563eb!important;color:#fff!important;border-color:#2563eb!important}.kzyc-page-btn.disabled{opacity:.35!important;cursor:not-allowed!important}.kzyc-page-ellipsis{padding:0 4px!important;opacity:.5!important}.kzyc-page-jump{display:inline-flex!important;align-items:center!important;gap:4px!important;margin-left:8px!important}.kzyc-page-input{width:44px!important;padding:3px 5px!important;text-align:center!important;border-radius:5px!important;border:1px solid rgba(127,127,127,0.25)!important;background:transparent!important;color:inherit!important;font-size:.78rem!important}`;
+    (document.head || document.documentElement).appendChild(styleEl);
+  }
+
+  let currentArticleComments = [];
+  let articleCommentCurrentPage = 1;
+  const ARTICLE_COMMENT_PAGE_SIZE = 10;
+
+  function renderArticleCommentPagination(currentPage, totalItems, pageSize) {
+    const totalPages = Math.ceil(totalItems / pageSize) || 1;
+    if (totalPages <= 1) return "";
+
+    let html = `<div class="kzyc-pagination-wrap">`;
+    if (currentPage > 1) {
+      html += `<button type="button" class="kzyc-page-btn" onclick="gotoArticleCommentPage(1)">首页</button>`;
+      html += `<button type="button" class="kzyc-page-btn" onclick="gotoArticleCommentPage(${currentPage - 1})">上一页</button>`;
+    } else {
+      html += `<button type="button" class="kzyc-page-btn disabled">首页</button>`;
+      html += `<button type="button" class="kzyc-page-btn disabled">上一页</button>`;
+    }
+
+    const delta = 2;
+    const range = [];
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+      range.push(i);
+    }
+
+    html += `<button type="button" class="kzyc-page-btn ${currentPage === 1 ? 'active' : ''}" onclick="gotoArticleCommentPage(1)">1</button>`;
+    if (range.length > 0 && range[0] > 2) html += `<span class="kzyc-page-ellipsis">...</span>`;
+    for (let i of range) {
+      html += `<button type="button" class="kzyc-page-btn ${currentPage === i ? 'active' : ''}" onclick="gotoArticleCommentPage(${i})">${i}</button>`;
+    }
+    if (range.length > 0 && range[range.length - 1] < totalPages - 1) html += `<span class="kzyc-page-ellipsis">...</span>`;
+    if (totalPages > 1) {
+      html += `<button type="button" class="kzyc-page-btn ${currentPage === totalPages ? 'active' : ''}" onclick="gotoArticleCommentPage(${totalPages})">${totalPages}</button>`;
+    }
+
+    if (currentPage < totalPages) {
+      html += `<button type="button" class="kzyc-page-btn" onclick="gotoArticleCommentPage(${currentPage + 1})">下一页</button>`;
+      html += `<button type="button" class="kzyc-page-btn" onclick="gotoArticleCommentPage(${totalPages})">末页</button>`;
+    } else {
+      html += `<button type="button" class="kzyc-page-btn disabled">下一页</button>`;
+      html += `<button type="button" class="kzyc-page-btn disabled">末页</button>`;
+    }
+
+    html += `
+      <span class="kzyc-page-jump">
+        到第 <input type="number" class="kzyc-page-input" id="kzyc-article-comm-jump-val" min="1" max="${totalPages}" value="${currentPage}" onkeydown="if(event.key==='Enter') gotoArticleCommentPage(parseInt(this.value, 10))" /> 页
+        <button type="button" class="kzyc-page-btn" onclick="gotoArticleCommentPage(parseInt(document.getElementById('kzyc-article-comm-jump-val').value, 10))">跳转</button>
+      </span>
+    `;
+    html += `</div>`;
+    return html;
+  }
+
+  window.gotoArticleCommentPage = function(page) {
+    const rootComments = currentArticleComments.filter((c) => c.parent_id === 0);
+    const totalPages = Math.ceil(rootComments.length / ARTICLE_COMMENT_PAGE_SIZE) || 1;
+    if (isNaN(page) || page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+    articleCommentCurrentPage = page;
+    renderArticleCommentsList(location.pathname);
+
+    const rootEl = document.getElementById("kzyc-comments-root");
+    if (rootEl) {
+      rootEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   function initComments() {
     const root = document.getElementById("kzyc-comments-root");
     if (!root) return;
@@ -635,6 +709,7 @@
             textarea.value = "";
             msgEl.className = "kzyc-msg success";
             msgEl.textContent = data.message || "发表成功！";
+            articleCommentCurrentPage = 1; // 评论成功跳回第一页查看
             loadComments(location.pathname);
             setTimeout(() => { msgEl.textContent = ""; }, 3000);
           } else {
@@ -673,6 +748,8 @@
     const countEl = document.getElementById("kzyc-comments-count");
     if (!listEl) return;
 
+    injectPaginationStyles();
+
     const token = localStorage.getItem(TOKEN_KEY);
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -684,93 +761,110 @@
         return;
       }
 
-      const all = data.comments || [];
-      if (countEl) countEl.textContent = all.length;
+      currentArticleComments = data.comments || [];
+      if (countEl) countEl.textContent = currentArticleComments.length;
 
-      if (all.length === 0) {
-        listEl.innerHTML = `<div style="opacity: 0.5; padding: 30px 0; text-align: center;">暂无评论，快来抢沙发发表第一条看法吧~ 🚀</div>`;
-        return;
-      }
-
-      const rootComments = all.filter((c) => c.parent_id === 0);
-      const repliesMap = {};
-      all.filter((c) => c.parent_id > 0).forEach((r) => {
-        if (!repliesMap[r.parent_id]) repliesMap[r.parent_id] = [];
-        repliesMap[r.parent_id].push(r);
-      });
-
-      let html = "";
-      rootComments.forEach((c) => {
-        const initial = c.username.slice(0, 1).toUpperCase();
-        const color = getAvatarColor(c.username);
-        const replies = repliesMap[c.id] || [];
-
-        html += `
-          <div class="kzyc-comment-item" id="comment-${c.id}">
-            <div class="kzyc-comment-main">
-              <span class="kzyc-avatar" style="background-color: ${color};">${initial}</span>
-              <div class="kzyc-comment-body">
-                <div class="kzyc-comment-author-bar">
-                  <span class="kzyc-author-name">${escapeHTML(c.username)}</span>
-                  ${c.status === "pending" ? '<span class="kzyc-pending-tag">审核中</span>' : ""}
-                  <span class="kzyc-comment-time">${timeAgo(c.created_at)}</span>
-                </div>
-                <div class="kzyc-comment-text">${escapeHTML(c.content)}</div>
-                <div class="kzyc-comment-actions-bar">
-                  <button type="button" class="kzyc-like-action ${c.user_has_liked ? "active" : ""}" data-id="${c.id}">
-                    👍 赞 (<span class="like-num">${c.likes_count}</span>)
-                  </button>
-                  <button type="button" class="kzyc-reply-action" data-id="${c.id}" data-user="${escapeHTML(c.username)}">↩ 回复</button>
-                  ${c.is_owner ? `<button type="button" class="kzyc-del-action" data-id="${c.id}">🗑 删除</button>` : ""}
-                </div>
-                <div class="kzyc-inline-reply-wrap" id="reply-box-${c.id}" style="display: none;"></div>
-              </div>
-            </div>
-
-            ${
-              replies.length > 0
-                ? `
-              <div class="kzyc-replies-list">
-                ${replies
-                  .map((r) => {
-                    const rInitial = r.username.slice(0, 1).toUpperCase();
-                    const rColor = getAvatarColor(r.username);
-                    return `
-                    <div class="kzyc-reply-item" id="comment-${r.id}">
-                      <span class="kzyc-avatar sm" style="background-color: ${rColor};">${rInitial}</span>
-                      <div class="kzyc-reply-body">
-                        <div class="kzyc-comment-author-bar">
-                          <span class="kzyc-author-name">${escapeHTML(r.username)}</span>
-                          ${r.reply_to_username ? `<span class="kzyc-reply-to">回复 @${escapeHTML(r.reply_to_username)}</span>` : ""}
-                          ${r.status === "pending" ? '<span class="kzyc-pending-tag">审核中</span>' : ""}
-                          <span class="kzyc-comment-time">${timeAgo(r.created_at)}</span>
-                        </div>
-                        <div class="kzyc-comment-text">${escapeHTML(r.content)}</div>
-                        <div class="kzyc-comment-actions-bar">
-                          <button type="button" class="kzyc-like-action ${r.user_has_liked ? "active" : ""}" data-id="${r.id}">
-                            👍 赞 (<span class="like-num">${r.likes_count}</span>)
-                          </button>
-                          <button type="button" class="kzyc-reply-action" data-id="${c.id}" data-user="${escapeHTML(r.username)}">↩ 回复</button>
-                          ${r.is_owner ? `<button type="button" class="kzyc-del-action" data-id="${r.id}">🗑 删除</button>` : ""}
-                        </div>
-                      </div>
-                    </div>
-                  `;
-                  })
-                  .join("")}
-              </div>
-            `
-                : ""
-            }
-          </div>
-        `;
-      });
-
-      listEl.innerHTML = html;
-      bindCommentActions(path);
+      renderArticleCommentsList(path);
     } catch (e) {
       listEl.innerHTML = `<div style="color: #ef4444; padding: 20px; text-align: center;">评论服务通信异常</div>`;
     }
+  }
+
+  function renderArticleCommentsList(path) {
+    const listEl = document.getElementById("kzyc-comments-list");
+    if (!listEl) return;
+
+    if (currentArticleComments.length === 0) {
+      listEl.innerHTML = `<div style="opacity: 0.5; padding: 30px 0; text-align: center;">暂无评论，快来抢沙发发表第一条看法吧~ 🚀</div>`;
+      return;
+    }
+
+    const rootComments = currentArticleComments.filter((c) => c.parent_id === 0);
+    const repliesMap = {};
+    currentArticleComments.filter((c) => c.parent_id > 0).forEach((r) => {
+      if (!repliesMap[r.parent_id]) repliesMap[r.parent_id] = [];
+      repliesMap[r.parent_id].push(r);
+    });
+
+    const totalPages = Math.ceil(rootComments.length / ARTICLE_COMMENT_PAGE_SIZE) || 1;
+    if (articleCommentCurrentPage > totalPages) articleCommentCurrentPage = totalPages;
+    if (articleCommentCurrentPage < 1) articleCommentCurrentPage = 1;
+
+    const startIdx = (articleCommentCurrentPage - 1) * ARTICLE_COMMENT_PAGE_SIZE;
+    const pageRoots = rootComments.slice(startIdx, startIdx + ARTICLE_COMMENT_PAGE_SIZE);
+
+    let html = "";
+    pageRoots.forEach((c) => {
+      const initial = c.username.slice(0, 1).toUpperCase();
+      const color = getAvatarColor(c.username);
+      const replies = repliesMap[c.id] || [];
+
+      html += `
+        <div class="kzyc-comment-item" id="comment-${c.id}">
+          <div class="kzyc-comment-main">
+            <span class="kzyc-avatar" style="background-color: ${color};">${initial}</span>
+            <div class="kzyc-comment-body">
+              <div class="kzyc-comment-author-bar">
+                <span class="kzyc-author-name">${escapeHTML(c.username)}</span>
+                ${c.status === "pending" ? '<span class="kzyc-pending-tag">审核中</span>' : ""}
+                <span class="kzyc-comment-time">${timeAgo(c.created_at)}</span>
+              </div>
+              <div class="kzyc-comment-text">${escapeHTML(c.content)}</div>
+              <div class="kzyc-comment-actions-bar">
+                <button type="button" class="kzyc-like-action ${c.user_has_liked ? "active" : ""}" data-id="${c.id}">
+                  👍 赞 (<span class="like-num">${c.likes_count}</span>)
+                </button>
+                <button type="button" class="kzyc-reply-action" data-id="${c.id}" data-user="${escapeHTML(c.username)}">↩ 回复</button>
+                ${c.is_owner ? `<button type="button" class="kzyc-del-action" data-id="${c.id}">🗑 删除</button>` : ""}
+              </div>
+              <div class="kzyc-inline-reply-wrap" id="reply-box-${c.id}" style="display: none;"></div>
+            </div>
+          </div>
+
+          ${
+            replies.length > 0
+              ? `
+            <div class="kzyc-replies-list">
+              ${replies
+                .map((r) => {
+                  const rInitial = r.username.slice(0, 1).toUpperCase();
+                  const rColor = getAvatarColor(r.username);
+                  return `
+                  <div class="kzyc-reply-item" id="comment-${r.id}">
+                    <span class="kzyc-avatar sm" style="background-color: ${rColor};">${rInitial}</span>
+                    <div class="kzyc-reply-body">
+                      <div class="kzyc-comment-author-bar">
+                        <span class="kzyc-author-name">${escapeHTML(r.username)}</span>
+                        ${r.reply_to_username ? `<span class="kzyc-reply-to">回复 @${escapeHTML(r.reply_to_username)}</span>` : ""}
+                        ${r.status === "pending" ? '<span class="kzyc-pending-tag">审核中</span>' : ""}
+                        <span class="kzyc-comment-time">${timeAgo(r.created_at)}</span>
+                      </div>
+                      <div class="kzyc-comment-text">${escapeHTML(r.content)}</div>
+                      <div class="kzyc-comment-actions-bar">
+                        <button type="button" class="kzyc-like-action ${r.user_has_liked ? "active" : ""}" data-id="${r.id}">
+                          👍 赞 (<span class="like-num">${r.likes_count}</span>)
+                        </button>
+                        <button type="button" class="kzyc-reply-action" data-id="${c.id}" data-user="${escapeHTML(r.username)}">↩ 回复</button>
+                        ${r.is_owner ? `<button type="button" class="kzyc-del-action" data-id="${r.id}">🗑 删除</button>` : ""}
+                      </div>
+                    </div>
+                  </div>
+                `;
+                })
+                .join("")}
+            </div>
+          `
+              : ""
+          }
+        </div>
+      `;
+    });
+
+    // 超过 10 条主评论时自动呈现分页栏
+    html += renderArticleCommentPagination(articleCommentCurrentPage, rootComments.length, ARTICLE_COMMENT_PAGE_SIZE);
+
+    listEl.innerHTML = html;
+    bindCommentActions(path || location.pathname);
   }
 
   function bindCommentActions(path) {

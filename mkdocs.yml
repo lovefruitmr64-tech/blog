@@ -49,6 +49,10 @@ plugins:
   - blog:
       blog_dir: blog
       post_url_format: "{slug}"
+      pagination: true
+      pagination_per_page: 2
+      # 开启原生：首页、上一页、数字页码、下一页、尾页
+      pagination_format: "$link_first $link_previous ~2~ $link_next $link_last"
       
   
       

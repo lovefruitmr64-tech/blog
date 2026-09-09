@@ -168,3 +168,68 @@ function initHomeBanner() {
   }
 })();
 // 移动端搜索联动：打开搜索时隐藏轮播控件并暂停轮播结束
+
+
+
+// ==========================================
+// Material for MkDocs 博客底部分页增强：支持指定页码一键跳转
+// ==========================================
+function enhanceMkDocsBlogPagination() {
+  const pag = document.querySelector(".md-pagination");
+  if (!pag || pag.getAttribute("data-enhanced") === "true") return;
+  pag.setAttribute("data-enhanced", "true");
+
+  // 解析当前页面属于最新发布还是分类页
+  const pathMatch = location.pathname.match(/(.*\/)page\/(\d+)\/?/);
+  let basePath = "";
+  let currentPage = 1;
+
+  if (pathMatch) {
+    basePath = pathMatch;
+    currentPage = parseInt(pathMatch[2], 10) || 1;
+  } else {
+    basePath = location.pathname.replace(/\/?$/, "/");
+  }
+
+  // 动态创建跳转输入组件
+  const jumpWrap = document.createElement("span");
+  jumpWrap.className = "kzyc-blog-page-jump";
+  jumpWrap.style.cssText = "display: inline-flex; align-items: center; gap: 6px; margin-left: 12px; font-size: 0.8rem;";
+  jumpWrap.innerHTML = `
+    <span style="opacity: 0.75;">到第</span>
+    <input type="number" id="kzyc-blog-jump-val" min="1" value="${currentPage}" style="width: 44px; padding: 3px 5px; text-align: center; border-radius: 6px; border: 1px solid rgba(127,127,127,0.3); background: transparent; color: inherit; font-size: 0.78rem;" />
+    <span style="opacity: 0.75;">页</span>
+    <button type="button" id="kzyc-blog-jump-btn" style="padding: 3px 10px; border-radius: 6px; border: 1px solid rgba(37,99,235,0.3); background: rgba(37,99,235,0.1); color: #2563eb; cursor: pointer; font-size: 0.78rem; font-weight: 600;">跳转</button>
+  `;
+
+  pag.appendChild(jumpWrap);
+
+  const doJump = () => {
+    const input = document.getElementById("kzyc-blog-jump-val");
+    const targetPage = parseInt(input.value, 10);
+    if (isNaN(targetPage) || targetPage < 1) return;
+
+    // MkDocs 规则：第 1 页为目录根路径，第 2 页及以上为 /page/N/
+    if (targetPage === 1) {
+      window.location.href = basePath;
+    } else {
+      window.location.href = `${basePath}page/${targetPage}/`;
+    }
+  };
+
+  document.getElementById("kzyc-blog-jump-btn")?.addEventListener("click", doJump);
+  document.getElementById("kzyc-blog-jump-val")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") doJump();
+  });
+}
+
+// 页面加载或切换时自动执行
+if (typeof document$ !== "undefined") {
+  document$.subscribe(enhanceMkDocsBlogPagination);
+} else {
+  document.addEventListener("DOMContentLoaded", enhanceMkDocsBlogPagination);
+}
+
+// ==========================================
+// Material for MkDocs 博客底部分页增强：支持指定页码一键跳转结束
+// ==========================================
