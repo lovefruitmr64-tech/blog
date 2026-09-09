@@ -2546,16 +2546,30 @@ color:white;
     `;
 
     document.getElementById("kzyc-add-word-btn")?.addEventListener("click", async () => {
-      const word = document.getElementById("kzyc-inp-word").value.trim();
-      if (!word) return;
+      const rawText = document.getElementById("kzyc-inp-word").value.trim();
+      if (!rawText) return;
 
-      const r = await fetch(`${API_BASE}/api/admin/sensitive-words/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ word })
-      });
-      const d = await r.json();
-      if (d.success) renderWordsTab(panel);
+      // 自动按：中英文逗号、顿号、分号、空格、换行符拆分成独立的词
+      const wordsList = rawText.split(/[,，、;\s\n\r]+/).map(w => w.trim()).filter(Boolean);
+      if (wordsList.length === 0) return;
+
+      const addBtn = document.getElementById("kzyc-add-word-btn");
+      addBtn.disabled = true;
+
+      for (let i = 0; i < wordsList.length; i++) {
+        const word = wordsList[i];
+        addBtn.textContent = `添加中 (${i + 1}/${wordsList.length})...`;
+        try {
+          await fetch(`${API_BASE}/api/admin/sensitive-words/add`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ word })
+          });
+        } catch {}
+      }
+
+      document.getElementById("kzyc-inp-word").value = "";
+      renderWordsTab(panel);
     });
   }
 
