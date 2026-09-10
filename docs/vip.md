@@ -347,7 +347,7 @@ hide:
   background: var(--md-default-bg-color, #ffffff);
   border-radius: 16px;
   padding: 26px;
-  max-width: 360px;
+  max-width: 390px;
   width: 100%;
   text-align: center;
   box-shadow: 0 20px 30px rgba(0, 0, 0, 0.25);
@@ -366,16 +366,63 @@ hide:
   opacity: 0.5;
 }
 .kzyc-pay-modal-close:hover { opacity: 1; }
+
+/* 二维码外层容器（含相对定位居中 Logo） */
+.kzyc-qrcode-wrapper {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  margin: 14px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .kzyc-qrcode-img {
-  width: 200px;
-  height: 200px;
-  border-radius: 10px;
-  margin: 12px auto;
+  width: 250px;
+  height: 250px;
+  border-radius: 12px;
   display: block;
   border: 1px solid rgba(127, 127, 127, 0.2);
-  padding: 6px;
+  padding: 8px;
   background: #fff;
+  box-sizing: border-box;
 }
+.kzyc-alipay-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  background: #ffffff;
+  border: 2.5px solid #ffffff;
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+/* 电脑端直接打开支付宝付款便捷按钮 */
+.kzyc-pc-pay-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f0f7ff;
+  border: 1px solid #adc6ff;
+  color: #1677ff !important;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-top: 12px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.kzyc-pc-pay-btn:hover {
+  background: #1677ff;
+  color: #ffffff !important;
+}
+
 .kzyc-mobile-pay-btn {
   display: none;
   width: 100%;
@@ -619,10 +666,19 @@ hide:
           <div id="kzyc-pay-subject" style="font-size: 0.85rem; opacity: 0.75;">--</div>
           <div id="kzyc-pay-amount" style="font-size: 1.8rem; font-weight: 800; color: #2563eb; margin: 8px 0;">¥ 0.00</div>
 
-          <img id="kzyc-pay-qrcode" class="kzyc-qrcode-img" src="" alt="支付宝二维码" />
-          <div style="font-size: 0.8rem; opacity: 0.65;" id="kzyc-pay-status-tip">⏳ 请使用手机支付宝扫一扫完成支付</div>
+          <!-- 高清大尺寸二维码容器 + 支付宝居中 Logo -->
+          <div class="kzyc-qrcode-wrapper">
+            <img id="kzyc-pay-qrcode" class="kzyc-qrcode-img" src="" alt="支付宝二维码" />
+            <img class="kzyc-alipay-logo" src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg" alt="Alipay" />
+          </div>
 
-          <a href="#" id="kzyc-mobile-jump" target="_blank" class="kzyc-mobile-pay-btn">🚀 一键唤起支付宝 App 支付</a>
+          <div style="font-size: 0.82rem; opacity: 0.75;" id="kzyc-pay-status-tip">⏳ 请使用手机支付宝“扫一扫”完成支付</div>
+
+          <!-- 电脑端直接打开付款页面便捷通道 -->
+          <a href="#" id="kzyc-pc-jump" target="_blank" class="kzyc-pc-pay-btn">💻 电脑网页直接打开支付宝付款 ›</a>
+
+          <!-- 移动端一键唤起 App -->
+          <a href="#" id="kzyc-mobile-jump" target="_blank" class="kzyc-mobile-pay-btn">🚀 手机端打开支付宝付款</a>
         </div>
       </div>
     `;
@@ -687,11 +743,19 @@ hide:
       document.getElementById("kzyc-pay-amount").textContent = `¥ ${data.amount}`;
       document.getElementById("kzyc-pay-status-tip").textContent = "⏳ 等待扫码付款中，请在 15 分钟内完成...";
 
-      const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(data.qr_code)}`;
+      const payTarget = data.pay_url || data.qr_code;
+
+      // 生成高清大尺寸二维码（300x300，ecc=H 最高容错率，确保中心带 Logo 仍秒识别）
+      const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=H&margin=4&data=${encodeURIComponent(payTarget)}`;
       document.getElementById("kzyc-pay-qrcode").src = qrImgUrl;
 
+      // 电脑端快捷付款跳转
+      const pcBtn = document.getElementById("kzyc-pc-jump");
+      if (pcBtn) pcBtn.href = payTarget;
+
+      // 移动端快捷跳转
       const mobileBtn = document.getElementById("kzyc-mobile-jump");
-      mobileBtn.href = data.mobile_url;
+      if (mobileBtn) mobileBtn.href = data.mobile_url || payTarget;
 
       const orderId = data.order_id;
       if (checkTimer) clearInterval(checkTimer);
