@@ -46,7 +46,7 @@ hide:
   white-space: nowrap;
 }
 
-/* 权益对比三大卡片：居中大标题与整洁排版 */
+/* 权益对比三大卡片 */
 .kzyc-privilege-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -91,7 +91,6 @@ hide:
 .kzyc-priv-badge.vip { background: rgba(37,99,235,0.12); color: #2563eb; }
 .kzyc-priv-badge.svip { background: rgba(192,38,211,0.12); color: #c026d3; }
 
-/* 居中大标题 */
 .kzyc-priv-title {
   font-size: 1.35rem;
   font-weight: 800;
@@ -264,7 +263,7 @@ hide:
   cursor: not-allowed;
 }
 
-/* 结算状态操作栏 */
+/* 结算操作栏 */
 .kzyc-checkout-bar {
   display: flex;
   align-items: center;
@@ -296,7 +295,7 @@ hide:
   box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
 }
 
-/* 底部单行平滑滚动赞助条 (Marquee) */
+/* 底部滚动赞助展示条 */
 .kzyc-sponsors-marquee-container {
   width: 100%;
   overflow: hidden;
@@ -331,115 +330,6 @@ hide:
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-
-/* 支付扫码弹窗 */
-.kzyc-pay-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 999999;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.kzyc-pay-modal {
-  background: var(--md-default-bg-color, #ffffff);
-  border-radius: 16px;
-  padding: 26px;
-  max-width: 390px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.25);
-  position: relative;
-  box-sizing: border-box;
-}
-.kzyc-pay-modal-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  border: none;
-  background: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: inherit;
-  opacity: 0.5;
-}
-.kzyc-pay-modal-close:hover { opacity: 1; }
-
-/* 二维码外层容器（含相对定位居中 Logo） */
-.kzyc-qrcode-wrapper {
-  position: relative;
-  width: 250px;
-  height: 250px;
-  margin: 14px auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.kzyc-qrcode-img {
-  width: 250px;
-  height: 250px;
-  border-radius: 12px;
-  display: block;
-  border: 1px solid rgba(127, 127, 127, 0.2);
-  padding: 8px;
-  background: #fff;
-  box-sizing: border-box;
-}
-.kzyc-alipay-logo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
-  background: #ffffff;
-  border: 2.5px solid #ffffff;
-  border-radius: 9px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-  pointer-events: none;
-}
-
-/* 电脑端直接打开支付宝付款便捷按钮 */
-.kzyc-pc-pay-btn {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  background: #f0f7ff;
-  border: 1px solid #adc6ff;
-  color: #1677ff !important;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.92rem;
-  margin-top: 12px;
-  box-sizing: border-box;
-  white-space: nowrap;
-  transition: all 0.2s;
-}
-.kzyc-pc-pay-btn:hover {
-  background: #1677ff;
-  color: #ffffff !important;
-}
-
-.kzyc-mobile-pay-btn {
-  display: none;
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  background: #1677ff;
-  color: #fff !important;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.92rem;
-  margin-top: 10px;
-  box-sizing: border-box;
-  white-space: nowrap;
-}
-@media (max-width: 600px) {
-  .kzyc-mobile-pay-btn { display: block !important; }
-}
 </style>
 
 <script>
@@ -449,8 +339,7 @@ hide:
 
   let currentUser = null;
   let selectedRole = "vip";
-  let selectedDuration = "1y";
-  let checkTimer = null;
+  let selectedDuration = "1m";
   let dynamicPricing = null;
   let sponsorsList = [];
 
@@ -478,10 +367,10 @@ hide:
 
   const DEFAULT_PRICING = {
     vip: {
-      "1m": { amount: "1.90", name: "标准会员(1个月)" },
+      "1m": { amount: "0.10", name: "标准会员(1个月)" },
       "3m": { amount: "3.90", name: "标准会员(3个月)" },
       "6m": { amount: "6.90", name: "标准会员(6个月)" },
-      "1y": { amount: "9.90", name: "标准会员(1年)" },
+      "1y": { amount: "19.90", name: "标准会员(1年)" },
       "forever": { amount: "88.00", name: "标准会员(永久)" }
     },
     svip: {
@@ -544,7 +433,7 @@ hide:
 
     const pricing = dynamicPricing || DEFAULT_PRICING;
     const curPricing = pricing[selectedRole] || DEFAULT_PRICING[selectedRole];
-    const curSelected = curPricing[selectedDuration] || { amount: "9.90" };
+    const curSelected = curPricing[selectedDuration] || { amount: "0.10" };
 
     let userStatusHtml = "";
     if (currentUser) {
@@ -582,7 +471,7 @@ hide:
           <p class="kzyc-vip-subtitle">开通尊贵会员特权，解锁全站所有资源高速下载与解压密码</p>
         </div>
 
-        <!-- 权益对比三大卡片 (后台可自由编辑) -->
+        <!-- 权益对比三大卡片 -->
         <div class="kzyc-privilege-grid">
           <div class="kzyc-privilege-card user">
             <span class="kzyc-priv-badge user">普通用户</span>
@@ -657,30 +546,6 @@ hide:
           </div>
         </div>
       </div>
-
-      <!-- 支付扫码弹窗 -->
-      <div id="kzyc-pay-modal" class="kzyc-pay-modal-backdrop">
-        <div class="kzyc-pay-modal">
-          <button type="button" class="kzyc-pay-modal-close" id="kzyc-close-pay-modal">✕</button>
-          <div style="font-size: 1.15rem; font-weight: 800; margin-bottom: 4px;">支付宝安全扫码支付</div>
-          <div id="kzyc-pay-subject" style="font-size: 0.85rem; opacity: 0.75;">--</div>
-          <div id="kzyc-pay-amount" style="font-size: 1.8rem; font-weight: 800; color: #2563eb; margin: 8px 0;">¥ 0.00</div>
-
-          <!-- 高清大尺寸二维码容器 + 支付宝居中 Logo -->
-          <div class="kzyc-qrcode-wrapper">
-            <img id="kzyc-pay-qrcode" class="kzyc-qrcode-img" src="" alt="支付宝二维码" />
-            <img class="kzyc-alipay-logo" src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg" alt="Alipay" />
-          </div>
-
-          <div style="font-size: 0.82rem; opacity: 0.75;" id="kzyc-pay-status-tip">⏳ 请使用手机支付宝“扫一扫”完成支付</div>
-
-          <!-- 电脑端直接打开付款页面便捷通道 -->
-          <a href="#" id="kzyc-pc-jump" target="_blank" class="kzyc-pc-pay-btn">💻 电脑网页直接打开支付宝付款 ›</a>
-
-          <!-- 移动端一键唤起 App -->
-          <a href="#" id="kzyc-mobile-jump" target="_blank" class="kzyc-mobile-pay-btn">🚀 手机端打开支付宝付款</a>
-        </div>
-      </div>
     `;
 
     document.querySelectorAll(".kzyc-role-tab").forEach(tab => {
@@ -698,12 +563,6 @@ hide:
     });
 
     document.getElementById("kzyc-do-pay-btn")?.addEventListener("click", startPayment);
-
-    document.getElementById("kzyc-close-pay-modal")?.addEventListener("click", () => {
-      const modal = document.getElementById("kzyc-pay-modal");
-      if (modal) modal.style.display = "none";
-      if (checkTimer) clearInterval(checkTimer);
-    });
   }
 
   async function startPayment() {
@@ -715,7 +574,7 @@ hide:
 
     const payBtn = document.getElementById("kzyc-do-pay-btn");
     payBtn.disabled = true;
-    payBtn.textContent = "正在生成专属订单...";
+    payBtn.textContent = "🚀 正在前往支付宝安全收银台...";
 
     try {
       const res = await fetch(`${API_BASE}/api/pay/create-order`, {
@@ -736,50 +595,21 @@ hide:
         return;
       }
 
-      const modal = document.getElementById("kzyc-pay-modal");
-      modal.style.display = "flex";
-
-      document.getElementById("kzyc-pay-subject").textContent = data.subject;
-      document.getElementById("kzyc-pay-amount").textContent = `¥ ${data.amount}`;
-      document.getElementById("kzyc-pay-status-tip").textContent = "⏳ 等待扫码付款中，请在 15 分钟内完成...";
-
-      const payTarget = data.pay_url || data.qr_code;
-
-      // 生成高清大尺寸二维码（300x300，ecc=H 最高容错率，确保中心带 Logo 仍秒识别）
-      const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=H&margin=4&data=${encodeURIComponent(payTarget)}`;
-      document.getElementById("kzyc-pay-qrcode").src = qrImgUrl;
-
-      // 电脑端快捷付款跳转
-      const pcBtn = document.getElementById("kzyc-pc-jump");
-      if (pcBtn) pcBtn.href = payTarget;
-
-      // 移动端快捷跳转
-      const mobileBtn = document.getElementById("kzyc-mobile-jump");
-      if (mobileBtn) mobileBtn.href = data.mobile_url || payTarget;
-
-      const orderId = data.order_id;
-      if (checkTimer) clearInterval(checkTimer);
-
-      checkTimer = setInterval(async () => {
-        try {
-          const cRes = await fetch(`${API_BASE}/api/pay/check-order?order_id=${encodeURIComponent(orderId)}`);
-          const cData = await cRes.json();
-          if (cData.success && cData.status === "paid") {
-            clearInterval(checkTimer);
-            document.getElementById("kzyc-pay-status-tip").innerHTML = "<strong style='color:#16a34a;'>🎉 恭喜！支付成功，会员已生效！</strong>";
-            setTimeout(() => {
-              alert("🎉 恭喜您，会员权限已成功开通并生效！");
-              location.reload();
-            }, 1000);
-          }
-        } catch {}
-      }, 1500);
+      // 获取支付宝官方收银台跳转 URL
+      const targetUrl = data.pay_url || data.qr_code;
+      if (targetUrl) {
+        // 直接全屏跳转至支付宝官方收银台页面（支持大二维码扫码付款与账号登录付款）
+        window.location.href = targetUrl;
+      } else {
+        alert("未获取到有效的支付跳转链接，请稍后再试");
+        payBtn.disabled = false;
+        payBtn.textContent = "重新尝试";
+      }
 
     } catch (err) {
       alert("发起支付异常: " + err.message);
-    } finally {
-      const p = (dynamicPricing || DEFAULT_PRICING)[selectedRole][selectedDuration];
       payBtn.disabled = false;
+      const p = (dynamicPricing || DEFAULT_PRICING)[selectedRole][selectedDuration];
       payBtn.textContent = `立即支付 ¥${p.amount} 元`;
     }
   }
