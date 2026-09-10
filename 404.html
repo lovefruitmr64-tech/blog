@@ -58,6 +58,7 @@
     
     
 
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="ee3ed10d-72ae-4d3a-b6dd-6b457fb189cd"></script>
 <script>
@@ -79,6 +80,99 @@
 })();
 </script>
 
+<style>
+  /* 
+   * 1. 标题专属底框卡片（纯白底色 + 浅灰描边 + 与下方文章横向宽度 100% 严丝合缝对齐）
+   */
+  .category-title-card,
+  h1:has(+ .blog-post-grid),
+  .md-content:has(.blog-post-grid) h1:first-of-type,
+  h1#software,
+  h1#android,
+  h1#fonts,
+  h1#os,
+  h1#tutorials,
+  h1#others {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(127, 127, 127, 0.22) !important;
+    border-radius: 14px !important;
+    padding: 10px 18px !important; /* 调整内边距，使底框更加纤巧整洁 */
+    margin: 14px 0 18px 0 !important;
+    text-align: center !important;
+    color: inherit !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    display: block !important;
+  }
+
+  /* 
+   * 2. 纯 CSS 级汉化：字号对齐【最新发布】大小（1.05rem, font-weight: 700）
+   */
+  h1#software { font-size: 0 !important; }
+  h1#software::before { content: "电脑软件" !important; font-size: 1.05rem !important; font-weight: 700 !important; }
+
+  h1#android { font-size: 0 !important; }
+  h1#android::before { content: "安卓软件" !important; font-size: 1.05rem !important; font-weight: 700 !important; }
+
+  h1#fonts { font-size: 0 !important; }
+  h1#fonts::before { content: "免费字体" !important; font-size: 1.05rem !important; font-weight: 700 !important; }
+
+  h1#os { font-size: 0 !important; }
+  h1#os::before { content: "操作系统" !important; font-size: 1.05rem !important; font-weight: 700 !important; }
+
+  h1#tutorials { font-size: 0 !important; }
+  h1#tutorials::before { content: "视频教程" !important; font-size: 1.05rem !important; font-weight: 700 !important; }
+
+  h1#others { font-size: 0 !important; }
+  h1#others::before { content: "其他资源" !important; font-size: 1.05rem !important; font-weight: 700 !important; }
+
+  /* 卡片上的分类小胶囊标签同步汉化 */
+  .post-category[title*="software"] { font-size: 0 !important; }
+  .post-category[title*="software"]::before { content: "电脑软件" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
+
+  .post-category[title*="android"] { font-size: 0 !important; }
+  .post-category[title*="android"]::before { content: "安卓软件" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
+
+  .post-category[title*="fonts"] { font-size: 0 !important; }
+  .post-category[title*="fonts"]::before { content: "免费字体" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
+
+  .post-category[title*="os"] { font-size: 0 !important; }
+  .post-category[title*="os"]::before { content: "操作系统" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
+
+  .post-category[title*="tutorials"] { font-size: 0 !important; }
+  .post-category[title*="tutorials"]::before { content: "视频教程" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
+</style>
+
+<!-- 3. JS 双保险：同步更新浏览器网页标签页 Title -->
+<script>
+(function() {
+  const categoryMap = {
+    "software": "电脑软件",
+    "android": "安卓软件",
+    "fonts": "免费字体",
+    "os": "操作系统",
+    "tutorials": "视频教程",
+    "others": "其他资源"
+  };
+
+  function updatePageMeta() {
+    const path = window.location.pathname.toLowerCase();
+    for (const key in categoryMap) {
+      if (path.indexOf(key) !== -1) {
+        document.title = document.title.replace(new RegExp(key, "gi"), categoryMap[key]);
+        break;
+      }
+    }
+  }
+
+  updatePageMeta();
+  if (typeof document$ !== "undefined") {
+    document$.subscribe(updatePageMeta);
+  }
+})();
+</script>
 
   </head>
   
@@ -105,18 +199,14 @@
           <div class="md-banner__inner md-grid md-typeset">
             
             
-
 <div style="
 text-align:center;
 padding:10px;
 background:none;
 color:white;
 ">
-
 本站永久免费开放，持续更新资源
-
 </div>
-
 
           </div>
           
