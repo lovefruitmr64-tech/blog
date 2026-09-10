@@ -1451,7 +1451,7 @@ color:white;
 <style>
 /* 核心居中与自适应加宽：让管理后台水平居中，消除偏左现象 */
 .md-content__inner {
-  max-width: 1200px !important;
+  max-width: 1360px !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
@@ -1463,7 +1463,7 @@ color:white;
   margin: 10px auto 30px auto !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   width: 100%;
-  max-width: 1200px;
+  max-width: 1360px;
   box-sizing: border-box;
 }
 .kzyc-adm-topbar {
@@ -1559,7 +1559,7 @@ color:white;
   text-align: left;
   vertical-align: middle;
 }
-.kzyc-adm-table th { background: rgba(127, 127, 127, 0.06); font-weight: 700; font-size: 0.78rem; }
+.kzyc-adm-table th { background: rgba(127, 127, 127, 0.06); font-weight: 700; font-size: 0.78rem; white-space: nowrap !important; }
 
 /* 关键防折行类 */
 .kzyc-nowrap {
@@ -1987,22 +1987,22 @@ color:white;
       <div class="kzyc-rev-grid">
         <div class="kzyc-rev-card today">
           <div class="kzyc-rev-title">📅 今日收入</div>
-          <div class="kzyc-rev-num">¥ ${stats.today_revenue || "0.00"}</div>
+          <div class="kzyc-rev-num">¥ ${parseFloat(stats.today_revenue || 0).toFixed(2)}</div>
           <div class="kzyc-rev-sub">今日付款：${stats.today_paid_orders || 0} 笔</div>
         </div>
         <div class="kzyc-rev-card month">
           <div class="kzyc-rev-title">🗓️ 本月收入</div>
-          <div class="kzyc-rev-num">¥ ${stats.month_revenue || "0.00"}</div>
+          <div class="kzyc-rev-num">¥ ${parseFloat(stats.month_revenue || 0).toFixed(2)}</div>
           <div class="kzyc-rev-sub">本月累计到账</div>
         </div>
         <div class="kzyc-rev-card year">
           <div class="kzyc-rev-title">📆 本年收入</div>
-          <div class="kzyc-rev-num">¥ ${stats.year_revenue || "0.00"}</div>
+          <div class="kzyc-rev-num">¥ ${parseFloat(stats.year_revenue || 0).toFixed(2)}</div>
           <div class="kzyc-rev-sub">年度总业绩</div>
         </div>
         <div class="kzyc-rev-card total">
           <div class="kzyc-rev-title">💎 历史累计总收入</div>
-          <div class="kzyc-rev-num">¥ ${stats.total_revenue || "0.00"}</div>
+          <div class="kzyc-rev-num">¥ ${parseFloat(stats.total_revenue || 0).toFixed(2)}</div>
           <div class="kzyc-rev-sub">总成交：${stats.total_paid_orders || 0} 笔</div>
         </div>
       </div>
@@ -2051,22 +2051,22 @@ color:white;
       <div class="kzyc-rev-grid">
         <div class="kzyc-rev-card today">
           <div class="kzyc-rev-title">📅 今日收入</div>
-          <div class="kzyc-rev-num">¥ ${rev.today_revenue || "0.00"}</div>
+          <div class="kzyc-rev-num">¥ ${parseFloat(rev.today_revenue || 0).toFixed(2)}</div>
           <div class="kzyc-rev-sub">今日成交: ${rev.today_paid_orders || 0} 笔</div>
         </div>
         <div class="kzyc-rev-card month">
           <div class="kzyc-rev-title">🗓️ 本月收入</div>
-          <div class="kzyc-rev-num">¥ ${rev.month_revenue || "0.00"}</div>
+          <div class="kzyc-rev-num">¥ ${parseFloat(rev.month_revenue || 0).toFixed(2)}</div>
           <div class="kzyc-rev-sub">当月会员充值汇总</div>
         </div>
         <div class="kzyc-rev-card year">
           <div class="kzyc-rev-title">📆 本年收入</div>
-          <div class="kzyc-rev-num">¥ ${rev.year_revenue || "0.00"}</div>
+          <div class="kzyc-rev-num">¥ ${parseFloat(rev.year_revenue || 0).toFixed(2)}</div>
           <div class="kzyc-rev-sub">年度总入账</div>
         </div>
         <div class="kzyc-rev-card total">
           <div class="kzyc-rev-title">💰 累计总收入</div>
-          <div class="kzyc-rev-num">¥ ${rev.total_revenue || "0.00"}</div>
+          <div class="kzyc-rev-num">¥ ${parseFloat(rev.total_revenue || 0).toFixed(2)}</div>
           <div class="kzyc-rev-sub">历史总成交: ${rev.total_paid_orders || 0} 笔</div>
         </div>
       </div>
@@ -2091,14 +2091,14 @@ color:white;
         <table class="kzyc-adm-table">
           <thead>
             <tr>
-              <th class="kzyc-nowrap" style="width: 150px;">系统订单号</th>
-              <th class="kzyc-nowrap" style="width: 160px;">充值用户</th>
-              <th class="kzyc-nowrap" style="width: 130px;">开通套餐</th>
-              <th class="kzyc-nowrap" style="width: 90px;">实付金额</th>
-              <th class="kzyc-nowrap" style="width: 85px;">支付状态</th>
-              <th class="kzyc-nowrap" style="width: 140px;">时间记录</th>
-              <th>支付宝交易流水号</th>
-              <th class="kzyc-nowrap" style="width: 120px;">操作</th>
+              <th class="kzyc-nowrap" style="width: 140px;">系统订单号</th>
+              <th class="kzyc-nowrap" style="width: 150px;">充值用户</th>
+              <th class="kzyc-nowrap" style="width: 120px;">开通套餐</th>
+              <th class="kzyc-nowrap" style="width: 85px;">实付金额</th>
+              <th class="kzyc-nowrap" style="width: 80px;">支付状态</th>
+              <th class="kzyc-nowrap" style="width: 155px;">时间记录</th>
+              <th class="kzyc-nowrap" style="min-width: 180px;">支付宝交易流水号</th>
+              <th class="kzyc-nowrap" style="width: 135px; text-align: center;">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -2126,10 +2126,14 @@ color:white;
                     下单: ${o.created_at || '-'}<br>
                     支付: ${o.paid_at ? `<span style="color: #16a34a;">${o.paid_at}</span>` : '-'}
                   </td>
-                  <td><span class="kzyc-cell-truncate" style="font-family: monospace; font-size: 0.74rem; opacity: 0.8;" title="${escapeHTML(o.trade_no || '无')}">${escapeHTML(o.trade_no || '-')}</span></td>
-                  <td class="kzyc-nowrap" style="display: flex; gap: 4px; align-items: center;">
-                    ${!isPaid ? `<button class="kzyc-adm-btn success" onclick="handleCompleteOrder('${escapeHTML(o.order_id)}')">手动补单</button>` : ''}
-                    <button class="kzyc-adm-btn danger" onclick="handleDeleteOrder('${escapeHTML(o.order_id)}')">删除</button>
+                  <td class="kzyc-nowrap">
+                    ${o.trade_no ? `<code style="font-family: monospace; font-size: 0.75rem; background: rgba(127,127,127,0.08); padding: 2px 6px; border-radius: 4px;">${escapeHTML(o.trade_no)}</code>` : '<span style="opacity: 0.4;">--</span>'}
+                  </td>
+                  <td class="kzyc-nowrap" style="text-align: center;">
+                    <div style="display: inline-flex; gap: 4px; justify-content: center; align-items: center;">
+                      ${!isPaid ? `<button class="kzyc-adm-btn success" onclick="handleCompleteOrder('${escapeHTML(o.order_id)}')">手动补单</button>` : ''}
+                      <button class="kzyc-adm-btn danger" onclick="handleDeleteOrder('${escapeHTML(o.order_id)}')">删除</button>
+                    </div>
                   </td>
                 </tr>
               `;
