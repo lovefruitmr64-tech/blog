@@ -2303,10 +2303,10 @@ color:white;
                 <td><span class="kzyc-cell-truncate" style="opacity: 0.8;" title="${escapeHTML(r.download_url)}">${escapeHTML(r.download_url)}</span></td>
                 <td class="kzyc-nowrap"><span style="background: rgba(234, 88, 12, 0.1); color: #ea580c; padding: 2px 6px; border-radius: 4px; font-size: 0.74rem; font-weight: 600; white-space: nowrap;">${escapeHTML(r.unzip_pwd || '无')}</span></td>
                 <td class="kzyc-nowrap">${(r.is_vip_only === 2 || r.is_vip_only === '2')
-  ? '<span style="color: #c026d3; font-weight: 700; background: rgba(217,70,239,0.12); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">👑 超级会员专享</span>'
-  : ((r.is_vip_only === 1 || r.is_vip_only === '1')
-    ? '<span style="color: #2563eb; font-weight: 700; background: rgba(37,99,235,0.12); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">💎 标准会员专享</span>'
-    : '<span style="opacity: 0.7; white-space: nowrap;">🌐 公开</span>')}</td>
+                  ? '<span style="color: #c026d3; font-weight: 700; background: rgba(217,70,239,0.12); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">👑 超级会员专享</span>'
+                  : ((r.is_vip_only === 1 || r.is_vip_only === '1')
+                    ? '<span style="color: #2563eb; font-weight: 700; background: rgba(37,99,235,0.12); padding: 2px 6px; border-radius: 4px; white-space: nowrap;">💎 标准会员专享</span>'
+                    : '<span style="opacity: 0.7; white-space: nowrap;">🌐 公开</span>')}</td>
                 <td class="kzyc-nowrap">
                   <button class="kzyc-adm-btn primary" data-key="${escapeHTML(r.resource_key)}" data-title="${escapeHTML(r.title)}" data-url="${escapeHTML(r.download_url)}" data-pwd="${escapeHTML(r.unzip_pwd || '')}" data-vip="${r.is_vip_only || 0}" onclick="handleEditResource(this)">编辑</button>
                   <button class="kzyc-adm-btn danger" onclick="deleteResource('${escapeHTML(r.resource_key)}')">删除</button>
@@ -2791,12 +2791,8 @@ color:white;
   window.handleToggleBan = async function(uid, isBanned, username) {
     const actionText = isBanned ? "封禁拉黑" : "解除封禁";
     const tip = isBanned 
-      ? `确定要【封禁拉黑】用户 [${username}] (UID: #${uid}) 吗？
-
-封禁后该账号将立即无法登录网站、无法获取下载资源或发表评论！`
-      : `确定要【解除封禁】用户 [${username}] (UID: #${uid}) 吗？
-
-解除后该用户将完全恢复正常的登录与全站功能使用权限。`;
+      ? `确定要【封禁拉黑】用户 [${username}] (UID: #${uid}) 吗？\n\n封禁后该账号将立即无法登录网站、无法获取下载资源或发表评论！`
+      : `确定要【解除封禁】用户 [${username}] (UID: #${uid}) 吗？\n\n解除后该用户将完全恢复正常的登录与全站功能使用权限。`;
 
     if (!confirm(tip)) return;
 
@@ -2892,9 +2888,7 @@ color:white;
   };
 
   window.handleRestoreDeleted = async function(email, username) {
-    if (!confirm(`确定要恢复已注销账号 [${username}] (${email}) 吗？
-
-恢复后该用户将重新加入用户列表，初始密码设为 12345678，并自动解除注销拦截限制！`)) return;
+    if (!confirm(`确定要恢复已注销账号 [${username}] (${email}) 吗？\n\n恢复后该用户将重新加入用户列表，初始密码设为 12345678，并自动解除注销拦截限制！`)) return;
     const token = localStorage.getItem(TOKEN_KEY);
     const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/restore`, {
       method: "POST",
@@ -2912,9 +2906,7 @@ color:white;
   };
 
   window.handleDeleteDeleted = async function(email, username) {
-    if (!confirm(`确定要彻底删除 [${username}] (${email}) 的注销记录吗？
-
-删除后该用户名和邮箱将立即解除1年冷却期锁定，允许重新注册！`)) return;
+    if (!confirm(`确定要彻底删除 [${username}] (${email}) 的注销记录吗？\n\n删除后该用户名和邮箱将立即解除1年冷却期锁定，允许重新注册！`)) return;
     const token = localStorage.getItem(TOKEN_KEY);
     const res = await fetch(`${API_BASE}/api/admin/deleted-accounts/delete`, {
       method: "POST",
@@ -3092,12 +3084,9 @@ color:white;
         svip: ["⚡ 每天限下载 20 篇海量资源", "🌟 全站所有资源任意无限畅下", "👑 专属至尊超级会员高贵徽标", "🤝 优先资源更新与技术答疑"]
       };
       const priv = data.privileges || defaultPriv;
-      const uLines = ((priv.user && priv.user.length) ? priv.user : defaultPriv.user).join("
-");
-      const vLines = ((priv.vip && priv.vip.length) ? priv.vip : defaultPriv.vip).join("
-");
-      const sLines = ((priv.svip && priv.svip.length) ? priv.svip : defaultPriv.svip).join("
-");
+      const uLines = ((priv.user && priv.user.length) ? priv.user : defaultPriv.user).join("\n");
+      const vLines = ((priv.vip && priv.vip.length) ? priv.vip : defaultPriv.vip).join("\n");
+      const sLines = ((priv.svip && priv.svip.length) ? priv.svip : defaultPriv.svip).join("\n");
 
       const v1m = (vip["1m"] && vip["1m"].amount) || "1.90";
       const v3m = (vip["3m"] && vip["3m"].amount) || "3.90";
@@ -3199,12 +3188,9 @@ color:white;
       `;
 
       document.getElementById("kzyc-save-vip-cfg-btn")?.addEventListener("click", async () => {
-        const uArr = document.getElementById("cfg-priv-user").value.split("
-").map(s => s.trim()).filter(Boolean);
-        const vArr = document.getElementById("cfg-priv-vip").value.split("
-").map(s => s.trim()).filter(Boolean);
-        const sArr = document.getElementById("cfg-priv-svip").value.split("
-").map(s => s.trim()).filter(Boolean);
+        const uArr = document.getElementById("cfg-priv-user").value.split("\n").map(s => s.trim()).filter(Boolean);
+        const vArr = document.getElementById("cfg-priv-vip").value.split("\n").map(s => s.trim()).filter(Boolean);
+        const sArr = document.getElementById("cfg-priv-svip").value.split("\n").map(s => s.trim()).filter(Boolean);
 
         const payload = {
           pricing: {
@@ -3318,9 +3304,7 @@ color:white;
       const rawText = document.getElementById("kzyc-inp-word").value.trim();
       if (!rawText) return;
 
-      const wordsList = rawText.split(/[,，、;\s
-
-]+/).map(w => w.trim()).filter(Boolean);
+      const wordsList = rawText.split(/[,，、;\s\n\r]+/).map(w => w.trim()).filter(Boolean);
       if (wordsList.length === 0) return;
 
       const addBtn = document.getElementById("kzyc-add-word-btn");
