@@ -1602,6 +1602,35 @@ color:white;
       
         <footer class="custom-footer home-only-footer">
 
+    <style>
+        /* 核心修复：消除单向 margin 与 gap 干扰，让分隔线绝对居中对称 */
+        .footer-links {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0 !important; /* 清除 flex 间距干扰 */
+        }
+        .footer-links a {
+            color: inherit;
+            text-decoration: none;
+            margin: 0 !important; /* 清除 a 标签单向右边距 */
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .footer-links a:hover {
+            opacity: 1;
+        }
+        /* 关键：给竖线设置完全一致的左右间距（左右各 14px） */
+        .footer-links a:not(:last-child)::after {
+            content: "|";
+            display: inline-block;
+            margin: 0 14px !important; /* 上下0，左右严格对称各 14px */
+            opacity: 0.35; /* 半透明淡化，视觉更高级 */
+            font-weight: 300;
+            pointer-events: none;
+        }
+    </style>
+
     <!-- 第一排 + 第二排 -->
     <div class="footer-top">
         <div class="footer-top-inner">
@@ -1689,7 +1718,6 @@ color:white;
     </script>
 
 </footer>
-<!-- 网站访问统计结束 -->
       
     </div>
     <div class="md-dialog" data-md-component="dialog">
