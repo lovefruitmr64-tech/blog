@@ -146,7 +146,7 @@ K资源仓
 
 网站地址：
 
-https://lovefruitmr64-tech.github.io/blog/
+https://kzyc.de5.net/
 
 感谢您访问K资源仓。
 

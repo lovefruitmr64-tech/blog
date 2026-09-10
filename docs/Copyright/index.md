@@ -18,7 +18,7 @@ hide:
 
 ## 一、网站版权声明
 
-K资源仓网站（网站地址：https://lovefruitmr64-tech.github.io/blog/）内发布的原创内容，包括但不限于：
+K资源仓网站（网站地址：https://kzyc.de5.net/）内发布的原创内容，包括但不限于：
 
 - 网站页面设计；
 - 网站文字内容；
@@ -34,7 +34,7 @@ K资源仓网站（网站地址：https://lovefruitmr64-tech.github.io/blog/）�
 如需引用本站内容，请注明来源：
 
 > 来源：K资源仓  
-> 网站：https://lovefruitmr64-tech.github.io/blog/
+> 网站：https://kzyc.de5.net/
 
 ---
 
@@ -116,7 +116,7 @@ K资源仓尽力保证网站内容的准确性、完整性和有效性，但由�
 网站名称：K资源仓
 
 网站地址：
-https://lovefruitmr64-tech.github.io/blog/
+https://kzyc.de5.net/
 
 请在邮件ifruitmr@126.com或通知中提供相关证明材料，以便本站及时核实处理。
 
