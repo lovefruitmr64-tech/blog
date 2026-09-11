@@ -2,6 +2,7 @@
 hide:
   - navigation
   - toc
+  - title
 ---
 <!-- 首页轮播 -->
 <div class="home-banner">
