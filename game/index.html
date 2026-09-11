@@ -84,7 +84,7 @@
 
 <style>
   /* 
-   * 1. 标题专属底框卡片（纯白底色 + 浅灰描边 + 与下方文章横向宽度 100% 严丝合缝对齐）
+   * 1. 标题专属底框卡片：基础结构（宽度 100% 对齐、圆角、内边距、居中）
    */
   .category-title-card,
   h1:has(+ .blog-post-grid),
@@ -98,19 +98,45 @@
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    background: #ffffff !important;
-    border: 1px solid rgba(127, 127, 127, 0.22) !important;
     border-radius: 14px !important;
-    padding: 10px 18px !important; /* 调整内边距，使底框更加纤巧整洁 */
+    padding: 10px 18px !important;
     margin: 14px 0 18px 0 !important;
     text-align: center !important;
-    color: inherit !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
     display: block !important;
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease !important;
+  }
+
+  /* ☀️ 默认 / 明亮模式 (Light Mode) */
+  [data-md-color-scheme="default"] .category-title-card,
+  [data-md-color-scheme="default"] h1:has(+ .blog-post-grid),
+  [data-md-color-scheme="default"] .md-content:has(.blog-post-grid) h1:first-of-type,
+  .category-title-card,
+  h1:has(+ .blog-post-grid),
+  .md-content:has(.blog-post-grid) h1:first-of-type {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid rgba(127, 127, 127, 0.22) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  /* 🌙 暗黑模式 (Dark Mode - Slate) */
+  [data-md-color-scheme="slate"] .category-title-card,
+  [data-md-color-scheme="slate"] h1:has(+ .blog-post-grid),
+  [data-md-color-scheme="slate"] .md-content:has(.blog-post-grid) h1:first-of-type,
+  [data-md-color-scheme="slate"] h1#software,
+  [data-md-color-scheme="slate"] h1#android,
+  [data-md-color-scheme="slate"] h1#fonts,
+  [data-md-color-scheme="slate"] h1#os,
+  [data-md-color-scheme="slate"] h1#tutorials,
+  [data-md-color-scheme="slate"] h1#others {
+    background: #1f232b !important; /* 暗黑卡片底色，与背景融为一体 */
+    color: #f1f5f9 !important;      /* 高清亮白文字 */
+    border: 1px solid rgba(255, 255, 255, 0.12) !important; /* 细腻微光描边 */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
   }
 
   /* 
-   * 2. 纯 CSS 级汉化：字号对齐【最新发布】大小（1.05rem, font-weight: 700）
+   * 2. 纯 CSS 级汉化：字号精确对齐【最新发布】大小（1.05rem, font-weight: 700）
    */
   h1#software { font-size: 0 !important; }
   h1#software::before { content: "电脑软件" !important; font-size: 1.05rem !important; font-weight: 700 !important; }
@@ -130,6 +156,35 @@
   h1#others { font-size: 0 !important; }
   h1#others::before { content: "其他资源" !important; font-size: 1.05rem !important; font-weight: 700 !important; }
 
+  /* 
+   * 3. 文章卡片明暗模式同步自适应
+   */
+  /* 明亮模式卡片 */
+  .post-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(127, 127, 127, 0.22) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.25s ease !important;
+    overflow: hidden !important;
+  }
+  .post-card:hover {
+    transform: translateY(-3px) !important;
+    border-color: rgba(37, 99, 235, 0.45) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  /* 暗黑模式卡片 */
+  [data-md-color-scheme="slate"] .post-card {
+    background: #1f232b !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  }
+  [data-md-color-scheme="slate"] .post-card:hover {
+    border-color: rgba(96, 165, 250, 0.45) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  }
+
   /* 卡片上的分类小胶囊标签同步汉化 */
   .post-category[title*="software"] { font-size: 0 !important; }
   .post-category[title*="software"]::before { content: "电脑软件" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
@@ -147,7 +202,7 @@
   .post-category[title*="tutorials"]::before { content: "视频教程" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
 </style>
 
-<!-- 3. JS 双保险：同步更新浏览器网页标签页 Title -->
+<!-- 4. JS 双保险：同步更新网页标签页 Title -->
 <script>
 (function() {
   const categoryMap = {
