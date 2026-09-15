@@ -477,10 +477,10 @@
               <span class="kzyc-card-icon">📦</span>
               <div>
                 <div class="kzyc-card-title">${escapeHTML(customTitle)}</div>
-                <div class="kzyc-card-tip">🔒 登录用户专享资源 · 验证身份后自动呈现多网盘分流地址</div>
+                <div class="kzyc-card-tip">🔒 登录用户专享资源 · 验证身份后自动呈现多分流地址</div>
               </div>
             </div>
-            <button type="button" class="kzyc-dl-btn" data-key="${key}">📥 立即获取网盘下载地址</button>
+            <button type="button" class="kzyc-dl-btn" data-key="${key}">📥 立即下载</button>
             <div class="kzyc-dl-result" style="display: none; width: 100%;"></div>
           </div>
         `;
