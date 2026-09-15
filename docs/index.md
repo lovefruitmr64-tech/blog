@@ -35,7 +35,7 @@ hide:
 <div class="home-links">
 
 
-<a href="blog/" class="home-link-item">
+<a href="blog/" class="home-link-item" target="_blank">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">new_releases</span>
@@ -47,7 +47,7 @@ hide:
 
 
 
-<a href="blog/" class="home-link-item">
+<a href="blog/" class="home-link-item" target="_blank">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">computer</span>
@@ -59,7 +59,7 @@ hide:
 
 
 
-<a href="blog/" class="home-link-item">
+<a href="blog/" class="home-link-item" target="_blank">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">android</span>
@@ -71,7 +71,7 @@ hide:
 
 
 
-<a href="blog/" class="home-link-item">
+<a href="blog/" class="home-link-item" target="_blank">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">laptop_windows</span>
@@ -83,19 +83,19 @@ hide:
 
 
 
-<a href="blog/" class="home-link-item">
+<a href="blog/" class="home-link-item" target="_blank">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">apps</span>
 </span>
 
-<span>其他软件</span>
+<span>免费字体</span>
 
 </a>
 
 
 
-<a href="blog/" class="home-link-item">
+<a href="blog/" class="home-link-item" target="_blank">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">play_circle</span>
@@ -107,19 +107,19 @@ hide:
 
 
 
-<a href="blog/" class="home-link-item">
+<a href="blog/" class="home-link-item" target="_blank">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">code</span>
 </span>
 
-<span>技术教程</span>
+<span>其他专区</span>
 
 </a>
 
 
 
-<a href="donate/" class="home-link-item">
+<a href="donate/" class="home-link-item" target="_blank">
 
 <span class="home-icon">
 <span class="material-symbols-rounded">favorite</span>

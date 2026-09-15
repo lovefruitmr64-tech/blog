@@ -69,38 +69,23 @@ markdown_extensions:
 
 nav:                             # 👈 首页顶部导航
 
-  - 首页:
-      - 首页: index.md
+  - 首页: index.md
 
-  - 最新发布:
-      - 最新发布: blog/index.md
+  - 最新发布: blog/index.md
 
-  - 电脑软件:
-      - 电脑软件: blog/category/software/
+  - 电脑软件: blog/category/software/
 
+  - 安卓软件: blog/category/software/
 
-  - 安卓软件:
-      - 安卓软件: blog/category/software/
+  - 免费字体: blog/category/software/
 
+  - 操作系统: blog/category/software/
 
-  - 免费字体:
-      - 免费字体: blog/category/software/
+  - 视频教程: blog/category/software/
 
+  - 其他专区: blog/category/software/
 
-  - 操作系统:
-      - 操作系统: blog/category/software/
-
-
-  - 视频教程:
-      - 视频教程: blog/category/software/
-
-
-  - 其他:
-      - 其他: blog/category/software/
-
-
-  - 打赏:
-      - 打赏: vip.md      
+  - 打赏捐赠: vip.md       
 
 
 
@@ -118,6 +103,8 @@ extra_javascript:
   - js/home.js
 
   - js/auth.js
+  
+  - js/nav-new-tab.js
 
 
 
