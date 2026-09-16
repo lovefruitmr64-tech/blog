@@ -1,0 +1,116 @@
+/* ==========================================================================
+   顶部导航栏 Tab 悬浮下拉子菜单 (独立模块)
+   ========================================================================== */
+
+/* 1. 让 Tab 成为绝对定位参考点 */
+.md-tabs__item {
+  position: relative !important;
+}
+
+/* 2. 带有下拉菜单的 Tab，右侧自动出现微小向下箭头指示器 */
+.md-tabs__item:has(.kzyc-dropdown-menu) .md-tabs__link::after {
+  content: "";
+  display: inline-block;
+  margin-left: 5px;
+  width: 4px;
+  height: 4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+  transition: transform 0.2s ease;
+  opacity: 0.7;
+}
+
+/* 悬停时箭头平滑翻转 180 度 */
+.md-tabs__item:hover .md-tabs__link::after {
+  transform: rotate(-135deg);
+  opacity: 1;
+}
+
+/* 3. 下拉菜单浮层容器 */
+.kzyc-dropdown-menu {
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(6px);
+
+  min-width: 130px !important;
+  padding: 6px !important;
+  margin: 0 !important;
+  list-style: none !important;
+
+  background: #ffffff !important;
+  border: 1px solid rgba(128, 128, 128, 0.2) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s !important;
+  z-index: 999 !important;
+}
+
+/* 隐形防抖桥：防止鼠标从Tab滑向菜单时断开悬停 */
+.kzyc-dropdown-menu::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+}
+
+/* 鼠标悬停在 Tab 上时平滑弹出 */
+.md-tabs__item:hover .kzyc-dropdown-menu {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+/* 4. 下拉菜单单个子项与链接 */
+.kzyc-dropdown-item {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.kzyc-dropdown-item a {
+  display: flex !important;
+  align-items: center !important;
+  padding: 7px 12px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  text-decoration: none !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease !important;
+}
+
+/* 鼠标悬停子项高亮效果 */
+.kzyc-dropdown-item a:hover {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #2563eb !important;
+  transform: translateX(2px);
+}
+
+/* ==========================================================================
+   暗黑模式适配 (Slate)
+   ========================================================================== */
+[data-md-color-scheme="slate"] .kzyc-dropdown-menu {
+  background: #1e222b !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-md-color-scheme="slate"] .kzyc-dropdown-item a {
+  color: #cbd5e1 !important;
+}
+
+[data-md-color-scheme="slate"] .kzyc-dropdown-item a:hover {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #60a5fa !important;
+}

@@ -1,0 +1,229 @@
+/* 核心居中与自适应加宽：让管理后台水平居中，消除偏左现象 */
+.md-content__inner {
+  max-width: 1360px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.kzyc-adm-card {
+  background: var(--md-default-bg-color, #ffffff);
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  border-radius: 14px;
+  padding: 22px;
+  margin: 10px auto 30px auto !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 1360px;
+  box-sizing: border-box;
+}
+.kzyc-adm-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.15);
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.kzyc-adm-nav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid rgba(127, 127, 127, 0.12);
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.kzyc-adm-tab {
+  padding: 7px 14px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.65;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.kzyc-adm-tab:hover { opacity: 1; background: rgba(37, 99, 235, 0.08); }
+.kzyc-adm-tab.active { opacity: 1; background: #2563eb; color: #ffffff !important; }
+
+.kzyc-adm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.kzyc-adm-stat {
+  background: rgba(127, 127, 127, 0.04);
+  border: 1px solid rgba(127, 127, 127, 0.15);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+.kzyc-adm-stat-num { font-size: 1.7rem; font-weight: 800; color: #2563eb; margin: 4px 0; }
+.kzyc-adm-stat-num.warn { color: #ea580c; }
+.kzyc-adm-stat-num.success { color: #16a34a; }
+.kzyc-adm-stat-label { font-size: 0.8rem; opacity: 0.7; }
+
+/* 财务收入专属卡片网格 */
+.kzyc-rev-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.kzyc-rev-card {
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-sizing: border-box;
+  text-align: left;
+}
+.kzyc-rev-card.today { background: #eff6ff; border: 1px solid #bfdbfe; }
+.kzyc-rev-card.month { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.kzyc-rev-card.year { background: #faf5ff; border: 1px solid #e9d5ff; }
+.kzyc-rev-card.total { background: #fff7ed; border: 1px solid #fed7aa; }
+.kzyc-rev-title { font-size: 0.82rem; font-weight: 700; }
+.kzyc-rev-card.today .kzyc-rev-title { color: #1e40af; }
+.kzyc-rev-card.month .kzyc-rev-title { color: #166534; }
+.kzyc-rev-card.year .kzyc-rev-title { color: #6b21a8; }
+.kzyc-rev-card.total .kzyc-rev-title { color: #9a3412; }
+.kzyc-rev-num { font-size: 1.7rem; font-weight: 800; margin: 6px 0 2px 0; }
+.kzyc-rev-card.today .kzyc-rev-num { color: #1d4ed8; }
+.kzyc-rev-card.month .kzyc-rev-num { color: #15803d; }
+.kzyc-rev-card.year .kzyc-rev-num { color: #7e22ce; }
+.kzyc-rev-card.total .kzyc-rev-num { color: #c2410c; }
+.kzyc-rev-sub { font-size: 0.74rem; opacity: 0.75; }
+
+/* 表格自适应扩展与字体微调 */
+.kzyc-adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-top: 10px;
+}
+.kzyc-adm-table th, .kzyc-adm-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.12);
+  text-align: left;
+  vertical-align: middle;
+}
+.kzyc-adm-table th { background: rgba(127, 127, 127, 0.06); font-weight: 700; font-size: 0.78rem; white-space: nowrap !important; }
+
+/* 关键防折行类 */
+.kzyc-nowrap {
+  white-space: nowrap !important;
+}
+
+.kzyc-cell-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 380px;
+}
+
+.kzyc-adm-btn {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.kzyc-adm-btn.primary { background: #2563eb; color: #fff !important; }
+.kzyc-adm-btn.success { background: #16a34a; color: #fff !important; }
+.kzyc-adm-btn.danger { background: #dc2626; color: #fff !important; }
+.kzyc-adm-btn.warn { background: #ea580c; color: #fff !important; }
+
+.kzyc-adm-form-card {
+  background: rgba(127, 127, 127, 0.04);
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.kzyc-adm-input {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  background: var(--md-default-bg-color, #fff);
+  color: inherit;
+  box-sizing: border-box;
+  font-size: 0.84rem;
+  margin-top: 4px;
+}
+.kzyc-search-input {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  background: var(--md-default-bg-color, #fff);
+  color: inherit;
+  font-size: 0.82rem;
+  width: 220px;
+}
+
+.kzyc-pagination-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+.kzyc-page-btn {
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.76rem;
+  transition: all 0.15s;
+}
+.kzyc-page-btn:hover:not(.disabled):not(.active) {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: #2563eb;
+}
+.kzyc-page-btn.active {
+  background: #2563eb;
+  color: #fff !important;
+  border-color: #2563eb;
+}
+.kzyc-page-btn.disabled { opacity: 0.35; cursor: not-allowed; }
+.kzyc-page-ellipsis { padding: 0 4px; opacity: 0.5; }
+.kzyc-page-jump { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; }
+.kzyc-page-input {
+  width: 44px;
+  padding: 3px 5px;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  background: transparent;
+  color: inherit;
+  font-size: 0.78rem;
+}
+
+.kzyc-banner-card {
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  border-radius: 10px;
+  padding: 14px;
+  background: rgba(127, 127, 127, 0.03);
+  margin-bottom: 14px;
+}
+.kzyc-banner-preview {
+  max-width: 100%;
+  max-height: 130px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-top: 8px;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  display: block;
+}

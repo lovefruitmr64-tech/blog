@@ -36,6 +36,8 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode    
 
+hooks:
+  - hooks.py
 
 plugins:
 
@@ -97,6 +99,8 @@ extra_css:
 
   - stylesheets/extra.css
 
+  - stylesheets/nav-dropdown.css   # 👈 只需加上这一行独立注入！
+
 
 extra_javascript:
 
@@ -105,6 +109,8 @@ extra_javascript:
   - js/auth.js
   
   - js/nav-new-tab.js
+
+  - js/dynamic-nav.js
 
 
 
