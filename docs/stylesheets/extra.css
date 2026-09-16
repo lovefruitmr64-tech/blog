@@ -155,7 +155,6 @@ body {
     border-color 0.2s ease;
 }
 
-/* 鼠标悬停 */
 .post-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -194,13 +193,13 @@ body {
   box-sizing: border-box;
 }
 
-/* 3. 标题：缩小字号至 13.5px，排在第 1 位 */
+/* 3. 标题：不加粗，字号 13.5px */
 .post-card-title {
   order: 1 !important;
   margin: 0 0 6px 0;
   font-size: 13.5px !important;
   line-height: 1.4 !important;
-  font-weight: 600 !important;
+  font-weight: normal !important;
 
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -208,13 +207,18 @@ body {
   overflow: hidden;
 }
 
-.post-card-title a {
+.post-card-title a,
+.post-card-title h2,
+.post-card-title h3 {
   text-decoration: none;
+  font-weight: normal !important;
   color: var(--md-typeset-color, #1e293b);
   transition: color 0.2s ease;
 }
 
-[data-md-color-scheme="slate"] .post-card-title a {
+[data-md-color-scheme="slate"] .post-card-title a,
+[data-md-color-scheme="slate"] .post-card-title h2,
+[data-md-color-scheme="slate"] .post-card-title h3 {
   color: #f1f5f9;
 }
 
@@ -223,7 +227,7 @@ body {
   text-decoration: none;
 }
 
-/* 4. 分类与日期：排在第 2 位 */
+/* 4. 分类与日期：排在标题下方 */
 .post-card-meta {
   order: 2 !important;
   display: flex;
@@ -234,26 +238,58 @@ body {
   font-size: 11px !important;
 }
 
-/* 分类标签：小一个字号至 10px */
-.post-category {
-  order: 1;
-  padding: 1px 5px !important;
-  border-radius: 4px;
-  background: var(--md-code-bg-color);
-  color: var(--md-typeset-a-color);
-  font-size: 10px !important;
-  font-weight: 500;
-  line-height: 1.3;
+/* 4.1 胶囊自身：字号设为0，彻底消除内部残留的英文字符（如 software） */
+body .post-card .post-card-meta .post-category,
+body .post-card .post-card-meta .post-category a,
+.post-category,
+.post-category a {
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
 }
 
-/* 发布日期 */
+/* 分类胶囊背景与外形 */
+.post-category {
+  order: 1;
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 1.5px 6px !important;
+  border-radius: 4px;
+  background: var(--md-code-bg-color);
+}
+
+/* 4.2 独占显示中文汉化 ::before 伪元素：字号再加大一个字号到 11.5px，保持不加粗 */
+body .post-card .post-card-meta .post-category::before,
+body .post-card .post-card-meta .post-category[title]::before,
+body .post-card .post-card-meta .post-category[title*="software"]::before,
+body .post-card .post-card-meta .post-category[title*="android"]::before,
+body .post-card .post-card-meta .post-category[title*="fonts"]::before,
+body .post-card .post-card-meta .post-category[title*="os"]::before,
+body .post-card .post-card-meta .post-category[title*="tutorials"]::before,
+body .post-card .post-card-meta .post-category[title*="others"]::before,
+.post-category::before {
+  font-size: 11.5px !important;      /* 再次加大一个字号 (11.5px) */
+  font-weight: 400 !important;        /* 保持不加粗 */
+  font-weight: normal !important;
+  line-height: 1.3 !important;
+  color: var(--md-typeset-a-color, #2563eb) !important;
+}
+
+/* 暗黑模式下分类中文颜色 */
+[data-md-color-scheme="slate"] body .post-card .post-card-meta .post-category::before,
+[data-md-color-scheme="slate"] .post-category::before {
+  color: #60a5fa !important;
+}
+
+/* 发布日期：保持常规粗细 */
 .post-date {
   order: 2;
   opacity: 0.65;
   font-size: 11px !important;
+  font-weight: normal !important;
 }
 
-/* 5. 卡片底部：严格的左右结构（左侧头像+admin，右侧查看文章） */
+/* 5. 卡片底部：左右结构（左侧头像+admin，右侧查看文章） */
 .post-card-footer {
   order: 3 !important;
   margin-top: auto !important;
@@ -288,16 +324,35 @@ body {
   content: "admin" !important;
   order: 2 !important;
   font-size: 11.5px !important;
-  font-weight: 500 !important;
+  font-weight: normal !important;
   color: var(--md-typeset-color, #64748b) !important;
   opacity: 0.85 !important;
   white-space: nowrap !important;
 }
 
+/* 支持 HTML 模板中直接写出 .post-card-author 时的适配 */
+.post-card-author {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.author-avatar {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: 1px solid rgba(128, 128, 128, 0.25) !important;
+}
+.author-name {
+  font-size: 11.5px !important;
+  font-weight: normal !important;
+  color: var(--md-typeset-color, #64748b) !important;
+}
+
 /* 序号 3（右边）：查看文章按钮 */
 .post-button {
   order: 3 !important;
-  margin-left: auto !important; /* 关键：自动推至最右侧 */
+  margin-left: auto !important;
 
   display: inline-flex !important;
   align-items: center !important;
@@ -305,8 +360,8 @@ body {
 
   width: auto !important;
   min-width: 0 !important;
-  height: 26px !important;
-  padding: 0 10px !important;
+  height: 27px !important;
+  padding: 0 11px !important;
 
   box-sizing: border-box !important;
   border-radius: 6px !important;
@@ -315,7 +370,7 @@ body {
   background: var(--md-primary-fg-color);
   color: var(--md-primary-bg-color) !important;
 
-  font-size: 12.5px !important;
+  font-size: 13.5px !important;
   font-weight: 500 !important;
   white-space: nowrap !important;
 
@@ -333,7 +388,7 @@ body {
 
 
 /* ==========================================================================
-   手机移动端特定尺寸缩减（<= 768px）
+   手机移动端特定尺寸缩减（<= 768px）：保持电脑端同款排版与自适应缩放
    ========================================================================== */
 @media screen and (max-width: 768px) {
   .post-card-image {
@@ -345,8 +400,13 @@ body {
     padding: 7px 8px 9px 8px;
   }
 
-  .post-card-title {
-    font-size: 12px !important;
+  /* 手机端标题：保持不加粗，自适应缩小至 11.5px */
+  .post-card-title,
+  .post-card-title a,
+  .post-card-title h2,
+  .post-card-title h3 {
+    font-size: 11.5px !important;
+    font-weight: normal !important;
     margin-bottom: 4px;
     line-height: 1.35;
   }
@@ -354,36 +414,57 @@ body {
   .post-card-meta {
     gap: 4px;
     margin-bottom: 6px;
-    font-size: 10px !important;
+    font-size: 9.5px !important;
+  }
+
+  /* 手机端分类标签：隐去英文，中文自适应放大至 10.5px，保持不加粗 */
+  body .post-card .post-card-meta .post-category,
+  body .post-card .post-card-meta .post-category a,
+  .post-category,
+  .post-category a {
+    font-size: 0 !important;
+    line-height: 0 !important;
+    color: transparent !important;
+  }
+
+  body .post-card .post-card-meta .post-category::before,
+  body .post-card .post-card-meta .post-category[title]::before,
+  .post-category::before {
+    font-size: 10.5px !important;    /* 手机端同步加大至 10.5px */
+    font-weight: normal !important;
+    line-height: 1.3 !important;
   }
 
   .post-category {
-    padding: 1px 4px !important;
-    font-size: 9.5px !important;
+    padding: 1px 5px !important;
   }
 
   .post-date {
     font-size: 10px !important;
+    font-weight: normal !important;
   }
 
+  /* 手机端底部保持左右结构 */
   .post-card-footer::before {
     order: 1 !important;
-    width: 19px !important;
-    height: 19px !important;
+    width: 18px !important;
+    height: 18px !important;
     margin-right: 4px !important;
   }
 
   .post-card-footer::after {
     order: 2 !important;
     font-size: 10.5px !important;
+    font-weight: normal !important;
   }
 
+  /* 手机端查看文章按钮：自适应字号 12px */
   .post-button {
     order: 3 !important;
     margin-left: auto !important;
-    height: 24px !important;
-    font-size: 11.5px !important;
-    padding: 0 7px !important;
+    height: 25px !important;
+    font-size: 12px !important;
+    padding: 0 8px !important;
     border-radius: 5px !important;
   }
 }
