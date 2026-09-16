@@ -1,5 +1,9 @@
+
+dynamic-nav.js
+
+100%
 /**
- * K资源仓 - 全站动态导航栏与悬浮子菜单引擎 (字体与主导航精细对齐版)
+ * K资源仓 - 全站动态导航栏与悬浮子菜单引擎 (主导航链接与子菜单全动态版)
  */
 (function() {
   var API_BASE = "https://auth.kzyc.de5.net";
@@ -29,6 +33,19 @@
     "其他专区": [
       { name: "全部内容", url: "/blog/category/others/" }
     ]
+  };
+
+  var DEFAULT_NAV_LINKS = {
+    "首页": "/",
+    "最新发布": "/blog/",
+    "电脑软件": "/blog/category/software/",
+    "安卓软件": "/blog/category/android/",
+    "免费字体": "/blog/category/fonts/",
+    "操作系统": "/blog/category/os/",
+    "视频教程": "/blog/category/tutorials/",
+    "其他专区": "/blog/category/others/",
+    "打赏捐赠": "/vip/",
+    "友情链接": "/links/"
   };
 
   function injectStyles() {
@@ -107,10 +124,12 @@
     document.head.appendChild(style);
   }
 
-  function applyNavState(navData, mainList) {
+  function applyNavState(navData, mainList, navLinks) {
     injectStyles();
     var tabsList = document.querySelector(".md-tabs__list");
+    var linksMap = navLinks || DEFAULT_NAV_LINKS;
 
+    // 1. 如果后台有新增的主导航（如“友情链接”），自动动态追加到导航栏末尾
     if (tabsList && Array.isArray(mainList) && mainList.length > 0) {
       var links = tabsList.querySelectorAll(".md-tabs__link");
       var existingTitles = [];
@@ -119,16 +138,24 @@
       }
       for (var j = 0; j < mainList.length; j++) {
         var title = mainList[j];
+        var targetUrl = linksMap[title] || (navData && navData[title] && navData[title][0] ? navData[title][0].url : "#");
         if (existingTitles.indexOf(title) === -1) {
           var li = document.createElement("li");
           li.className = "md-tabs__item kzyc-dynamic-main-tab";
-          var targetUrl = (navData && navData[title] && navData[title][0]) ? navData[title][0].url : "#";
           li.innerHTML = '<a href="' + targetUrl + '" class="md-tabs__link">' + title + '</a>';
           tabsList.appendChild(li);
+        } else {
+          // 如果导航已经存在，同步更新它的 href 链接
+          for (var k = 0; k < links.length; k++) {
+            if (links[k].textContent.trim() === title && linksMap[title]) {
+              links[k].href = linksMap[title];
+            }
+          }
         }
       }
     }
 
+    // 2. 为各主导航挂载鼠标悬浮下拉菜单
     if (navData && typeof navData === "object") {
       var tabItems = document.querySelectorAll(".md-tabs__item");
       tabItems.forEach(function(item) {
@@ -162,6 +189,7 @@
   function initDynamicNav() {
     var navData = DEFAULT_NAV_DATA;
     var mainList = null;
+    var navLinks = DEFAULT_NAV_LINKS;
 
     try {
       var stored = localStorage.getItem("kzyc_live_nav_dropdowns") || localStorage.getItem("kzyc_nav_dropdowns");
@@ -175,9 +203,13 @@
       if (storedList) {
         mainList = JSON.parse(storedList);
       }
+      var storedLinks = localStorage.getItem("kzyc_main_nav_links");
+      if (storedLinks) {
+        navLinks = Object.assign({}, DEFAULT_NAV_LINKS, JSON.parse(storedLinks));
+      }
     } catch (e) {}
 
-    applyNavState(navData, mainList);
+    applyNavState(navData, mainList, navLinks);
 
     try {
       fetch(API_BASE + "/api/site-nav").then(function(res) {
@@ -186,7 +218,8 @@
         if (result && result.success && result.data) {
           var freshNav = Object.assign({}, DEFAULT_NAV_DATA, result.data.nav_dropdowns || {});
           var freshList = result.data.main_nav_list || mainList;
-          applyNavState(freshNav, freshList);
+          var freshLinks = Object.assign({}, DEFAULT_NAV_LINKS, result.data.main_nav_links || {});
+          applyNavState(freshNav, freshList, freshLinks);
         }
       }).catch(function() {});
     } catch (err) {}
