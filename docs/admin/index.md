@@ -5,13 +5,13 @@ hide:
   - navigation
 
 site_categories:
+  电脑软件: software
   安卓软件: android
   免费字体: fonts
   操作系统: os
   视频教程: tutorials
   其他专区: others
-  CORELDRAW: coreldraw
-  电脑软件: software
+
 nav_dropdowns:
   电脑软件:
     - name: 全部软件
@@ -43,12 +43,6 @@ nav_dropdowns:
   其他专区:
     - name: 全部内容
       url: /blog/category/others/
-  友情链接:
-    - name: 其他专区
-      url: /blog/category/others/
-    - name: CORELDRAW
-      url: /blog/category/coreldraw/
-
 ---
 
 <!-- 引入后台专属样式表 -->
@@ -71,4 +65,3 @@ nav_dropdowns:
 <script src="vip-config.js"></script>
 <script src="words.js"></script>
 <script src="categories.js"></script>
-

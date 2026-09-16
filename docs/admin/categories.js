@@ -1,14 +1,13 @@
 // ============================================================
-// 站长管理后台模块 - 🏷️ 分类中英文关联与导航栏悬浮下拉子菜单管理 (极速响应 + 增强版)
+// 站长管理后台模块 - 🏷️ 分类中英文关联与导航栏悬浮下拉子菜单管理 (主导航链接支持版)
 // 文件名: categories.js
-// 功能：
-//  1. 文章分类标签增删管理 (映射纯英文 URL)
-//  2. 顶部主导航标签自由增加与删除
-//  3. 鼠标悬浮子标签管理 (支持从分类一键快捷导入，也支持完全自由自定义)
-//  4. 0ms 秒开渲染 + 后台静默云端同步，点击绝不卡顿
+// 支持：主导航增删与跳转链接自由修改、从文章分类一键快捷导入子标签、自定义外链与页面
 // ============================================================
 
 (function() {
+  // 提前挂载，确保一被浏览器解析即刻生效
+  window.renderCategoriesTab = renderCategoriesTab;
+
   const API_BASE = window.API_BASE || "https://auth.kzyc.de5.net";
   const TOKEN_KEY = window.TOKEN_KEY || "kzyc_token";
   const escapeHTML = window.escapeHTML || function(str) {
@@ -37,6 +36,19 @@
     "其他专区",
     "打赏捐赠"
   ];
+
+  const DEFAULT_MAIN_NAV_LINKS = {
+    "首页": "/",
+    "最新发布": "/blog/",
+    "电脑软件": "/blog/category/software/",
+    "安卓软件": "/blog/category/android/",
+    "免费字体": "/blog/category/fonts/",
+    "操作系统": "/blog/category/os/",
+    "视频教程": "/blog/category/tutorials/",
+    "其他专区": "/blog/category/others/",
+    "打赏捐赠": "/vip/",
+    "友情链接": "/links/"
+  };
 
   const DEFAULT_NAV_DROPDOWNS = {
     "电脑软件": [
@@ -70,7 +82,7 @@
     if (!panel) return;
 
     // 版本初始化校验
-    const CONFIG_VERSION = "20260916_v3";
+    const CONFIG_VERSION = "20260916_v4";
     if (localStorage.getItem("kzyc_cat_nav_ver") !== CONFIG_VERSION) {
       localStorage.setItem("kzyc_cat_nav_ver", CONFIG_VERSION);
       if (!localStorage.getItem("kzyc_site_categories")) {
@@ -81,6 +93,9 @@
       }
       if (!localStorage.getItem("kzyc_main_nav_list")) {
         localStorage.setItem("kzyc_main_nav_list", JSON.stringify(DEFAULT_MAIN_NAV_ITEMS));
+      }
+      if (!localStorage.getItem("kzyc_main_nav_links")) {
+        localStorage.setItem("kzyc_main_nav_links", JSON.stringify(DEFAULT_MAIN_NAV_LINKS));
       }
     }
 
@@ -100,6 +115,12 @@
     try {
       const stored = localStorage.getItem("kzyc_main_nav_list");
       if (stored) mainNavList = JSON.parse(stored);
+    } catch (e) {}
+
+    let mainNavLinks = DEFAULT_MAIN_NAV_LINKS;
+    try {
+      const stored = localStorage.getItem("kzyc_main_nav_links");
+      if (stored) mainNavLinks = JSON.parse(stored);
     } catch (e) {}
 
     // 绘制核心界面
@@ -137,23 +158,29 @@
           </div>
         </div>
 
-        <!-- 模块 2：顶部导航栏主导航管理 (自由增删) -->
+        <!-- 模块 2：顶部导航栏主导航管理 (自由增删与链接修改) -->
         <div class="kzyc-adm-form-card">
           <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
             <span>🧭 2. 顶部导航栏主导航管理 (共 ${mainNavCount} 项)</span>
-            <span style="font-size: 0.76rem; opacity: 0.65; font-weight: normal;">控制页面顶部常驻显示的主导航栏目</span>
+            <span style="font-size: 0.76rem; opacity: 0.65; font-weight: normal;">控制页面顶部常驻显示的主导航栏目及其跳转链接</span>
           </div>
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
-            <input class="kzyc-adm-input" id="kzyc-inp-main-nav-name" placeholder="输入新主导航名称 (如: AI专区、精选推荐、友情链接)" style="flex: 2; min-width: 220px; margin-top: 0;" />
+            <input class="kzyc-adm-input" id="kzyc-inp-main-nav-name" placeholder="主导航名称 (如: 友情链接、社区)" style="flex: 1.2; min-width: 170px; margin-top: 0;" />
+            <input class="kzyc-adm-input" id="kzyc-inp-main-nav-url" placeholder="跳转链接 (如: /links/ 或 https://...)" style="flex: 1.5; min-width: 200px; margin-top: 0;" />
             <button class="kzyc-adm-btn primary" id="kzyc-add-main-nav-btn" style="padding: 8px 20px; white-space: nowrap;">➕ 添加主导航</button>
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 44px; padding: 10px; background: rgba(127,127,127,0.03); border: 1px dashed rgba(127,127,127,0.25); border-radius: 8px;">
-            ${mainNavList.map((navTitle, idx) => `
-              <span style="display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 0.84rem;">
-                <strong style="color: #059669;">${escapeHTML(navTitle)}</strong>
-                <button onclick="deleteMainNavItem(${idx})" title="删除该主导航" style="border: none; background: none; color: #ef4444; font-weight: bold; cursor: pointer; padding: 0 2px;">✕</button>
-              </span>
-            `).join('')}
+            ${mainNavList.map((navTitle, idx) => {
+              const linkUrl = mainNavLinks[navTitle] || "/";
+              return `
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; font-size: 0.84rem;">
+                  <strong style="color: #059669;">${escapeHTML(navTitle)}</strong>
+                  <span style="color: #64748b; font-size: 0.74rem; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHTML(linkUrl)}">(${escapeHTML(linkUrl)})</span>
+                  <button onclick="editMainNavLink(${idx})" title="修改跳转链接" style="border: none; background: none; color: #2563eb; cursor: pointer; padding: 0 3px; font-size: 0.85rem;">✏️</button>
+                  <button onclick="deleteMainNavItem(${idx})" title="删除该主导航" style="border: none; background: none; color: #ef4444; font-weight: bold; cursor: pointer; padding: 0 3px;">✕</button>
+                </span>
+              `;
+            }).join('')}
           </div>
         </div>
 
@@ -228,12 +255,14 @@
         drawCategoriesContent();
       });
 
-      // 2. 绑定添加主导航事件
+      // 2. 绑定添加主导航事件 (支持自定义名称与链接)
       document.getElementById("kzyc-add-main-nav-btn")?.addEventListener("click", () => {
         const navTitle = document.getElementById("kzyc-inp-main-nav-name").value.trim();
+        const navUrl = document.getElementById("kzyc-inp-main-nav-url").value.trim() || "/";
         if (!navTitle) return alert("请输入主导航名称！");
         if (mainNavList.includes(navTitle)) return alert("该主导航名称已存在！");
         mainNavList.push(navTitle);
+        mainNavLinks[navTitle] = navUrl;
         if (!navData[navTitle]) navData[navTitle] = [];
         drawCategoriesContent();
       });
@@ -263,13 +292,15 @@
 
       // 5. 恢复初始默认
       document.getElementById("kzyc-reset-cats-btn")?.addEventListener("click", () => {
-        if (!confirm("确定要恢复为官网初始标准的 6 大分类和 9 大主导航吗？")) return;
+        if (!confirm("确定要恢复为官网初始标准的分类与主导航配置吗？")) return;
         catData = JSON.parse(JSON.stringify(DEFAULT_SITE_CATEGORIES));
         navData = JSON.parse(JSON.stringify(DEFAULT_NAV_DROPDOWNS));
         mainNavList = JSON.parse(JSON.stringify(DEFAULT_MAIN_NAV_ITEMS));
+        mainNavLinks = JSON.parse(JSON.stringify(DEFAULT_MAIN_NAV_LINKS));
         localStorage.setItem("kzyc_site_categories", JSON.stringify(catData));
         localStorage.setItem("kzyc_nav_dropdowns", JSON.stringify(navData));
         localStorage.setItem("kzyc_main_nav_list", JSON.stringify(mainNavList));
+        localStorage.setItem("kzyc_main_nav_links", JSON.stringify(mainNavLinks));
         drawCategoriesContent();
       });
 
@@ -283,6 +314,7 @@
         localStorage.setItem("kzyc_site_categories", JSON.stringify(catData));
         localStorage.setItem("kzyc_nav_dropdowns", JSON.stringify(navData));
         localStorage.setItem("kzyc_main_nav_list", JSON.stringify(mainNavList));
+        localStorage.setItem("kzyc_main_nav_links", JSON.stringify(mainNavLinks));
         localStorage.setItem("kzyc_live_nav_dropdowns", JSON.stringify(navData));
 
         try {
@@ -296,12 +328,13 @@
             body: JSON.stringify({
               site_categories: catData,
               nav_dropdowns: navData,
-              main_nav_list: mainNavList
+              main_nav_list: mainNavList,
+              main_nav_links: mainNavLinks
             })
           });
           const result = await res.json();
           if (result.success) {
-            alert("🎉 保存成功！云端数据库已实时更新，全网访客打开页面即可看到最新主导航与下拉标签！");
+            alert("🎉 保存成功！云端数据库已实时更新，全网访客打开页面即可看到最新主导航、链接与下拉标签！");
           } else {
             alert("云端保存提示: " + (result.error || result.message || "接口未就绪，但已保存在本地！"));
           }
@@ -328,6 +361,10 @@
             });
           }
         }
+        yamlStr += "main_nav_links:\n";
+        for (const [n, u] of Object.entries(mainNavLinks)) {
+          yamlStr += `  ${n}: ${u}\n`;
+        }
         navigator.clipboard.writeText(yamlStr).then(() => {
           alert("📋 已成功将最新配置复制到剪贴板！");
         }).catch(() => {
@@ -343,12 +380,24 @@
       drawCategoriesContent();
     };
 
+    // 全局修改主导航链接
+    window.editMainNavLink = function(idx) {
+      const navTitle = mainNavList[idx];
+      const oldUrl = mainNavLinks[navTitle] || "/";
+      const newUrl = prompt(`请输入主导航【${navTitle}】的跳转链接:`, oldUrl);
+      if (newUrl !== null) {
+        mainNavLinks[navTitle] = newUrl.trim() || "/";
+        drawCategoriesContent();
+      }
+    };
+
     // 全局删除主导航
     window.deleteMainNavItem = function(idx) {
       const navTitle = mainNavList[idx];
       if (!confirm(`确定要删除主导航【${navTitle}】及其全部下拉菜单吗？`)) return;
       mainNavList.splice(idx, 1);
       delete navData[navTitle];
+      delete mainNavLinks[navTitle];
       drawCategoriesContent();
     };
 
@@ -377,6 +426,10 @@
         }
         if (res.data.main_nav_list && Array.isArray(res.data.main_nav_list) && res.data.main_nav_list.length > 0) {
           mainNavList = res.data.main_nav_list;
+          hasNew = true;
+        }
+        if (res.data.main_nav_links && typeof res.data.main_nav_links === "object") {
+          mainNavLinks = Object.assign({}, DEFAULT_MAIN_NAV_LINKS, res.data.main_nav_links);
           hasNew = true;
         }
         if (hasNew) drawCategoriesContent();

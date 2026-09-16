@@ -309,12 +309,42 @@ window.addEventListener("error", function(e) {
     if (tab === "users") (window.renderUsersTab || renderUsersTab)(panel);
     if (tab === "vip-config") (window.renderVipConfigTab || renderVipConfigTab)(panel);
         if (tab === "words") (window.renderWordsTab || renderWordsTab)(panel);
-        if (tab === "categories") {
-      const renderFn = window.renderCategoriesTab || (typeof renderCategoriesTab === 'function' ? renderCategoriesTab : null);
-      if (renderFn) {
-        renderFn(panel);
+            if (tab === "categories") {
+      if (typeof window.renderCategoriesTab === "function") {
+        window.renderCategoriesTab(panel);
       } else {
-        panel.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444;">⏳ 正在加载分类与导航模块，请稍候...</div>';
+        panel.innerHTML = '<div style="padding: 40px; text-align: center; color: #1e40af; font-size: 0.95rem;">⏳ 正在智能载入分类与导航模块，请稍候...</div>';
+        
+        // 多路径自动尝试加载 categories.js
+        const candidatePaths = ["categories.js", "/admin/categories.js", "../js/categories.js", "/js/categories.js"];
+        candidatePaths.forEach(src => {
+          const s = document.createElement("script");
+          s.src = src + "?v=" + Date.now();
+          s.onload = () => {
+            if (typeof window.renderCategoriesTab === "function" && activeTab === "categories") {
+              window.renderCategoriesTab(panel);
+            }
+          };
+          document.head.appendChild(s);
+        });
+
+        // 定时轮询重试
+        let pollCount = 0;
+        const pollTimer = setInterval(() => {
+          pollCount++;
+          if (typeof window.renderCategoriesTab === "function") {
+            clearInterval(pollTimer);
+            if (activeTab === "categories") {
+              window.renderCategoriesTab(panel);
+            }
+          } else if (pollCount >= 25) {
+            clearInterval(pollTimer);
+            panel.innerHTML = '<div style="padding: 40px; text-align: center; color: #ef4444; line-height: 1.8;">' +
+              '<div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 8px;">⚠️ 未能成功加载 categories.js 模块</div>' +
+              '<div style="font-size: 0.88rem; opacity: 0.85;">请检查 <code>docs/admin/categories.js</code> 文件是否存在，或按 F12 查看控制台报错提示。</div>' +
+              '</div>';
+          }
+        }, 120);
       }
     }
   }
