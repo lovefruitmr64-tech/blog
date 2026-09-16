@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+<!-- ============================================================
+     1. 顶部公告栏（原版完整保留）
+     ============================================================ -->
 {% block announce %}
 <div style="
 text-align:center;
@@ -11,9 +14,13 @@ color:white;
 </div>
 {% endblock %}
 
+<!-- ============================================================
+     2. 页面头部扩展区域
+     ============================================================ -->
 {% block extrahead %}
 {{ super() }}
 
+<!-- A. 外部图标与统计追踪（原版完整保留） -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="ee3ed10d-72ae-4d3a-b6dd-6b457fb189cd"></script>
 <script>
@@ -35,6 +42,7 @@ color:white;
 })();
 </script>
 
+<!-- B. 标题底框、文章卡片与明暗模式样式（原版完整保留） -->
 <style>
   /* 
    * 1. 标题专属底框卡片：基础结构（宽度 100% 对齐、圆角、内边距、居中）
@@ -155,10 +163,18 @@ color:white;
   .post-category[title*="tutorials"]::before { content: "视频教程" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
 </style>
 
-<!-- 4. JS 双保险：同步更新网页标签页 Title -->
+<!-- C. 自动注入后台配置（由 hooks.py 从 docs/admin/index.md 提取） -->
+{% if config.extra.site_admin_config %}
+  <script>
+    window.SITE_ADMIN_CONFIG = {{ config.extra.site_admin_config | tojson }};
+  </script>
+{% endif %}
+
+<!-- D. 全功能核心脚本：网页标签页 Title 同步 + 后台动态汉化 + 顶部导航悬浮下拉子菜单 -->
 <script>
 (function() {
-  const categoryMap = {
+  // 基础兜底分类（保留你原本已有的各项分类）
+  const defaultCategoryMap = {
     "software": "电脑软件",
     "android": "安卓软件",
     "fonts": "免费字体",
@@ -167,19 +183,75 @@ color:white;
     "others": "其他资源"
   };
 
-  function updatePageMeta() {
+  function applyAdminAndMeta() {
+    const cfg = window.SITE_ADMIN_CONFIG || {};
+    // 将后台 admin/index.md 中新配置的分类无缝合并进来
+    const enToZh = Object.assign({}, defaultCategoryMap, cfg.categories_en_to_zh || {});
+    const navDropdowns = cfg.nav_dropdowns || {};
+
+    // -------------------------------------------------------------
+    // 1. 同步更新网页标签页 Title（你原有的 JS 双保险功能）
+    // -------------------------------------------------------------
     const path = window.location.pathname.toLowerCase();
-    for (const key in categoryMap) {
+    for (const key in enToZh) {
       if (path.indexOf(key) !== -1) {
-        document.title = document.title.replace(new RegExp(key, "gi"), categoryMap[key]);
+        if (document.title.toLowerCase().includes(key)) {
+          document.title = document.title.replace(new RegExp(key, "gi"), enToZh[key]);
+        }
         break;
       }
     }
+
+    // -------------------------------------------------------------
+    // 2. 动态汉化分类页标题与卡片标签（支持后续在后台随时增加的新分类）
+    // -------------------------------------------------------------
+    const h1 = document.querySelector(".md-content h1");
+    if (h1) {
+      const text = h1.textContent.trim().toLowerCase();
+      if (enToZh[text]) {
+        h1.textContent = enToZh[text];
+      }
+    }
+
+    document.querySelectorAll(".post-category, .md-tag, .md-post__meta a").forEach(function(el) {
+      const t = el.textContent.trim().toLowerCase();
+      if (enToZh[t]) {
+        el.textContent = enToZh[t];
+      }
+    });
+
+    // -------------------------------------------------------------
+    // 3. 顶部导航栏悬浮下拉子菜单自动构建（读取后台 nav_dropdowns）
+    // -------------------------------------------------------------
+    document.querySelectorAll(".md-tabs__item").forEach(function(tab) {
+      const link = tab.querySelector(".md-tabs__link");
+      if (!link) return;
+
+      const tabTitle = link.textContent.trim();
+
+      if (navDropdowns[tabTitle] && !tab.querySelector(".kzyc-dropdown-menu")) {
+        const ul = document.createElement("ul");
+        ul.className = "kzyc-dropdown-menu";
+
+        navDropdowns[tabTitle].forEach(function(sub) {
+          const li = document.createElement("li");
+          li.className = "kzyc-dropdown-item";
+          const a = document.createElement("a");
+          a.href = sub.url;
+          a.textContent = sub.name;
+          li.appendChild(a);
+          ul.appendChild(li);
+        });
+
+        tab.appendChild(ul);
+      }
+    });
   }
 
-  updatePageMeta();
+  // 初次加载与 Material 即时切换监听
+  applyAdminAndMeta();
   if (typeof document$ !== "undefined") {
-    document$.subscribe(updatePageMeta);
+    document$.subscribe(applyAdminAndMeta);
   }
 })();
 </script>

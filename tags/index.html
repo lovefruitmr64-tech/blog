@@ -53,6 +53,8 @@
     
       <link rel="stylesheet" href="../stylesheets/extra.css">
     
+      <link rel="stylesheet" href="../stylesheets/nav-dropdown.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -61,6 +63,7 @@
     
 
 
+<!-- A. 外部图标与统计追踪（原版完整保留） -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="ee3ed10d-72ae-4d3a-b6dd-6b457fb189cd"></script>
 <script>
@@ -82,6 +85,7 @@
 })();
 </script>
 
+<!-- B. 标题底框、文章卡片与明暗模式样式（原版完整保留） -->
 <style>
   /* 
    * 1. 标题专属底框卡片：基础结构（宽度 100% 对齐、圆角、内边距、居中）
@@ -202,10 +206,18 @@
   .post-category[title*="tutorials"]::before { content: "视频教程" !important; font-size: 0.72rem !important; font-weight: 600 !important; }
 </style>
 
-<!-- 4. JS 双保险：同步更新网页标签页 Title -->
+<!-- C. 自动注入后台配置（由 hooks.py 从 docs/admin/index.md 提取） -->
+
+  <script>
+    window.SITE_ADMIN_CONFIG = {"categories_en_to_zh": {"android": "\u5b89\u5353\u8f6f\u4ef6", "coreldraw": "CORELDRAW", "fonts": "\u514d\u8d39\u5b57\u4f53", "os": "\u64cd\u4f5c\u7cfb\u7edf", "others": "\u5176\u4ed6\u4e13\u533a", "software": "\u7535\u8111\u8f6f\u4ef6", "tutorials": "\u89c6\u9891\u6559\u7a0b"}, "categories_zh_to_en": {"CORELDRAW": "coreldraw", "\u514d\u8d39\u5b57\u4f53": "fonts", "\u5176\u4ed6\u4e13\u533a": "others", "\u5b89\u5353\u8f6f\u4ef6": "android", "\u64cd\u4f5c\u7cfb\u7edf": "os", "\u7535\u8111\u8f6f\u4ef6": "software", "\u89c6\u9891\u6559\u7a0b": "tutorials"}, "nav_dropdowns": {"\u514d\u8d39\u5b57\u4f53": [{"name": "\u5168\u90e8\u5b57\u4f53", "url": "/blog/category/fonts/"}], "\u5176\u4ed6\u4e13\u533a": [{"name": "\u5168\u90e8\u5185\u5bb9", "url": "/blog/category/others/"}], "\u53cb\u60c5\u94fe\u63a5": [{"name": "\u5176\u4ed6\u4e13\u533a", "url": "/blog/category/others/"}, {"name": "CORELDRAW", "url": "/blog/category/coreldraw/"}], "\u5b89\u5353\u8f6f\u4ef6": [{"name": "\u5168\u90e8\u5e94\u7528", "url": "/blog/category/android/"}, {"name": "\u5e38\u7528\u5de5\u5177", "url": "/blog/category/android/#tools"}], "\u64cd\u4f5c\u7cfb\u7edf": [{"name": "Windows", "url": "/blog/category/os/#windows"}, {"name": "macOS", "url": "/blog/category/os/#macos"}, {"name": "Linux", "url": "/blog/category/os/#linux"}], "\u7535\u8111\u8f6f\u4ef6": [{"name": "\u5168\u90e8\u8f6f\u4ef6", "url": "/blog/category/software/"}, {"name": "\u56fe\u5f62\u8bbe\u8ba1", "url": "/blog/category/software/#design"}, {"name": "\u529e\u516c\u5e94\u7528", "url": "/blog/category/software/#office"}, {"name": "\u7cfb\u7edf\u5de5\u5177", "url": "/blog/category/software/#tools"}], "\u89c6\u9891\u6559\u7a0b": [{"name": "\u5168\u90e8\u6559\u7a0b", "url": "/blog/category/tutorials/"}]}};
+  </script>
+
+
+<!-- D. 全功能核心脚本：网页标签页 Title 同步 + 后台动态汉化 + 顶部导航悬浮下拉子菜单 -->
 <script>
 (function() {
-  const categoryMap = {
+  // 基础兜底分类（保留你原本已有的各项分类）
+  const defaultCategoryMap = {
     "software": "电脑软件",
     "android": "安卓软件",
     "fonts": "免费字体",
@@ -214,19 +226,75 @@
     "others": "其他资源"
   };
 
-  function updatePageMeta() {
+  function applyAdminAndMeta() {
+    const cfg = window.SITE_ADMIN_CONFIG || {};
+    // 将后台 admin/index.md 中新配置的分类无缝合并进来
+    const enToZh = Object.assign({}, defaultCategoryMap, cfg.categories_en_to_zh || {});
+    const navDropdowns = cfg.nav_dropdowns || {};
+
+    // -------------------------------------------------------------
+    // 1. 同步更新网页标签页 Title（你原有的 JS 双保险功能）
+    // -------------------------------------------------------------
     const path = window.location.pathname.toLowerCase();
-    for (const key in categoryMap) {
+    for (const key in enToZh) {
       if (path.indexOf(key) !== -1) {
-        document.title = document.title.replace(new RegExp(key, "gi"), categoryMap[key]);
+        if (document.title.toLowerCase().includes(key)) {
+          document.title = document.title.replace(new RegExp(key, "gi"), enToZh[key]);
+        }
         break;
       }
     }
+
+    // -------------------------------------------------------------
+    // 2. 动态汉化分类页标题与卡片标签（支持后续在后台随时增加的新分类）
+    // -------------------------------------------------------------
+    const h1 = document.querySelector(".md-content h1");
+    if (h1) {
+      const text = h1.textContent.trim().toLowerCase();
+      if (enToZh[text]) {
+        h1.textContent = enToZh[text];
+      }
+    }
+
+    document.querySelectorAll(".post-category, .md-tag, .md-post__meta a").forEach(function(el) {
+      const t = el.textContent.trim().toLowerCase();
+      if (enToZh[t]) {
+        el.textContent = enToZh[t];
+      }
+    });
+
+    // -------------------------------------------------------------
+    // 3. 顶部导航栏悬浮下拉子菜单自动构建（读取后台 nav_dropdowns）
+    // -------------------------------------------------------------
+    document.querySelectorAll(".md-tabs__item").forEach(function(tab) {
+      const link = tab.querySelector(".md-tabs__link");
+      if (!link) return;
+
+      const tabTitle = link.textContent.trim();
+
+      if (navDropdowns[tabTitle] && !tab.querySelector(".kzyc-dropdown-menu")) {
+        const ul = document.createElement("ul");
+        ul.className = "kzyc-dropdown-menu";
+
+        navDropdowns[tabTitle].forEach(function(sub) {
+          const li = document.createElement("li");
+          li.className = "kzyc-dropdown-item";
+          const a = document.createElement("a");
+          a.href = sub.url;
+          a.textContent = sub.name;
+          li.appendChild(a);
+          ul.appendChild(li);
+        });
+
+        tab.appendChild(ul);
+      }
+    });
   }
 
-  updatePageMeta();
+  // 初次加载与 Material 即时切换监听
+  applyAdminAndMeta();
   if (typeof document$ !== "undefined") {
-    document$.subscribe(updatePageMeta);
+    document$.subscribe(applyAdminAndMeta);
   }
 })();
 </script>
@@ -904,6 +972,17 @@ color:white;
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tag:设计1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        设计1
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1296,6 +1375,23 @@ color:white;
 
 
 
+  <h2 id="tag:设计1">
+
+
+<span class="md-tag">设计1</span></h2>
+  <ul>
+    
+      <li>
+        <a href="../blog/Illustrator211/">
+          达芬奇DaVinci Resolve 21.1 专业版来了！史诗级更新 ，可以卸载AE/PR/PS了11111
+        </a>
+      </li>
+    
+    
+  </ul>
+
+
+
 
 
 
@@ -1468,6 +1564,8 @@ color:white;
         <script src="../js/auth.js"></script>
       
         <script src="../js/nav-new-tab.js"></script>
+      
+        <script src="../js/dynamic-nav.js"></script>
       
     
   </body>
