@@ -1,6 +1,10 @@
 /**
- * K资源仓 - 全站动态导航栏与悬浮/折叠子菜单引擎
- * 完整适配：电脑端悬浮下拉 + 手机移动端抽屉实时读取与折叠子分类 + 彻底修复层级穿透
+ * K资源仓 - 全站动态导航栏、悬浮/折叠子菜单与顶栏VIP会员入口引擎
+ * 完整适配：
+ * 1. 顶栏搜索框与头像之间新增专属 VIP 皇冠图标（直达 /vip/ 会员购买页）
+ * 2. 电脑端顶部主导航与悬浮下拉菜单
+ * 3. 手机端抽屉导航实时读取后台更新 + 手风琴二级子分类折叠展开
+ * 4. 彻底修复手机端抽屉层级穿透问题（防止文章分类标签浮在导航上方）
  */
 (function() {
   var API_BASE = "https://auth.kzyc.de5.net";
@@ -51,7 +55,44 @@
     style.id = "kzyc-dynamic-nav-style";
     style.innerHTML = [
       "/* ========================================================= */",
-      "/* 1. 彻底解决手机端抽屉导航被文章卡片和分类标签穿透的问题 */",
+      "/* 1. 顶栏 VIP 皇冠按钮（位于搜索框与用户头像之间） */",
+      "/* ========================================================= */",
+      ".kzyc-header-vip-btn {",
+      "  display: inline-flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: center !important;",
+      "  width: 36px !important;",
+      "  height: 36px !important;",
+      "  border-radius: 50% !important;",
+      "  background: rgba(245, 158, 11, 0.12) !important;",
+      "  border: 1.5px solid rgba(245, 158, 11, 0.35) !important;",
+      "  margin-left: 8px !important;",
+      "  margin-right: 2px !important;",
+      "  flex-shrink: 0 !important;",
+      "  cursor: pointer !important;",
+      "  text-decoration: none !important;",
+      "  transition: all 0.25s ease !important;",
+      "  box-sizing: border-box !important;",
+      "  order: 99 !important; /* 确保排在搜索框之后、头像之前 */",
+      "}",
+      ".kzyc-header-vip-btn:hover {",
+      "  background: rgba(245, 158, 11, 0.22) !important;",
+      "  border-color: rgba(245, 158, 11, 0.65) !important;",
+      "  transform: scale(1.08) !important;",
+      "  box-shadow: 0 0 12px rgba(245, 158, 11, 0.35) !important;",
+      "}",
+      "[data-md-color-scheme='slate'] .kzyc-header-vip-btn {",
+      "  background: rgba(245, 158, 11, 0.16) !important;",
+      "  border-color: rgba(245, 158, 11, 0.45) !important;",
+      "}",
+      "[data-md-color-scheme='slate'] .kzyc-header-vip-btn:hover {",
+      "  background: rgba(245, 158, 11, 0.28) !important;",
+      "  border-color: rgba(245, 158, 11, 0.8) !important;",
+      "  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4) !important;",
+      "}",
+
+      "/* ========================================================= */",
+      "/* 2. 彻底解决手机端抽屉导航被文章卡片和分类标签穿透的问题 */",
       "/* ========================================================= */",
       "@media screen and (max-width: 1220px) {",
       "  .md-sidebar--primary {",
@@ -66,7 +107,7 @@
       "}",
 
       "/* ========================================================= */",
-      "/* 2. 电脑端顶部导航栏与悬浮下拉菜单 */",
+      "/* 3. 电脑端顶部导航栏与悬浮下拉菜单 */",
       "/* ========================================================= */",
       ".md-header, .md-header__inner, .md-tabs, .md-tabs .md-grid, .md-tabs__list, .md-tabs__item {",
       "  overflow: visible !important;",
@@ -132,7 +173,7 @@
       "}",
 
       "/* ========================================================= */",
-      "/* 3. 手机移动端左侧抽屉：折叠式子分类菜单样式 */",
+      "/* 4. 手机移动端左侧抽屉：折叠式子分类菜单样式 */",
       "/* ========================================================= */",
       ".kzyc-mobile-nav-toggle {",
       "  background: none !important;",
@@ -193,8 +234,52 @@
     document.head.appendChild(style);
   }
 
+  // 挂载顶栏 VIP 皇冠图标按钮（位于搜索框与用户头像之间）
+  function mountVipHeaderBtn() {
+    var headerInner = document.querySelector(".md-header__inner");
+    if (!headerInner) return;
+
+    var vipBtn = document.getElementById("kzyc-header-vip-btn");
+    if (!vipBtn) {
+      vipBtn = document.createElement("a");
+      vipBtn.id = "kzyc-header-vip-btn";
+      vipBtn.className = "kzyc-header-vip-btn";
+      vipBtn.href = "/vip/";
+      vipBtn.title = "开通/续费会员";
+      vipBtn.setAttribute("aria-label", "会员中心");
+      vipBtn.innerHTML = [
+        '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">',
+        '  <defs>',
+        '    <linearGradient id="kzyc-vip-crown" x1="12" y1="5" x2="12" y2="19" gradientUnits="userSpaceOnUse">',
+        '      <stop offset="0%" stop-color="#fde047"/>',
+        '      <stop offset="35%" stop-color="#f59e0b"/>',
+        '      <stop offset="100%" stop-color="#ea580c"/>',
+        '    </linearGradient>',
+        '  </defs>',
+        '  <path d="M3.8 8.6C3.4 9.5 3.9 10.5 4.8 11L7.5 12.4L10.8 6C11.3 5.1 12.7 5.1 13.2 6L16.5 12.4L19.2 11C20.1 10.5 20.6 9.5 20.2 8.6L18.8 17.2C18.6 17.8 18 18.2 17.3 18.2H6.7C6 18.2 5.4 17.8 5.2 17.2L3.8 8.6Z" fill="url(#kzyc-vip-crown)"/>',
+        '  <path d="M9.8 12.2H11.5L12 14.1L12.5 12.2H14.2L12.9 15.5C12.7 16 12.4 16.3 12 16.3C11.6 16.3 11.3 16 11.1 15.5L9.8 12.2Z" fill="#ffffff"/>',
+        '</svg>'
+      ].join("");
+    }
+
+    var authHeader = document.getElementById("kzyc-auth-header");
+    if (authHeader && authHeader.parentNode === headerInner) {
+      if (vipBtn.nextSibling !== authHeader) {
+        headerInner.insertBefore(vipBtn, authHeader);
+      }
+    } else {
+      var search = headerInner.querySelector(".md-search");
+      if (search && search.nextSibling) {
+        headerInner.insertBefore(vipBtn, search.nextSibling);
+      } else {
+        headerInner.appendChild(vipBtn);
+      }
+    }
+  }
+
   function applyNavState(navData, mainList, navLinks) {
     injectStyles();
+    mountVipHeaderBtn();
     var linksMap = navLinks || DEFAULT_NAV_LINKS;
 
     // -------------------------------------------------------------
@@ -259,7 +344,6 @@
     // -------------------------------------------------------------
     var mobileList = document.querySelector(".md-sidebar--primary .md-nav--primary > .md-nav__list");
     if (mobileList) {
-      // 1. 同步主导航增删与链接
       if (Array.isArray(mainList) && mainList.length > 0) {
         var mobileLinks = mobileList.querySelectorAll(":scope > .md-nav__item > .md-nav__link");
         var existingMobileTitles = [];
@@ -287,7 +371,6 @@
         }
       }
 
-      // 2. 为手机端主菜单挂载手风琴可折叠子菜单
       if (navData && typeof navData === "object") {
         var mobileItems = mobileList.querySelectorAll(":scope > .md-nav__item");
         mobileItems.forEach(function(mItem) {
@@ -365,6 +448,14 @@
     } catch (e) {}
 
     applyNavState(navData, mainList, navLinks);
+
+    // 定时多重确保 VIP 按钮处于精确位置（防止 auth.js 异步渲染头像后顺序错动）
+    var checkCount = 0;
+    var checkInterval = setInterval(function() {
+      mountVipHeaderBtn();
+      checkCount++;
+      if (checkCount > 10) clearInterval(checkInterval);
+    }, 300);
 
     try {
       fetch(API_BASE + "/api/site-nav").then(function(res) {
