@@ -1,12 +1,26 @@
-
-dynamic-nav.js
-
-100%
 /**
- * K资源仓 - 全站动态导航栏与悬浮子菜单引擎 (主导航链接与子菜单全动态版)
+ * K资源仓 - 全站动态导航栏与悬浮子菜单引擎 (稳定无冲突版)
  */
 (function() {
   var API_BASE = "https://auth.kzyc.de5.net";
+
+  // 全量默认主导航列表 (内置友情链接，无论本地是否有缓存都绝不丢失)
+  var DEFAULT_MAIN_LIST = [
+    "首页", "最新发布", "电脑软件", "安卓软件", "免费字体", "操作系统", "视频教程", "其他专区", "打赏捐赠", "友情链接"
+  ];
+
+  var DEFAULT_NAV_LINKS = {
+    "首页": "/",
+    "最新发布": "/blog/",
+    "电脑软件": "/blog/category/software/",
+    "安卓软件": "/blog/category/android/",
+    "免费字体": "/blog/category/fonts/",
+    "操作系统": "/blog/category/os/",
+    "视频教程": "/blog/category/tutorials/",
+    "其他专区": "/blog/category/others/",
+    "打赏捐赠": "/vip/",
+    "友情链接": "/links/"
+  };
 
   var DEFAULT_NAV_DATA = {
     "电脑软件": [
@@ -32,20 +46,10 @@ dynamic-nav.js
     ],
     "其他专区": [
       { name: "全部内容", url: "/blog/category/others/" }
+    ],
+    "友情链接": [
+      { name: "K资源仓官方", url: "https://kzyc.de5.net/" }
     ]
-  };
-
-  var DEFAULT_NAV_LINKS = {
-    "首页": "/",
-    "最新发布": "/blog/",
-    "电脑软件": "/blog/category/software/",
-    "安卓软件": "/blog/category/android/",
-    "免费字体": "/blog/category/fonts/",
-    "操作系统": "/blog/category/os/",
-    "视频教程": "/blog/category/tutorials/",
-    "其他专区": "/blog/category/others/",
-    "打赏捐赠": "/vip/",
-    "友情链接": "/links/"
   };
 
   function injectStyles() {
@@ -61,7 +65,7 @@ dynamic-nav.js
       ".md-header { z-index: 9999 !important; }",
       ".md-tabs { z-index: 9998 !important; position: relative !important; }",
       ".md-tabs__item { position: relative !important; }",
-      "/* 悬浮下拉菜单绝对定位与外观 */",
+      "/* 悬浮下拉菜单绝对定位与外观 (与主导航字号对齐) */",
       ".kzyc-nav-dropdown-menu {",
       "  position: absolute !important;",
       "  top: 100% !important;",
@@ -74,7 +78,7 @@ dynamic-nav.js
       "  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04) !important;",
       "  padding: 4px !important;",
       "  min-width: 105px !important;",
-      "  display: none;",
+      "  display: none !important;",
       "  flex-direction: column !important;",
       "  gap: 1px !important;",
       "  z-index: 9999999 !important;",
@@ -86,7 +90,7 @@ dynamic-nav.js
       "  border-color: rgba(255, 255, 255, 0.12) !important;",
       "  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45) !important;",
       "}",
-      "/* 鼠标悬停显示 */",
+      "/* 纯 CSS 悬浮机制，最平滑可靠，绝不闪退 */",
       ".md-tabs__item:hover .kzyc-nav-dropdown-menu,",
       ".kzyc-nav-dropdown-menu:hover {",
       "  display: flex !important;",
@@ -100,13 +104,13 @@ dynamic-nav.js
       "  width: 100%;",
       "  height: 12px;",
       "}",
-      "/* 子标签字体大小粗细与主导航完全一致 */",
+      "/* 子标签字体大小粗细与主导航完全一致 (0.7rem, 400 不加粗) */",
       ".kzyc-nav-dropdown-item {",
       "  display: block !important;",
       "  padding: 6px 12px !important;",
       "  color: inherit !important;",
-      "  font-size: 0.7rem !important; /* 与 MkDocs 主导航完全一致 */",
-      "  font-weight: 400 !important; /* 常规字重，不加粗 */",
+      "  font-size: 0.7rem !important;",
+      "  font-weight: 400 !important;",
       "  line-height: 1.4 !important;",
       "  text-decoration: none !important;",
       "  border-radius: 4px !important;",
@@ -127,25 +131,26 @@ dynamic-nav.js
   function applyNavState(navData, mainList, navLinks) {
     injectStyles();
     var tabsList = document.querySelector(".md-tabs__list");
-    var linksMap = navLinks || DEFAULT_NAV_LINKS;
+    var linksMap = Object.assign({}, DEFAULT_NAV_LINKS, navLinks || {});
+    var list = (Array.isArray(mainList) && mainList.length > 0) ? mainList : DEFAULT_MAIN_LIST;
+    var data = Object.assign({}, DEFAULT_NAV_DATA, navData || {});
 
     // 1. 如果后台有新增的主导航（如“友情链接”），自动动态追加到导航栏末尾
-    if (tabsList && Array.isArray(mainList) && mainList.length > 0) {
+    if (tabsList) {
       var links = tabsList.querySelectorAll(".md-tabs__link");
       var existingTitles = [];
       for (var i = 0; i < links.length; i++) {
         existingTitles.push(links[i].textContent.trim());
       }
-      for (var j = 0; j < mainList.length; j++) {
-        var title = mainList[j];
-        var targetUrl = linksMap[title] || (navData && navData[title] && navData[title][0] ? navData[title][0].url : "#");
+      for (var j = 0; j < list.length; j++) {
+        var title = list[j];
+        var targetUrl = linksMap[title] || (data[title] && data[title][0] ? data[title][0].url : "#");
         if (existingTitles.indexOf(title) === -1) {
           var li = document.createElement("li");
           li.className = "md-tabs__item kzyc-dynamic-main-tab";
           li.innerHTML = '<a href="' + targetUrl + '" class="md-tabs__link">' + title + '</a>';
           tabsList.appendChild(li);
         } else {
-          // 如果导航已经存在，同步更新它的 href 链接
           for (var k = 0; k < links.length; k++) {
             if (links[k].textContent.trim() === title && linksMap[title]) {
               links[k].href = linksMap[title];
@@ -156,39 +161,32 @@ dynamic-nav.js
     }
 
     // 2. 为各主导航挂载鼠标悬浮下拉菜单
-    if (navData && typeof navData === "object") {
-      var tabItems = document.querySelectorAll(".md-tabs__item");
-      tabItems.forEach(function(item) {
-        var link = item.querySelector(".md-tabs__link");
-        if (!link) return;
-        var tabTitle = link.textContent.trim();
-        var subs = navData[tabTitle];
+    var tabItems = document.querySelectorAll(".md-tabs__item");
+    tabItems.forEach(function(item) {
+      var link = item.querySelector(".md-tabs__link");
+      if (!link) return;
+      var tabTitle = link.textContent.trim();
+      var subs = data[tabTitle];
 
-        var oldMenu = item.querySelector(".kzyc-nav-dropdown-menu");
-        if (oldMenu) oldMenu.remove();
+      var oldMenu = item.querySelector(".kzyc-nav-dropdown-menu");
+      if (oldMenu) oldMenu.remove();
 
-        if (subs && Array.isArray(subs) && subs.length > 0) {
-          var menu = document.createElement("div");
-          menu.className = "kzyc-nav-dropdown-menu";
-          var html = "";
-          for (var s = 0; s < subs.length; s++) {
-            html += '<a href="' + subs[s].url + '" class="kzyc-nav-dropdown-item">' + subs[s].name + '</a>';
-          }
-          menu.innerHTML = html;
-          item.appendChild(menu);
-
-          item.onmouseenter = function() { menu.style.display = "flex"; };
-          item.onmouseleave = function() { menu.style.display = "none"; };
-          menu.onmouseenter = function() { menu.style.display = "flex"; };
-          menu.onmouseleave = function() { menu.style.display = "none"; };
+      if (subs && Array.isArray(subs) && subs.length > 0) {
+        var menu = document.createElement("div");
+        menu.className = "kzyc-nav-dropdown-menu";
+        var html = "";
+        for (var s = 0; s < subs.length; s++) {
+          html += '<a href="' + subs[s].url + '" class="kzyc-nav-dropdown-item">' + subs[s].name + '</a>';
         }
-      });
-    }
+        menu.innerHTML = html;
+        item.appendChild(menu);
+      }
+    });
   }
 
   function initDynamicNav() {
     var navData = DEFAULT_NAV_DATA;
-    var mainList = null;
+    var mainList = DEFAULT_MAIN_LIST;
     var navLinks = DEFAULT_NAV_LINKS;
 
     try {
@@ -201,7 +199,10 @@ dynamic-nav.js
       }
       var storedList = localStorage.getItem("kzyc_main_nav_list");
       if (storedList) {
-        mainList = JSON.parse(storedList);
+        var parsedList = JSON.parse(storedList);
+        if (Array.isArray(parsedList) && parsedList.length > 0) {
+          mainList = parsedList;
+        }
       }
       var storedLinks = localStorage.getItem("kzyc_main_nav_links");
       if (storedLinks) {
@@ -217,7 +218,7 @@ dynamic-nav.js
       }).then(function(result) {
         if (result && result.success && result.data) {
           var freshNav = Object.assign({}, DEFAULT_NAV_DATA, result.data.nav_dropdowns || {});
-          var freshList = result.data.main_nav_list || mainList;
+          var freshList = (Array.isArray(result.data.main_nav_list) && result.data.main_nav_list.length > 0) ? result.data.main_nav_list : mainList;
           var freshLinks = Object.assign({}, DEFAULT_NAV_LINKS, result.data.main_nav_links || {});
           applyNavState(freshNav, freshList, freshLinks);
         }
