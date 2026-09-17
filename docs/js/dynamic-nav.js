@@ -1,26 +1,9 @@
 /**
- * K资源仓 - 全站动态导航栏与悬浮子菜单引擎 (稳定无冲突版)
+ * K资源仓 - 全站动态导航栏与悬浮/折叠子菜单引擎
+ * 完整适配：电脑端悬浮下拉 + 手机移动端抽屉实时读取与折叠子分类 + 彻底修复层级穿透
  */
 (function() {
   var API_BASE = "https://auth.kzyc.de5.net";
-
-  // 全量默认主导航列表 (内置友情链接，无论本地是否有缓存都绝不丢失)
-  var DEFAULT_MAIN_LIST = [
-    "首页", "最新发布", "电脑软件", "安卓软件", "免费字体", "操作系统", "视频教程", "其他专区", "打赏捐赠", "友情链接"
-  ];
-
-  var DEFAULT_NAV_LINKS = {
-    "首页": "/",
-    "最新发布": "/blog/",
-    "电脑软件": "/blog/category/software/",
-    "安卓软件": "/blog/category/android/",
-    "免费字体": "/blog/category/fonts/",
-    "操作系统": "/blog/category/os/",
-    "视频教程": "/blog/category/tutorials/",
-    "其他专区": "/blog/category/others/",
-    "打赏捐赠": "/vip/",
-    "友情链接": "/links/"
-  };
 
   var DEFAULT_NAV_DATA = {
     "电脑软件": [
@@ -46,10 +29,20 @@
     ],
     "其他专区": [
       { name: "全部内容", url: "/blog/category/others/" }
-    ],
-    "友情链接": [
-      { name: "K资源仓官方", url: "https://kzyc.de5.net/" }
     ]
+  };
+
+  var DEFAULT_NAV_LINKS = {
+    "首页": "/",
+    "最新发布": "/blog/",
+    "电脑软件": "/blog/category/software/",
+    "安卓软件": "/blog/category/android/",
+    "免费字体": "/blog/category/fonts/",
+    "操作系统": "/blog/category/os/",
+    "视频教程": "/blog/category/tutorials/",
+    "其他专区": "/blog/category/others/",
+    "打赏捐赠": "/vip/",
+    "友情链接": "/links/"
   };
 
   function injectStyles() {
@@ -57,7 +50,24 @@
     var style = document.createElement("style");
     style.id = "kzyc-dynamic-nav-style";
     style.innerHTML = [
-      "/* 彻底破除 Material for MkDocs 导航栏所有父级的裁剪 */",
+      "/* ========================================================= */",
+      "/* 1. 彻底解决手机端抽屉导航被文章卡片和分类标签穿透的问题 */",
+      "/* ========================================================= */",
+      "@media screen and (max-width: 1220px) {",
+      "  .md-sidebar--primary {",
+      "    z-index: 10000 !important; /* 强制抽屉高于所有页面元素与卡片标签 */",
+      "  }",
+      "  .md-overlay {",
+      "    z-index: 9999 !important; /* 遮罩层盖住页面卡片 */",
+      "  }",
+      "  .md-header {",
+      "    z-index: 10001 !important;",
+      "  }",
+      "}",
+
+      "/* ========================================================= */",
+      "/* 2. 电脑端顶部导航栏与悬浮下拉菜单 */",
+      "/* ========================================================= */",
       ".md-header, .md-header__inner, .md-tabs, .md-tabs .md-grid, .md-tabs__list, .md-tabs__item {",
       "  overflow: visible !important;",
       "  contain: none !important;",
@@ -65,7 +75,7 @@
       ".md-header { z-index: 9999 !important; }",
       ".md-tabs { z-index: 9998 !important; position: relative !important; }",
       ".md-tabs__item { position: relative !important; }",
-      "/* 悬浮下拉菜单绝对定位与外观 (与主导航字号对齐) */",
+
       ".kzyc-nav-dropdown-menu {",
       "  position: absolute !important;",
       "  top: 100% !important;",
@@ -78,24 +88,21 @@
       "  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04) !important;",
       "  padding: 4px !important;",
       "  min-width: 105px !important;",
-      "  display: none !important;",
+      "  display: none;",
       "  flex-direction: column !important;",
       "  gap: 1px !important;",
       "  z-index: 9999999 !important;",
       "}",
-      "/* 暗色模式适配 */",
       "[data-md-color-scheme='slate'] .kzyc-nav-dropdown-menu {",
       "  background: #1e293b !important;",
       "  color: #f8fafc !important;",
       "  border-color: rgba(255, 255, 255, 0.12) !important;",
       "  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45) !important;",
       "}",
-      "/* 纯 CSS 悬浮机制，最平滑可靠，绝不闪退 */",
       ".md-tabs__item:hover .kzyc-nav-dropdown-menu,",
       ".kzyc-nav-dropdown-menu:hover {",
       "  display: flex !important;",
       "}",
-      "/* 桥梁过渡防抖动 */",
       ".kzyc-nav-dropdown-menu::before {",
       "  content: '';",
       "  position: absolute;",
@@ -104,7 +111,6 @@
       "  width: 100%;",
       "  height: 12px;",
       "}",
-      "/* 子标签字体大小粗细与主导航完全一致 (0.7rem, 400 不加粗) */",
       ".kzyc-nav-dropdown-item {",
       "  display: block !important;",
       "  padding: 6px 12px !important;",
@@ -123,6 +129,65 @@
       "  background: rgba(37, 99, 235, 0.08) !important;",
       "  color: #2563eb !important;",
       "  opacity: 1 !important;",
+      "}",
+
+      "/* ========================================================= */",
+      "/* 3. 手机移动端左侧抽屉：折叠式子分类菜单样式 */",
+      "/* ========================================================= */",
+      ".kzyc-mobile-nav-toggle {",
+      "  background: none !important;",
+      "  border: none !important;",
+      "  padding: 8px 12px !important;",
+      "  margin-left: auto !important;",
+      "  cursor: pointer !important;",
+      "  color: inherit !important;",
+      "  opacity: 0.55 !important;",
+      "  transition: transform 0.25s ease, opacity 0.2s ease !important;",
+      "  display: flex !important;",
+      "  align-items: center !important;",
+      "  justify-content: center !important;",
+      "}",
+      ".kzyc-mobile-nav-toggle.open {",
+      "  transform: rotate(180deg) !important;",
+      "  opacity: 1 !important;",
+      "  color: #2563eb !important;",
+      "}",
+      ".kzyc-mobile-subnav {",
+      "  display: none;",
+      "  list-style: none !important;",
+      "  margin: 0 0 6px 20px !important;",
+      "  padding: 2px 0 2px 10px !important;",
+      "  border-left: 2px solid rgba(37, 99, 235, 0.25) !important;",
+      "}",
+      ".kzyc-mobile-subnav.open {",
+      "  display: block !important;",
+      "}",
+      ".kzyc-mobile-subitem {",
+      "  margin: 0 !important;",
+      "  padding: 0 !important;",
+      "  list-style: none !important;",
+      "}",
+      ".kzyc-mobile-sublink {",
+      "  display: block !important;",
+      "  padding: 6px 10px !important;",
+      "  font-size: 0.72rem !important;",
+      "  color: inherit !important;",
+      "  opacity: 0.78 !important;",
+      "  text-decoration: none !important;",
+      "  border-radius: 4px !important;",
+      "  transition: all 0.15s ease !important;",
+      "}",
+      ".kzyc-mobile-sublink:hover, .kzyc-mobile-sublink:active {",
+      "  background: rgba(37, 99, 235, 0.08) !important;",
+      "  color: #2563eb !important;",
+      "  opacity: 1 !important;",
+      "}",
+      "[data-md-color-scheme='slate'] .kzyc-mobile-subnav {",
+      "  border-left-color: rgba(96, 165, 250, 0.3) !important;",
+      "}",
+      "[data-md-color-scheme='slate'] .kzyc-mobile-sublink:hover {",
+      "  background: rgba(59, 130, 246, 0.15) !important;",
+      "  color: #60a5fa !important;",
       "}"
     ].join("\n");
     document.head.appendChild(style);
@@ -130,21 +195,21 @@
 
   function applyNavState(navData, mainList, navLinks) {
     injectStyles();
-    var tabsList = document.querySelector(".md-tabs__list");
-    var linksMap = Object.assign({}, DEFAULT_NAV_LINKS, navLinks || {});
-    var list = (Array.isArray(mainList) && mainList.length > 0) ? mainList : DEFAULT_MAIN_LIST;
-    var data = Object.assign({}, DEFAULT_NAV_DATA, navData || {});
+    var linksMap = navLinks || DEFAULT_NAV_LINKS;
 
-    // 1. 如果后台有新增的主导航（如“友情链接”），自动动态追加到导航栏末尾
-    if (tabsList) {
+    // -------------------------------------------------------------
+    // A. 处理电脑端顶部横向导航 (Tabs)
+    // -------------------------------------------------------------
+    var tabsList = document.querySelector(".md-tabs__list");
+    if (tabsList && Array.isArray(mainList) && mainList.length > 0) {
       var links = tabsList.querySelectorAll(".md-tabs__link");
       var existingTitles = [];
       for (var i = 0; i < links.length; i++) {
         existingTitles.push(links[i].textContent.trim());
       }
-      for (var j = 0; j < list.length; j++) {
-        var title = list[j];
-        var targetUrl = linksMap[title] || (data[title] && data[title][0] ? data[title][0].url : "#");
+      for (var j = 0; j < mainList.length; j++) {
+        var title = mainList[j];
+        var targetUrl = linksMap[title] || (navData && navData[title] && navData[title][0] ? navData[title][0].url : "#");
         if (existingTitles.indexOf(title) === -1) {
           var li = document.createElement("li");
           li.className = "md-tabs__item kzyc-dynamic-main-tab";
@@ -160,33 +225,125 @@
       }
     }
 
-    // 2. 为各主导航挂载鼠标悬浮下拉菜单
-    var tabItems = document.querySelectorAll(".md-tabs__item");
-    tabItems.forEach(function(item) {
-      var link = item.querySelector(".md-tabs__link");
-      if (!link) return;
-      var tabTitle = link.textContent.trim();
-      var subs = data[tabTitle];
+    if (navData && typeof navData === "object") {
+      var tabItems = document.querySelectorAll(".md-tabs__item");
+      tabItems.forEach(function(item) {
+        var link = item.querySelector(".md-tabs__link");
+        if (!link) return;
+        var tabTitle = link.textContent.trim();
+        var subs = navData[tabTitle];
 
-      var oldMenu = item.querySelector(".kzyc-nav-dropdown-menu");
-      if (oldMenu) oldMenu.remove();
+        var oldMenu = item.querySelector(".kzyc-nav-dropdown-menu");
+        if (oldMenu) oldMenu.remove();
 
-      if (subs && Array.isArray(subs) && subs.length > 0) {
-        var menu = document.createElement("div");
-        menu.className = "kzyc-nav-dropdown-menu";
-        var html = "";
-        for (var s = 0; s < subs.length; s++) {
-          html += '<a href="' + subs[s].url + '" class="kzyc-nav-dropdown-item">' + subs[s].name + '</a>';
+        if (subs && Array.isArray(subs) && subs.length > 0) {
+          var menu = document.createElement("div");
+          menu.className = "kzyc-nav-dropdown-menu";
+          var html = "";
+          for (var s = 0; s < subs.length; s++) {
+            html += '<a href="' + subs[s].url + '" class="kzyc-nav-dropdown-item">' + subs[s].name + '</a>';
+          }
+          menu.innerHTML = html;
+          item.appendChild(menu);
+
+          item.onmouseenter = function() { menu.style.display = "flex"; };
+          item.onmouseleave = function() { menu.style.display = "none"; };
+          menu.onmouseenter = function() { menu.style.display = "flex"; };
+          menu.onmouseleave = function() { menu.style.display = "none"; };
         }
-        menu.innerHTML = html;
-        item.appendChild(menu);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // B. 处理手机端左侧抽屉导航 (Mobile Primary Nav)
+    // -------------------------------------------------------------
+    var mobileList = document.querySelector(".md-sidebar--primary .md-nav--primary > .md-nav__list");
+    if (mobileList) {
+      // 1. 同步主导航增删与链接
+      if (Array.isArray(mainList) && mainList.length > 0) {
+        var mobileLinks = mobileList.querySelectorAll(":scope > .md-nav__item > .md-nav__link");
+        var existingMobileTitles = [];
+        for (var mi = 0; mi < mobileLinks.length; mi++) {
+          var rawTitle = mobileLinks[mi].querySelector(".md-ellipsis") ? mobileLinks[mi].querySelector(".md-ellipsis").textContent.trim() : mobileLinks[mi].textContent.trim();
+          existingMobileTitles.push(rawTitle);
+        }
+
+        for (var mj = 0; mj < mainList.length; mj++) {
+          var mTitle = mainList[mj];
+          var mUrl = linksMap[mTitle] || (navData && navData[mTitle] && navData[mTitle][0] ? navData[mTitle][0].url : "#");
+          if (existingMobileTitles.indexOf(mTitle) === -1) {
+            var mLi = document.createElement("li");
+            mLi.className = "md-nav__item kzyc-dynamic-mobile-tab";
+            mLi.innerHTML = '<a href="' + mUrl + '" class="md-nav__link"><span class="md-ellipsis">' + mTitle + '</span></a>';
+            mobileList.appendChild(mLi);
+          } else {
+            for (var mk = 0; mk < mobileLinks.length; mk++) {
+              var tText = mobileLinks[mk].querySelector(".md-ellipsis") ? mobileLinks[mk].querySelector(".md-ellipsis").textContent.trim() : mobileLinks[mk].textContent.trim();
+              if (tText === mTitle && linksMap[mTitle]) {
+                mobileLinks[mk].href = linksMap[mTitle];
+              }
+            }
+          }
+        }
       }
-    });
+
+      // 2. 为手机端主菜单挂载手风琴可折叠子菜单
+      if (navData && typeof navData === "object") {
+        var mobileItems = mobileList.querySelectorAll(":scope > .md-nav__item");
+        mobileItems.forEach(function(mItem) {
+          var mLink = mItem.querySelector(":scope > .md-nav__link");
+          if (!mLink) return;
+
+          var linkText = mLink.querySelector(".md-ellipsis") ? mLink.querySelector(".md-ellipsis").textContent.trim() : mLink.textContent.trim();
+          var mSubs = navData[linkText];
+
+          var oldSubMenu = mItem.querySelector(".kzyc-mobile-subnav");
+          if (oldSubMenu) oldSubMenu.remove();
+          var oldToggleBtn = mItem.querySelector(".kzyc-mobile-nav-toggle");
+          if (oldToggleBtn) oldToggleBtn.remove();
+
+          if (mSubs && Array.isArray(mSubs) && mSubs.length > 0) {
+            var toggleBtn = document.createElement("button");
+            toggleBtn.className = "kzyc-mobile-nav-toggle";
+            toggleBtn.type = "button";
+            toggleBtn.setAttribute("aria-label", "展开子分类");
+            toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>';
+
+            mLink.style.display = "flex";
+            mLink.style.alignItems = "center";
+            mLink.style.width = "100%";
+            mLink.appendChild(toggleBtn);
+
+            var subUl = document.createElement("ul");
+            subUl.className = "kzyc-mobile-subnav";
+            var subHtml = "";
+            for (var ms = 0; ms < mSubs.length; ms++) {
+              subHtml += '<li class="kzyc-mobile-subitem"><a href="' + mSubs[ms].url + '" class="kzyc-mobile-sublink">' + mSubs[ms].name + '</a></li>';
+            }
+            subUl.innerHTML = subHtml;
+            mItem.appendChild(subUl);
+
+            toggleBtn.onclick = function(ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              var isOpen = subUl.classList.contains("open");
+              if (isOpen) {
+                subUl.classList.remove("open");
+                toggleBtn.classList.remove("open");
+              } else {
+                subUl.classList.add("open");
+                toggleBtn.classList.add("open");
+              }
+            };
+          }
+        });
+      }
+    }
   }
 
   function initDynamicNav() {
     var navData = DEFAULT_NAV_DATA;
-    var mainList = DEFAULT_MAIN_LIST;
+    var mainList = null;
     var navLinks = DEFAULT_NAV_LINKS;
 
     try {
@@ -199,10 +356,7 @@
       }
       var storedList = localStorage.getItem("kzyc_main_nav_list");
       if (storedList) {
-        var parsedList = JSON.parse(storedList);
-        if (Array.isArray(parsedList) && parsedList.length > 0) {
-          mainList = parsedList;
-        }
+        mainList = JSON.parse(storedList);
       }
       var storedLinks = localStorage.getItem("kzyc_main_nav_links");
       if (storedLinks) {
@@ -218,7 +372,7 @@
       }).then(function(result) {
         if (result && result.success && result.data) {
           var freshNav = Object.assign({}, DEFAULT_NAV_DATA, result.data.nav_dropdowns || {});
-          var freshList = (Array.isArray(result.data.main_nav_list) && result.data.main_nav_list.length > 0) ? result.data.main_nav_list : mainList;
+          var freshList = result.data.main_nav_list || mainList;
           var freshLinks = Object.assign({}, DEFAULT_NAV_LINKS, result.data.main_nav_links || {});
           applyNavState(freshNav, freshList, freshLinks);
         }
